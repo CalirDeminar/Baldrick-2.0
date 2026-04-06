@@ -1,0 +1,15 @@
+name: someName
+waypoints:
+  - name: WP 1
+    lat: 10, 20, 30
+    long: 30, 40, 50
+    tags:
+      - PUSH
+      - FIX
+    notes: Hilltop Radar Site
+  - name: IP
+    lat: 11, 21, 31
+    long: 31, 41, 51
+    tags:
+      - IP
+    notes: IP Point

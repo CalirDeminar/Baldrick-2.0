@@ -1,0 +1,11 @@
+route_colour: "#000000"
+min_cruise_speed: 420
+default_cruise_speed: 420
+dash_speed: 540
+metric: false
+overrides:
+  - name: warbirds
+    min_cruise_speed: 260
+    default_cruise_speed: 260
+    dash_speed: 260
+    cruise_speed: 260
