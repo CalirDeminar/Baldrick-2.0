@@ -1,0 +1,843 @@
+name: Germany
+projection_adjustment_deg: -10
+pixel_map:
+  -
+      lat_d: 56
+      long_d:  06
+      x_pixel:  12960
+      y_pixel:  00478
+  -
+      lat_d: 56
+      long_d:  07
+      x_pixel:  14884
+      y_pixel:  00902
+  -
+      lat_d: 56
+      long_d:  08
+      x_pixel:  16816
+      y_pixel:  01284
+  -
+      lat_d: 56
+      long_d:  09
+      x_pixel:  18745
+      y_pixel:  01638
+  -
+      lat_d: 56
+      long_d:  10
+      x_pixel:  20660
+      y_pixel:  01960
+  -
+      lat_d: 56
+      long_d:  11
+      x_pixel:  22607
+      y_pixel:  02260
+  -
+      lat_d: 56
+      long_d:  12
+      x_pixel:  24553
+      y_pixel:  02533
+  -
+      lat_d: 56
+      long_d:  13
+      x_pixel:  26510
+      y_pixel:  02777
+  -
+      lat_d: 56
+      long_d:  14
+      x_pixel:  28466
+      y_pixel:  02987
+  -
+      lat_d: 56
+      long_d:  15
+      x_pixel:  30381
+      y_pixel:  03168
+  -
+      lat_d: 56
+      long_d:  16
+      x_pixel:  32326
+      y_pixel:  03326
+  -
+      lat_d: 56
+      long_d:  17
+      x_pixel:  34282
+      y_pixel:  03452
+  -
+      lat_d: 56
+      long_d:  18
+      x_pixel:  36220
+      y_pixel:  03548
+  -
+      lat_d: 56
+      long_d:  19
+      x_pixel:  38166
+      y_pixel:  03620
+  -
+      lat_d: 56
+      long_d:  20
+      x_pixel:  40119
+      y_pixel:  03664
+  -
+      lat_d: 55
+      long_d:  00
+      x_pixel:  00435
+      y_pixel:  00779
+  -
+      lat_d: 55
+      long_d:  01
+      x_pixel:  02378
+      y_pixel:  01378
+  -
+      lat_d: 55
+      long_d:  02
+      x_pixel:  04342
+      y_pixel:  01938
+  -
+      lat_d: 55
+      long_d:  03
+      x_pixel:  06304
+      y_pixel:  02478
+  -
+      lat_d: 55
+      long_d:  04
+      x_pixel:  08272
+      y_pixel:  02980
+  -
+      lat_d: 55
+      long_d:  05
+      x_pixel:  10241
+      y_pixel:  03446
+  -
+      lat_d: 55
+      long_d:  06
+      x_pixel:  12210
+      y_pixel:  03898
+  -
+      lat_d: 55
+      long_d:  07
+      x_pixel:  14180
+      y_pixel:  04344
+  -
+      lat_d: 55
+      long_d:  08
+      x_pixel:  16165
+      y_pixel:  04728
+  -
+      lat_d: 55
+      long_d:  09
+      x_pixel:  18145
+      y_pixel:  05088
+  -
+      lat_d: 55
+      long_d:  10
+      x_pixel:  20126
+      y_pixel:  05420
+  -
+      lat_d: 55
+      long_d:  11
+      x_pixel:  22119
+      y_pixel:  05722
+  -
+      lat_d: 55
+      long_d:  12
+      x_pixel:  24100
+      y_pixel:  05993
+  -
+      lat_d: 55
+      long_d:  13
+      x_pixel:  26095
+      y_pixel:  06237
+  -
+      lat_d: 55
+      long_d:  14
+      x_pixel:  28082
+      y_pixel:  06451
+  -
+      lat_d: 55
+      long_d:  15
+      x_pixel:  30080
+      y_pixel:  06639
+  -
+      lat_d: 55
+      long_d:  16
+      x_pixel:  32078
+      y_pixel:  06800
+  -
+      lat_d: 55
+      long_d:  17
+      x_pixel:  34078
+      y_pixel:  06927
+  -
+      lat_d: 55
+      long_d:  18
+      x_pixel:  36072
+      y_pixel:  07025
+  -
+      lat_d: 55
+      long_d:  19
+      x_pixel:  38062
+      y_pixel:  07100
+  -
+      lat_d: 55
+      long_d:  20
+      x_pixel:  40076
+      y_pixel:  07144
+  -
+      lat_d: 54
+      long_d:  01
+      x_pixel:  01370
+      y_pixel:  04779
+  -
+      lat_d: 54
+      long_d:  02
+      x_pixel:  03382
+      y_pixel:  05356
+  -
+      lat_d: 54
+      long_d:  03
+      x_pixel:  05392
+      y_pixel:  05905
+  -
+      lat_d: 54
+      long_d:  04
+      x_pixel:  07408
+      y_pixel:  06414
+  -
+      lat_d: 54
+      long_d:  05
+      x_pixel:  09425
+      y_pixel:  06898
+  -
+      lat_d: 54
+      long_d:  06
+      x_pixel:  11452
+      y_pixel:  07357
+  -
+      lat_d: 54
+      long_d:  07
+      x_pixel:  13480
+      y_pixel:  07783
+  -
+      lat_d: 54
+      long_d:  08
+      x_pixel:  15516
+      y_pixel:  08178
+  -
+      lat_d: 54
+      long_d:  09
+      x_pixel:  17545
+      y_pixel:  08542
+  -
+      lat_d: 54
+      long_d:  10
+      x_pixel:  19581
+      y_pixel:  08878
+  -
+      lat_d: 54
+      long_d:  11
+      x_pixel:  21616
+      y_pixel:  09184
+  -
+      lat_d: 54
+      long_d:  12
+      x_pixel:  23654
+      y_pixel:  09458
+  -
+      lat_d: 54
+      long_d:  13
+      x_pixel:  25686
+      y_pixel:  09702
+  -
+      lat_d: 54
+      long_d:  14
+      x_pixel:  27732
+      y_pixel:  09920
+  -
+      lat_d: 54
+      long_d:  15
+      x_pixel:  29786
+      y_pixel:  10112
+  -
+      lat_d: 54
+      long_d:  16
+      x_pixel:  31830
+      y_pixel:  10270
+  -
+      lat_d: 54
+      long_d:  17
+      x_pixel:  33880
+      y_pixel:  10402
+  -
+      lat_d: 54
+      long_d:  18
+      x_pixel:  35924
+      y_pixel:  10506
+  -
+      lat_d: 54
+      long_d:  19
+      x_pixel:  37967
+      y_pixel:  10576
+  -
+      lat_d: 54
+      long_d:  20
+      x_pixel:  40014
+      y_pixel:  10620
+  -
+      lat_d: 53
+      long_d:  01
+      x_pixel:  00380
+      y_pixel:  08182
+  -
+      lat_d: 53
+      long_d:  02
+      x_pixel:  02445
+      y_pixel:  08763
+  -
+      lat_d: 53
+      long_d:  03
+      x_pixel:  04507
+      y_pixel:  09317
+  -
+      lat_d: 53
+      long_d:  04
+      x_pixel:  06572
+      y_pixel:  09834
+  -
+      lat_d: 53
+      long_d:  05
+      x_pixel:  08637
+      y_pixel:  10318
+  -
+      lat_d: 53
+      long_d:  06
+      x_pixel:  10721
+      y_pixel:  10772
+  -
+      lat_d: 53
+      long_d:  07
+      x_pixel:  12797
+      y_pixel:  11223
+  -
+      lat_d: 53
+      long_d:  08
+      x_pixel:  14873
+      y_pixel:  11621
+  -
+      lat_d: 53
+      long_d:  09
+      x_pixel:  16953
+      y_pixel:  11990
+  -
+      lat_d: 53
+      long_d:  10
+      x_pixel:  19036
+      y_pixel:  12333
+  -
+      lat_d: 53
+      long_d:  11
+      x_pixel:  21126
+      y_pixel:  12643
+  -
+      lat_d: 53
+      long_d:  12
+      x_pixel:  23214
+      y_pixel:  12922
+  -
+      lat_d: 53
+      long_d:  13
+      x_pixel:  25282
+      y_pixel:  13173
+  -
+      lat_d: 53
+      long_d:  14
+      x_pixel:  27380
+      y_pixel:  13391
+  -
+      lat_d: 53
+      long_d:  15
+      x_pixel:  29489
+      y_pixel:  13580
+  -
+      lat_d: 53
+      long_d:  16
+      x_pixel:  31587
+      y_pixel:  13737
+  -
+      lat_d: 53
+      long_d:  17
+      x_pixel:  33680
+      y_pixel:  13874
+  -
+      lat_d: 53
+      long_d:  18
+      x_pixel:  35777
+      y_pixel:  13978
+  -
+      lat_d: 53
+      long_d:  19
+      x_pixel:  37869
+      y_pixel:  14049
+  -
+      lat_d: 53
+      long_d:  20
+      x_pixel:  39965
+      y_pixel:  14090
+  -
+      lat_d: 52
+      long_d:  02
+      x_pixel:  01502
+      y_pixel:  12194
+  -
+      lat_d: 52
+      long_d:  03
+      x_pixel:  03617
+      y_pixel:  12755
+  -
+      lat_d: 52
+      long_d:  04
+      x_pixel:  05730
+      y_pixel:  13284
+  -
+      lat_d: 52
+      long_d:  05
+      x_pixel:  07851
+      y_pixel:  13776
+  -
+      lat_d: 52
+      long_d:  06
+      x_pixel:  09978
+      y_pixel:  14240
+  -
+      lat_d: 52
+      long_d:  07
+      x_pixel:  12106
+      y_pixel:  14673
+  -
+      lat_d: 52
+      long_d:  08
+      x_pixel:  14238
+      y_pixel:  15077
+  -
+      lat_d: 52
+      long_d:  09
+      x_pixel:  16368
+      y_pixel:  15452
+  -
+      lat_d: 52
+      long_d:  10
+      x_pixel:  18505
+      y_pixel:  15792
+  -
+      lat_d: 52
+      long_d:  11
+      x_pixel:  20646
+      y_pixel:  16105
+  -
+      lat_d: 52
+      long_d:  12
+      x_pixel:  22779
+      y_pixel:  16387
+  -
+      lat_d: 52
+      long_d:  13
+      x_pixel:  24932
+      y_pixel:  16640
+  -
+      lat_d: 52
+      long_d:  14
+      x_pixel:  27062
+      y_pixel:  16861
+  -
+      lat_d: 52
+      long_d:  15
+      x_pixel:  29209
+      y_pixel:  17053
+  -
+      lat_d: 52
+      long_d:  16
+      x_pixel:  31341
+      y_pixel:  17215
+  -
+      lat_d: 52
+      long_d:  17
+      x_pixel:  33494
+      y_pixel:  17349
+  -
+      lat_d: 52
+      long_d:  18
+      x_pixel:  35640
+      y_pixel:  17455
+  -
+      lat_d: 52
+      long_d:  19
+      x_pixel:  37776
+      y_pixel:  17529
+  -
+      lat_d: 52
+      long_d:  20
+      x_pixel:  39930
+      y_pixel:  17573
+  -
+      lat_d: 51
+      long_d:  02
+      x_pixel:  00579
+      y_pixel:  15615
+  -
+      lat_d: 51
+      long_d:  03
+      x_pixel:  02748
+      y_pixel:  16182
+  -
+      lat_d: 51
+      long_d:  04
+      x_pixel:  04919
+      y_pixel:  16711
+  -
+      lat_d: 51
+      long_d:  05
+      x_pixel:  07077
+      y_pixel:  17219
+  -
+      lat_d: 51
+      long_d:  06
+      x_pixel:  09257
+      y_pixel:  17687
+  -
+      lat_d: 51
+      long_d:  07
+      x_pixel:  11436
+      y_pixel:  18130
+  -
+      lat_d: 51
+      long_d:  08
+      x_pixel:  13614
+      y_pixel:  18534
+  -
+      lat_d: 51
+      long_d:  09
+      x_pixel:  15795
+      y_pixel:  18908
+  -
+      lat_d: 51
+      long_d:  10
+      x_pixel:  17976
+      y_pixel:  19254
+  -
+      lat_d: 51
+      long_d:  11
+      x_pixel:  20170
+      y_pixel:  19569
+  -
+      lat_d: 51
+      long_d:  12
+      x_pixel:  22350
+      y_pixel:  19853
+  -
+      lat_d: 51
+      long_d:  13
+      x_pixel:  24551
+      y_pixel:  20109
+  -
+      lat_d: 51
+      long_d:  14
+      x_pixel:  26727
+      y_pixel:  20330
+  -
+      lat_d: 51
+      long_d:  15
+      x_pixel:  28919
+      y_pixel:  20523
+  -
+      lat_d: 51
+      long_d:  16
+      x_pixel:  31107
+      y_pixel:  20690
+  -
+      lat_d: 51
+      long_d:  17
+      x_pixel:  33297
+      y_pixel:  20823
+  -
+      lat_d: 51
+      long_d:  18
+      x_pixel:  35491
+      y_pixel:  20927
+  -
+      lat_d: 51
+      long_d:  19
+      x_pixel:  37678
+      y_pixel:  21001
+  -
+      lat_d: 51
+      long_d:  20
+      x_pixel:  39882
+      y_pixel:  21046
+  -
+      lat_d: 50
+      long_d:  03
+      x_pixel:  01881
+      y_pixel:  19624
+  -
+      lat_d: 50
+      long_d:  04
+      x_pixel:  04096
+      y_pixel:  20161
+  -
+      lat_d: 50
+      long_d:  05
+      x_pixel:  06313
+      y_pixel:  20659
+  -
+      lat_d: 50
+      long_d:  06
+      x_pixel:  08538
+      y_pixel:  21136
+  -
+      lat_d: 50
+      long_d:  07
+      x_pixel:  10768
+      y_pixel:  21577
+  -
+      lat_d: 50
+      long_d:  08
+      x_pixel:  12999
+      y_pixel:  21985
+  -
+      lat_d: 50
+      long_d:  09
+      x_pixel:  15223
+      y_pixel:  22360
+  -
+      lat_d: 50
+      long_d:  10
+      x_pixel:  17458
+      y_pixel:  22708
+  -
+      lat_d: 50
+      long_d:  11
+      x_pixel:  19696
+      y_pixel:  23032
+  -
+      lat_d: 50
+      long_d:  12
+      x_pixel:  21927
+      y_pixel:  23319
+  -
+      lat_d: 50
+      long_d:  13
+      x_pixel:  24174
+      y_pixel:  23572
+  -
+      lat_d: 50
+      long_d:  14
+      x_pixel:  26398
+      y_pixel:  23794
+  -
+      lat_d: 50
+      long_d:  15
+      x_pixel:  28641
+      y_pixel:  23992
+  -
+      lat_d: 50
+      long_d:  16
+      x_pixel:  30871
+      y_pixel:  24157
+  -
+      lat_d: 50
+      long_d:  17
+      x_pixel:  33112
+      y_pixel:  24295
+  -
+      lat_d: 50
+      long_d:  18
+      x_pixel:  35355
+      y_pixel:  24403
+  -
+      lat_d: 50
+      long_d:  19
+      x_pixel:  37591
+      y_pixel:  24474
+  -
+      lat_d: 50
+      long_d:  20
+      x_pixel:  39834
+      y_pixel:  24517
+  -
+      lat_d: 49
+      long_d:  03
+      x_pixel:  01035
+      y_pixel:  23068
+  -
+      lat_d: 49
+      long_d:  04
+      x_pixel:  03304
+      y_pixel:  23603
+  -
+      lat_d: 49
+      long_d:  05
+      x_pixel:  05569
+      y_pixel:  24109
+  -
+      lat_d: 49
+      long_d:  06
+      x_pixel:  07833
+      y_pixel:  24590
+  -
+      lat_d: 49
+      long_d:  07
+      x_pixel:  10117
+      y_pixel:  25030
+  -
+      lat_d: 49
+      long_d:  08
+      x_pixel:  12391
+      y_pixel:  25446
+  -
+      lat_d: 49
+      long_d:  09
+      x_pixel:  14668
+      y_pixel:  25828
+  -
+      lat_d: 49
+      long_d:  10
+      x_pixel:  16946
+      y_pixel:  26179
+  -
+      lat_d: 49
+      long_d:  11
+      x_pixel:  19229
+      y_pixel:  26497
+  -
+      lat_d: 49
+      long_d:  12
+      x_pixel:  21522
+      y_pixel:  26787
+  -
+      lat_d: 49
+      long_d:  13
+      x_pixel:  23789
+      y_pixel:  27039
+  -
+      lat_d: 49
+      long_d:  14
+      x_pixel:  26073
+      y_pixel:  27272
+  -
+      lat_d: 49
+      long_d:  15
+      x_pixel:  28364
+      y_pixel:  27465
+  -
+      lat_d: 49
+      long_d:  16
+      x_pixel:  30644
+      y_pixel:  27627
+  -
+      lat_d: 49
+      long_d:  17
+      x_pixel:  32932
+      y_pixel:  27766
+  -
+      lat_d: 49
+      long_d:  18
+      x_pixel:  35210
+      y_pixel:  27874
+  -
+      lat_d: 49
+      long_d:  19
+      x_pixel:  37504
+      y_pixel:  27949
+  -
+      lat_d: 49
+      long_d:  20
+      x_pixel:  39787
+      y_pixel:  27992
+  -
+      lat_d: 48
+      long_d:  03
+      x_pixel:  00191
+      y_pixel:  26517
+  -
+      lat_d: 48
+      long_d:  04
+      x_pixel:  02507
+      y_pixel:  27061
+  -
+      lat_d: 48
+      long_d:  05
+      x_pixel:  04824
+      y_pixel:  27573
+  -
+      lat_d: 48
+      long_d:  06
+      x_pixel:  07139
+      y_pixel:  28048
+  -
+      lat_d: 48
+      long_d:  07
+      x_pixel:  09466
+      y_pixel:  28495
+  -
+      lat_d: 48
+      long_d:  08
+      x_pixel:  11789
+      y_pixel:  28909
+  -
+      lat_d: 48
+      long_d:  09
+      x_pixel:  14106
+      y_pixel:  29291
+  -
+      lat_d: 48
+      long_d:  10
+      x_pixel:  16441
+      y_pixel:  29646
+  -
+      lat_d: 48
+      long_d:  11
+      x_pixel:  18782
+      y_pixel:  29965
+  -
+      lat_d: 48
+      long_d:  12
+      x_pixel:  21096
+      y_pixel:  30252
+  -
+      lat_d: 48
+      long_d:  13
+      x_pixel:  23430
+      y_pixel:  30509
+  -
+      lat_d: 48
+      long_d:  14
+      x_pixel:  25753
+      y_pixel:  30738
+  -
+      lat_d: 48
+      long_d:  15
+      x_pixel:  28084
+      y_pixel:  30935
+  -
+      lat_d: 48
+      long_d:  16
+      x_pixel:  30414
+      y_pixel:  31102
+  -
+      lat_d: 48
+      long_d:  17
+      x_pixel:  32749
+      y_pixel:  31245
+  -
+      lat_d: 48
+      long_d:  18
+      x_pixel:  35072
+      y_pixel:  31356
+  -
+      lat_d: 48
+      long_d:  19
+      x_pixel:  37416
+      y_pixel:  31435
+  -
+      lat_d: 48
+      long_d:  20
+      x_pixel:  39744
+      y_pixel:  31474

@@ -1,11 +1,17 @@
 route_colour: "#000000"
-min_cruise_speed: 420
+min_cruise_speed: 360
 default_cruise_speed: 420
 dash_speed: 540
-metric: false
+units: NAUTICAL
 overrides:
   - name: warbirds
-    min_cruise_speed: 260
-    default_cruise_speed: 260
-    dash_speed: 260
-    cruise_speed: 260
+    min_cruise_speed: 220
+    default_cruise_speed: 220
+    dash_speed: 220
+    cruise_speed: 220
+    units: IMPERIAL
+  - name: metric
+    units: METRIC
+    min_cruise_speed: 660
+    default_cruise_speed: 780
+    dash_speed: 1000

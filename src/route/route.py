@@ -2,31 +2,21 @@ from datetime import timedelta
 from pydantic import BaseModel
 from pydantic import Field
 from typing import Optional
-from position import Position
+from route.position import Position
 from pathlib import Path
 from enum import Enum
 import yaml
 
-from src.config import Config
-
-
-class DCSMap(Enum):
-    CAUCASUS = 'CAUCASUS'
-    GERMANY = 'GERMANY'
-    NORMANDY = 'NORMANDY'
-    NTTR = 'NTTR'
-    PERSIAN_GULF = 'PERSIAN_GULF'
-    SYRIA = 'SYRIA'
-
-    @staticmethod
-    def from_route_waypoints(waypoints: list['Waypoint']):
-        return DCSMap.CAUCASUS
+from config.config import Config, DistanceUnit
+from route.map import DCSMap
 
 class Tag(Enum):
     TGT = 'TGT'
     IP = 'IP'
     FIX = 'FIX'
     PUSH = 'PUSH'
+    HOME = 'HOME'
+    DIVERT = 'DIVERT'
 
 class Waypoint(BaseModel):
     name: str = Field(min_length=1)
@@ -64,6 +54,7 @@ class Route(BaseModel):
     dash_speed: int = Field(ge=0)
     default_cruise_speed: int = Field(ge=0)
     waypoints: list[Waypoint] = Field(min_length=1)
+    units: DistanceUnit = Field()
 
     @staticmethod
     def new(path: Path, conf: Config) -> 'Route':
@@ -82,7 +73,35 @@ class Route(BaseModel):
                 time_on_target=timedelta(0),
                 dash_speed=conf.dash_speed,
                 default_cruise_speed=conf.default_cruise_speed,
+                units=conf.units,
             )
+
+    def setup(self) -> 'Route':
+        # set up the ToT, define speeds, etc
+            # One path for ToT defined
+            # One path for ToT undefined (set to empty timedelta)
+        has_tots = any([
+            not (wp.timestamp.seconds == 0)
+            for wp in self.waypoints
+        ])
+        if has_tots:
+            return self
+        else:
+            prev_wp: Waypoint | None = None
+            for wp in self.waypoints:
+                if prev_wp:
+                    is_tgt = Tag.TGT in wp.tags
+                    if not wp.speed_to:
+                        wp.speed_to = self.default_cruise_speed if not is_tgt else self.dash_speed
+                    distance_from_prev = wp.position.distance_from(prev_wp.position, self.units)
+                    time_from_prev = timedelta(hours=(distance_from_prev / wp.speed_to))
+                    time_total = prev_wp.timestamp + time_from_prev
+                    wp.timestamp = time_total
+
+
+                prev_wp = wp
+
+        return self
 
 if __name__ == '__main__':
     config = Config.from_file(Path('../../example_config.yaml'))

@@ -1,7 +1,13 @@
 from pydantic import BaseModel
 from pydantic import Field
 from pathlib import Path
+from enum import Enum
 import yaml
+
+class DistanceUnit(Enum):
+    NAUTICAL = "NAUTICAL"
+    METRIC = "METRIC"
+    IMPERIAL = "IMPERIAL"
 
 class ConfigOverride(BaseModel):
     name: str = Field(min_length=1)
@@ -9,7 +15,7 @@ class ConfigOverride(BaseModel):
     min_cruise_speed: int | None = Field(ge=0)
     default_cruise_speed: int | None = Field(ge=0)
     dash_speed: int | None = Field(ge=0)
-    metric: bool | None = Field(default=False)
+    units: DistanceUnit | None = Field()
 
 class Config(BaseModel):
     overview_card_downsample_factor: float = Field(ge=0, default=3)
@@ -17,8 +23,8 @@ class Config(BaseModel):
     min_cruise_speed: int = Field(ge=0)
     default_cruise_speed: int = Field(ge=0)
     dash_speed: int = Field(ge=0)
-    metric: bool = Field(default=False)
-    overrides: list[ConfigOverride] = Field(default={})
+    units: DistanceUnit = Field(default=DistanceUnit.NAUTICAL)
+    overrides: list[ConfigOverride] = Field(default=[])
     # Consideration: WP Bookmark / Shorthand library
 
     @staticmethod
@@ -38,10 +44,10 @@ class Config(BaseModel):
                         min_cruise_speed=override_opt.min_cruise_speed or self.min_cruise_speed,
                         default_cruise_speed=override_opt.default_cruise_speed or self.default_cruise_speed,
                         dash_speed=override_opt.dash_speed or self.dash_speed,
-                        metric=override_opt.metric or self.metric,
+                        units=override_opt.units or self.units,
                     )
         return self
 
 if __name__ == '__main__':
-    print(Config.from_file(Path('../example_config.yaml')))
-    print(Config.from_file(Path('../example_config.yaml')).override('warbirds'))
+    print(Config.from_file(Path('../../example_config.yaml')))
+    print(Config.from_file(Path('../../example_config.yaml')).override('warbirds'))
