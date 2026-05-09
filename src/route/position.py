@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pydantic import Field
 from typing import TYPE_CHECKING
-from src.config.config import DistanceUnit
+from config.config import DistanceUnit
 from haversine import haversine, Unit
 
 haversine_unit: dict[DistanceUnit, Unit] = {
@@ -11,7 +11,7 @@ haversine_unit: dict[DistanceUnit, Unit] = {
 }
 
 if TYPE_CHECKING:
-    from src.route.route import Waypoint
+    from route.route import Waypoint
 
 class DMSDistance(BaseModel):
     value: tuple[float, float, float] = Field()

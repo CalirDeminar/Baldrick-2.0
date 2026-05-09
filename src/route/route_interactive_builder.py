@@ -1,5 +1,5 @@
 from config.config import Config
-from route.route import Route, Waypoint, Tag, DCSMap
+from route.route import Route, Waypoint, Tag, DCSMap, parse_timestamp
 
 import questionary
 from pathlib import Path
@@ -24,19 +24,6 @@ class TimestampValidator(Validator):
                 message=f"{document.text} is not a valid timestamp",
                 cursor_position=len(document.text)
             )
-
-def parse_timestamp(timestamp_str: str) -> timedelta:
-    if not re.match(r'\d{2}:\d{2}:\d{2}', timestamp_str):
-        raise ValidationError(
-            message=f"{timestamp_str} is not a valid timestamp",
-        )
-    [h, m, s] = timestamp_str.split(':')
-    h_valid = 0 <= int(h) <= 24
-    m_valid = 0 <= int(m) <= 59
-    s_valid = 0 <= int(s) <= 59
-    if h_valid and m_valid and s_valid:
-        return timedelta(hours=int(h), minutes=int(m), seconds=int(s))
-    raise ValidationError(message=f"{timestamp_str} is not a valid timestamp",)
 
 class DMSLatValidator(Validator):
     def validate(self, document):

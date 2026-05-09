@@ -1,0 +1,63 @@
+name: F4-6-2
+capacity: 16,800
+fuelMap:
+  -
+    altitude_ft: 0
+    speed_kts: 360
+    lb_per_nm: 27.83
+  -
+    altitude_ft: 0
+    speed_kts: 420
+    lb_per_nm: 29.71
+  -
+    altitude_ft: 0
+    speed_kts: 480
+    lb_per_nm: 32.50
+  -
+    altitude_ft: 0
+    speed_kts: 540
+    lb_per_nm: 36.11
+  -
+    altitude_ft: 4000
+    speed_kts: 360
+    lb_per_nm:  23.84
+  -
+    altitude_ft: 4000
+    speed_kts: 420
+    lb_per_nm: 24.92
+  -
+    altitude_ft: 4000
+    speed_kts: 480
+    lb_per_nm: 26.76
+  -
+    altitude_ft: 4000
+    speed_kts: 540
+    lb_per_nm: 29.94
+  -
+    altitude_ft: 16000
+    speed_kts: 360
+    lb_per_nm:  15.82
+  -
+    altitude_ft: 16000
+    speed_kts: 420
+    lb_per_nm: 15.02
+  -
+    altitude_ft: 16000
+    speed_kts: 480
+    lb_per_nm: 15.33
+  -
+    altitude_ft: 16000
+    speed_kts: 540
+    lb_per_nm: 16.95
+  -
+    altitude_ft: 30000
+    speed_kts: 360
+    lb_per_nm:  8.19
+  -
+    altitude_ft: 30000
+    speed_kts: 420
+    lb_per_nm: 7.02
+  -
+    altitude_ft: 30000
+    speed_kts: 480
+    lb_per_nm: 7.02

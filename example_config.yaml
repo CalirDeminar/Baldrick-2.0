@@ -3,6 +3,9 @@ min_cruise_speed: 360
 default_cruise_speed: 420
 dash_speed: 540
 units: NAUTICAL
+fuel_map: example_fuel_map
+reserve_fuel: 2000
+takeoff_fuel: 3500
 overrides:
   - name: warbirds
     min_cruise_speed: 220

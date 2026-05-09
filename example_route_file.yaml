@@ -1,15 +1,43 @@
-name: someName
+name: Test Route 1
 waypoints:
-  - name: WP 1
-    lat: 51, 08, 30
+  - name: Ramstein
+    lat: 49, 26, 30
+    long: 07, 37, 30
+    notes: Home
+  - name: Fence In
+    lat: 50, 14, 30
+    long: 8, 27, 30
+    notes: Fence In
+  - name: FIX
+    lat: 51, 01, 30
+    long: 9, 23, 30
+    tags:
+      - FIX
+    notes: FIX
+  - name: Pre-IP
+    lat: 51, 12, 30
+    long: 10, 1, 30
+    notes: Pre-IP
+  - name: IP
+    lat: 51, 8, 30
     long: 10, 14, 30
     tags:
-      - PUSH
-      - FIX
-    notes: Hilltop Radar Site
-  - name: IP
+      - IP
+    notes: IP
+  - name: TGT
     lat: 50, 59, 30
     long: 10, 16, 30
     tags:
-      - IP
-    notes: IP Point
+      - TGT
+    notes: TGT\nRailyard\nValley crossways
+    timestamp: "12:35:00"
+  - name: Egress
+    lat: 51, 11, 30
+    long: 10, 2, 30
+    notes: egress 335
+  - name: Ramstein
+    lat: 49, 26, 30
+    long: 07, 37, 30
+    tags:
+      - HOME
+    notes: Home

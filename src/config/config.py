@@ -4,6 +4,9 @@ from pathlib import Path
 from enum import Enum
 import yaml
 
+from fuel.fuel_map import FuelMap
+
+
 class DistanceUnit(Enum):
     NAUTICAL = "NAUTICAL"
     METRIC = "METRIC"
@@ -16,6 +19,7 @@ class ConfigOverride(BaseModel):
     default_cruise_speed: int | None = Field(ge=0)
     dash_speed: int | None = Field(ge=0)
     units: DistanceUnit | None = Field()
+    fuel_map: str | None = Field(default=None)
 
 class Config(BaseModel):
     overview_card_downsample_factor: float = Field(ge=0, default=3)
@@ -25,6 +29,13 @@ class Config(BaseModel):
     dash_speed: int = Field(ge=0)
     units: DistanceUnit = Field(default=DistanceUnit.NAUTICAL)
     overrides: list[ConfigOverride] = Field(default=[])
+    # Fuel Values
+    fuel_map: str | None = Field(default=None)
+    active_fuel_map: FuelMap | None = Field(default=None)
+    takeoff_fuel: int = Field(ge=0, default=0)
+    reserve_fuel: int = Field(ge=0, default=0)
+    rtb_altitude: int = Field(ge=0, default=14000)
+    rtb_speed: int = Field(ge=0, default=420)
     # Consideration: WP Bookmark / Shorthand library
 
     @staticmethod
@@ -32,7 +43,9 @@ class Config(BaseModel):
         with path.open('r') as file:
             data = yaml.load(file, Loader=yaml.SafeLoader)
             overrides: list[ConfigOverride] = [ConfigOverride(**entry) for entry in data.pop('overrides')]
-            return Config(**data, overrides=overrides)
+            conf = Config(**data, overrides=overrides)
+            conf.load_fuel_map()
+            return conf
 
     def override(self, override: str | None) -> 'Config':
         if override is not None:
@@ -47,6 +60,11 @@ class Config(BaseModel):
                         units=override_opt.units or self.units,
                     )
         return self
+
+    def load_fuel_map(self):
+        if self.fuel_map is not None:
+            fuel_map_path = Path(f'../../fuel_maps/{self.fuel_map}.yaml')
+            self.active_fuel_map = FuelMap.from_file(fuel_map_path)
 
 if __name__ == '__main__':
     print(Config.from_file(Path('../../example_config.yaml')))
