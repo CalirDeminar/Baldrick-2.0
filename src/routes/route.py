@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 from fuel.fuel import calculate_max_return_distance
-from position import Position
+from routes.position import Position
 from pathlib import Path
 import yaml
 import re
@@ -11,7 +11,7 @@ from questionary import ValidationError
 from enums import Tag
 
 from config.config import Config, DistanceUnit
-from map import DCSMap
+from routes.map import DCSMap
 
 
 
@@ -111,7 +111,7 @@ class Route(BaseModel):
                 joker_fuel=None,
                 bingo_divert=None,
             )
-            output.setup(config)
+            output.setup(conf)
             return output
 
 
@@ -158,25 +158,25 @@ class Route(BaseModel):
 
     def setup_fuel_cals(self, conf: Config):
         bingo_tag, max_return_distance_bingo = calculate_max_return_distance(self, is_bingo=True, conf=conf)
-        rtb_fuel_efficiency = config.active_fuel_map.get_lb_per_mile_for_profile(altitude=conf.rtb_altitude, speed=conf.rtb_speed)
+        rtb_fuel_efficiency = conf.active_fuel_map.get_lb_per_mile_for_profile(altitude=conf.rtb_altitude, speed=conf.rtb_speed)
         self.bingo_fuel = int(max_return_distance_bingo * rtb_fuel_efficiency)
         self.bingo_divert = bingo_tag == Tag.DIVERT
         _, max_return_distance_joker = calculate_max_return_distance(self, conf=conf)
-        self.joker_fuel = int(max_return_distance_joker * rtb_fuel_efficiency) + config.reserve_fuel
-        required_fuel = config.reserve_fuel
+        self.joker_fuel = int(max_return_distance_joker * rtb_fuel_efficiency) + conf.reserve_fuel
+        required_fuel = conf.reserve_fuel
         prev_wp = None
         for wp in reversed(self.waypoints):
             if Tag.HOME not in wp.tags and Tag.DIVERT not in wp.tags and prev_wp:
-                leg_fuel_efficiency = config.active_fuel_map.get_lb_per_mile_for_profile(altitude=wp.altitude, speed=wp.speed_to)
                 leg_length = prev_wp.position.distance_from(wp.position, self.units)
+                leg_fuel_efficiency = conf.active_fuel_map.get_lb_per_mile_for_profile(altitude=wp.altitude, speed=wp.speed_to)
                 leg_fuel = leg_length * leg_fuel_efficiency
                 required_fuel += leg_fuel
                 prev_wp.planned_fuel = int(required_fuel)
             if prev_wp and Tag.HOME in prev_wp.tags:
-                prev_wp.planned_fuel = config.reserve_fuel
+                prev_wp.planned_fuel = conf.reserve_fuel
             prev_wp = wp
-        required_fuel += config.takeoff_fuel
-        if required_fuel > config.active_fuel_map.capacity:
+        required_fuel += conf.takeoff_fuel
+        if required_fuel > conf.active_fuel_map.capacity:
             raise Exception("Route requires more fuel than current fuel capacity allows for")
 
 
@@ -197,8 +197,8 @@ class Route(BaseModel):
         return self
 
 if __name__ == '__main__':
-    config = Config.from_file(Path('../../example_config.yaml'))
-    route = Route.new(Path('../../example_route_file.yaml'), config)
+    config = Config.from_file(Path('../../config.yaml'))
+    route = Route.new(Path('../../routes/example_route_file.yaml'), config)
     print(route)
     for wp in route.waypoints:
         print(wp)

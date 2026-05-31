@@ -3,11 +3,11 @@ from enums import Tag
 
 
 if TYPE_CHECKING:
-    from route.route import Route
+    from routes.route import Route
     from config.config import Config
 
 # Fuel Counts
-# - Planned Fuel - Min Fuel to complete mission with expected route and reserve
+# - Planned Fuel - Min Fuel to complete mission with expected routes and reserve
 # - BINGO
 # - JOKER
 

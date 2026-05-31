@@ -1,6 +1,11 @@
 import yaml
+import sys
 from pydantic import BaseModel, Field
 from pathlib import Path
+
+is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+
+fuel_map_folder_path = Path(__file__).parent.parent.parent.resolve() / 'fuel_maps' if is_built else '../../fuel_maps'
 
 class FuelMapCell(BaseModel):
     speed_kts: int = Field(ge=0)
@@ -18,7 +23,9 @@ class FuelMap(BaseModel):
 
     @staticmethod
     def from_file(path: Path) -> 'FuelMap':
-        with path.open('r') as f:
+        fuel_map_path = fuel_map_folder_path / path.name
+        print(f"Loading fuel map from {fuel_map_path}")
+        with fuel_map_path.open('r') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
             fuel_map_by_altitude: dict[int, FuelMapBySpeed] = {}
             for row in data.get('fuelMap'):
@@ -72,12 +79,6 @@ class FuelMap(BaseModel):
         high_speed_factor =  (high_speed_low_altitude_figure * altitude_low_factor) + (high_speed_high_altitude_figure * (1-altitude_low_factor))
 
         return (low_speed_figure * speed_low_factor) + (high_speed_factor * (1-speed_low_factor))
-
-
-
-
-
-
 
 if __name__ == '__main__':
     fuel_map = FuelMap.from_file(Path('../../fuel_maps/example_fuel_map.yaml'))

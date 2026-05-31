@@ -1,11 +1,11 @@
 from config.config import Config
-from route.route import Route, Waypoint, Tag, DCSMap, parse_timestamp
+from routes.route import Route, Waypoint, Tag, DCSMap, parse_timestamp
 
 import questionary
 from pathlib import Path
 from questionary import Validator, ValidationError
 from datetime import timedelta
-from route.position import Position, DMSDistance
+from routes.position import Position, DMSDistance
 import re
 
 
@@ -125,5 +125,5 @@ def build_route_interactive(conf: Config):
     )
 
 if __name__ == '__main__':
-    config = Config.from_file(Path('../../example_config.yaml'))
+    config = Config.from_file(Path('../example_config.yaml'))
     build_route_interactive(config)

@@ -4,14 +4,19 @@ from pydantic import BaseModel
 from pydantic import Field
 from pathlib import Path
 import yaml
+import sys
 from enum import Enum
 
 if TYPE_CHECKING:
-    from src.route.route import Waypoint
+    from src.routes.route import Waypoint
     from position import Position
 
-cwd = Path(__file__).parent
-map_data_folder = cwd / 'map_data'
+# cwd = Path(__file__).parent
+# map_data_folder = cwd / 'map_data'
+
+is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+map_data_folder = Path(__file__).parent.parent.resolve() / 'map_data' if is_built else Path('./map_data')
+print(f"map_data_folder: {map_data_folder}")
 
 class DCSMap(Enum):
     CAUCASUS = 'CAUCASUS'

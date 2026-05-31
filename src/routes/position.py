@@ -11,7 +11,7 @@ haversine_unit: dict[DistanceUnit, Unit] = {
 }
 
 if TYPE_CHECKING:
-    from route.route import Waypoint
+    from routes.route import Waypoint
 
 class DMSDistance(BaseModel):
     value: tuple[float, float, float] = Field()

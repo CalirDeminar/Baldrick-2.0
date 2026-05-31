@@ -1,10 +1,17 @@
 from typing import Annotated
 from datetime import timedelta
 import typer
+import sys
 from pathlib import Path
-from route.route import Route
-from route.route_interactive_builder import build_route_interactive
+from routes.route import Route
+from routes.route_interactive_builder import build_route_interactive
 from config.config import Config
+
+is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+
+config_path = Path(__file__).parent.parent.resolve() / 'config.yaml' if is_built else Path('../config')
+
+route_folder_path = Path(__file__).parent.parent.resolve() / 'routes' if is_built else Path('../routes')
 
 baldrick = typer.Typer()
 
@@ -20,21 +27,21 @@ def main(
         time_on_target: Annotated[timedelta | None, typer.Option("--tot", "-t", formats=["%H:%M:%S"], parser=timedelta_parser)] = None,
         push_time: Annotated[timedelta | None, typer.Option("--push", "-p", formats=["%H:%M:%S"], parser=timedelta_parser)] = None,
     ) -> None:
-    conf = Config.from_file(Path('../example_config.yaml'))
+    conf = Config.from_file(config_path)
     if config_override:
         conf = conf.override(config_override)
     route: Route | None = None
     if not route_name:
         route = build_route_interactive(conf)
     else:
-        route_path = Path(route_name)
+        route_path = Path(route_folder_path / Path(f"{route_name}.yaml"))
         route = Route.new(route_path, conf=conf)
-    print(f"route: {route} config: {config_override} time: {time_on_target} push_time: {push_time}")
+    print(f"routes: {route} config: {config_override} time: {time_on_target} push_time: {push_time}")
 
 if __name__ == "__main__":
     typer.run(main)
 # if __name__ == '__main__':
 #     from config.config import Config
-#     from route.route_interactive_builder import build_route_interactive
-#     config = Config.from_file(Path('../example_config.yaml'))
+#     from routes.route_interactive_builder import build_route_interactive
+#     config = Config.from_file(Path('../config.yaml'))
 #     build_route_interactive(config)
