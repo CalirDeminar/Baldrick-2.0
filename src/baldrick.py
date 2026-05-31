@@ -9,9 +9,9 @@ from config.config import Config
 
 is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
 
-config_path = Path(__file__).parent.parent.resolve() / 'config.yaml' if is_built else Path('../config')
+config_path = Path(__file__).parent.parent.resolve() / 'config.yaml'
 
-route_folder_path = Path(__file__).parent.parent.resolve() / 'routes' if is_built else Path('../routes')
+route_folder_path = Path(__file__).parent.parent.resolve() / 'routes' if is_built else Path('./routes')
 
 baldrick = typer.Typer()
 

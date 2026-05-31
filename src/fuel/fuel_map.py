@@ -5,7 +5,9 @@ from pathlib import Path
 
 is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
 
-fuel_map_folder_path = Path(__file__).parent.parent.parent.resolve() / 'fuel_maps' if is_built else '../../fuel_maps'
+fuel_map_folder_path = Path(__file__).parent.parent.parent.resolve() / 'fuel_maps' if is_built else Path('./fuel_maps')
+if __name__ == '__main__':
+    fuel_map_folder_path = Path('../../fuel_maps')
 
 class FuelMapCell(BaseModel):
     speed_kts: int = Field(ge=0)
@@ -81,7 +83,7 @@ class FuelMap(BaseModel):
         return (low_speed_figure * speed_low_factor) + (high_speed_factor * (1-speed_low_factor))
 
 if __name__ == '__main__':
-    fuel_map = FuelMap.from_file(Path('../../fuel_maps/example_fuel_map.yaml'))
+    fuel_map = FuelMap.from_file(Path('./fuel_maps/example_fuel_map.yaml'))
     print(fuel_map)
     print(fuel_map.get_lb_per_mile_for_profile(8000, 400))
 

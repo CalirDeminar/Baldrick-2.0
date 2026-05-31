@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
 map_data_folder = Path(__file__).parent.parent.resolve() / 'map_data' if is_built else Path('./map_data')
-print(f"map_data_folder: {map_data_folder}")
+if __name__ == '__main__':
+    map_data_folder = Path('../../map_data')
 
 class DCSMap(Enum):
     CAUCASUS = 'CAUCASUS'

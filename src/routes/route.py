@@ -93,7 +93,6 @@ class Route(BaseModel):
     def new(path: Path, conf: Config) -> 'Route':
         with path.open('r') as file:
             data = yaml.load(file, Loader=yaml.SafeLoader)
-            print(data)
             waypoints = [
                 Waypoint.from_dict(waypoint_data, conf)
                 for waypoint_data in data.get('waypoints')
@@ -198,7 +197,7 @@ class Route(BaseModel):
 
 if __name__ == '__main__':
     config = Config.from_file(Path('../../config.yaml'))
-    route = Route.new(Path('../../routes/example_route_file.yaml'), config)
+    route = Route.new(Path('../routes/example_route_file.yaml'), config)
     print(route)
     for wp in route.waypoints:
         print(wp)

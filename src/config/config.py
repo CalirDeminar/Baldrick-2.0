@@ -7,8 +7,6 @@ import yaml
 from fuel.fuel_map import FuelMap
 
 
-
-
 class DistanceUnit(Enum):
     NAUTICAL = "NAUTICAL"
     METRIC = "METRIC"
@@ -69,5 +67,5 @@ class Config(BaseModel):
             self.active_fuel_map = FuelMap.from_file(fuel_map_path)
 
 if __name__ == '__main__':
-    print(Config.from_file(Path('../example_config.yaml')))
-    print(Config.from_file(Path('../example_config.yaml')).override('warbirds'))
+    print(Config.from_file(Path('../../example_config.yaml')))
+    print(Config.from_file(Path('../../example_config.yaml')).override('warbirds'))
