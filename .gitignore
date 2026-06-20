@@ -1,5 +1,9 @@
 *.iml
 *.xml
+*.egg-info
+*.pyc
+*.jpg
+*.png
 /dist/
 /build/
 /.venv/

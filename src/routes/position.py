@@ -27,6 +27,9 @@ class DMSDistance(BaseModel):
         [df, mf, sf] = [float(d), float(m), float(s)]
         return DMSDistance(value=(df, mf, sf))
 
+    def __repr__(self):
+        return f"DMSDistance({self.value[0]}, {self.value[1]}, {self.value[2]})"
+
 class Position(BaseModel):
     latitude: DMSDistance = Field()
     longitude: DMSDistance = Field()
@@ -37,6 +40,11 @@ class Position(BaseModel):
     def distance_from(self, wp: 'Position', units: DistanceUnit) -> float:
         return haversine((self.latitude.to_decimal(), self.longitude.to_decimal()),(wp.latitude.to_decimal(), wp.longitude.to_decimal()), unit=haversine_unit[units])
 
+    def __repr__(self):
+        return f"Position({self.latitude}, {self.longitude})"
+
+    def __hash__(self):
+        return self.__repr__().__hash__()
 
     @staticmethod
     def new(latitude: tuple[float, float, float], longitude: tuple[float, float, float]) -> 'Position':

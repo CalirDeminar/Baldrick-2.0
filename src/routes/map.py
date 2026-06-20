@@ -1,23 +1,25 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, Any
 
 from pydantic import BaseModel
 from pydantic import Field
+import pyvips
 from pathlib import Path
 import yaml
 import sys
 from enum import Enum
-
+from routes.position import Position, DMSDistance
 if TYPE_CHECKING:
     from src.routes.route import Waypoint
-    from position import Position
 
 # cwd = Path(__file__).parent
 # map_data_folder = cwd / 'map_data'
 
 is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
 map_data_folder = Path(__file__).parent.parent.resolve() / 'map_data' if is_built else Path('./map_data')
+image_folder = map_data_folder / 'map_data/image_files' if is_built else Path('./map_data/image_files')
 if __name__ == '__main__':
     map_data_folder = Path('../../map_data')
+    image_folder = map_data_folder / 'image_files'
 
 class DCSMap(Enum):
     CAUCASUS = 'CAUCASUS'
@@ -32,30 +34,35 @@ class DCSMap(Enum):
         return MapData.get_map_for_waypoints(waypoints).name
 
 class PixelMapPoint(BaseModel):
-    lat_d: float = Field()
-    lon_d: float = Field()
+    position: Position = Field()
     x_pixel: int = Field()
     y_pixel: int = Field()
 
 class MapData(BaseModel):
     name: 'DCSMap' = Field()
-    pixel_map: dict[tuple[float, float], PixelMapPoint]
+    pixel_map: dict[Position, PixelMapPoint]
     projection_adjustment_deg: float
+    map_image: Union[Any, None] = None
+
+    def load_map_image(self):
+        full_path = image_folder / f"{self.name.value}.jpg"
+        image = pyvips.Image.new_from_file(str(full_path))
+        self.map_image = image
 
     @property
     def bounds(self) -> tuple[tuple[float, float], tuple[float, float]]:
-        max_lat = max([point.lat_d for point in self.pixel_map.values()])
-        min_lat = min([point.lat_d for point in self.pixel_map.values()])
-        max_long = max([point.lon_d for point in self.pixel_map.values()])
-        min_long = min([point.lon_d for point in self.pixel_map.values()])
+        max_lat = max([point.position.latitude.to_decimal() for point in self.pixel_map.values()])
+        min_lat = min([point.position.latitude.to_decimal() for point in self.pixel_map.values()])
+        max_long = max([point.position.longitude.to_decimal() for point in self.pixel_map.values()])
+        min_long = min([point.position.longitude.to_decimal() for point in self.pixel_map.values()])
         return (min_lat, max_lat), (min_long, max_long)
 
     def point_within_map(self, wp: 'Position') -> bool:
         ((min_lat, max_lat), (min_long, max_long)) = self.bounds
 
         return (
-            (min_lat <= wp.latitude.value[0] < max_lat) and
-            (min_long <= wp.longitude.value[0] < max_long)
+            (min_lat <= wp.latitude.to_decimal() < max_lat) and
+            (min_long <= wp.longitude.to_decimal() < max_long)
         )
 
     def waypoints_all_within_map(self, wps: list['Waypoint']) -> bool:
@@ -72,13 +79,15 @@ class MapData(BaseModel):
                 file = yaml.load(f, Loader=yaml.SafeLoader)
                 pixel_data = file.get('pixel_map')
                 for point in pixel_data:
-                    lat_d = float(point.get('lat_d'))
-                    lon_d = float(point.get('long_d'))
-                    pixels[(lat_d, lon_d)] = PixelMapPoint(
-                            lat_d=lat_d,
-                            lon_d=lon_d,
+                    lat_d, lat_m, lat_s = point.get('lat').split(",")
+                    lon_d, lon_m, lon_s = point.get('long').split(",")
+
+                    pos = Position.new(latitude=(lat_d, lat_m, lat_s), longitude=(lon_d, lon_m, lon_s))
+
+                    pixels[pos] = PixelMapPoint(
                             x_pixel=int(point.get('x_pixel')),
                             y_pixel=int(point.get('y_pixel')),
+                            position=pos
                         )
                 map_data.append(
                     MapData(
@@ -89,6 +98,72 @@ class MapData(BaseModel):
                 )
         return map_data
 
+    def get_neighboring_pixels(self, position: Position) -> tuple[PixelMapPoint, PixelMapPoint, PixelMapPoint, PixelMapPoint]:
+        lat = position.latitude
+        lon = position.longitude
+        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.latitude.to_decimal())
+        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.longitude.to_decimal())
+
+        prev_latitude: Position | None = None
+        active_latitude: tuple[DMSDistance, DMSDistance] | None = None
+        for k in pixel_map_keys_sorted_latitude:
+            if prev_latitude is not None:
+                latitude_in_range = (lat.to_decimal() > k.to_decimal()) and (lat.to_decimal() < prev_latitude.to_decimal())
+                if latitude_in_range:
+                    active_latitude = k.latitude, prev_latitude.latitude
+            prev_latitude = k
+
+        prev_longitude: Position | None = None
+        active_longitude: tuple[DMSDistance, DMSDistance] | None = None
+        for k in pixel_map_keys_sorted_longitude:
+            if prev_longitude is not None:
+                longitude_in_range = (lon.to_decimal() > k.to_decimal()) and (
+                            lon.to_decimal() < prev_longitude.to_decimal())
+                if longitude_in_range:
+                    active_longitude = k.longitude, prev_longitude.longitude
+            prev_longitude = k
+
+        keys =  (
+            Position(latitude=active_latitude[0],longitude=active_longitude[0]),
+            Position(latitude=active_latitude[1], longitude=active_longitude[0]),
+            Position(latitude=active_latitude[0], longitude=active_longitude[1]),
+            Position(latitude=active_latitude[1], longitude=active_longitude[1]),
+        )
+        return self.pixel_map[keys[0]], self.pixel_map[keys[1]], self.pixel_map[keys[2]], self.pixel_map[keys[3]]
+
+    def get_pixels_for_position(self, position: Position) -> tuple[int, int]:
+        lat = position.latitude
+        lon = position.longitude
+
+        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.latitude.to_decimal())
+        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.longitude.to_decimal())
+
+        prev_latitude = None
+        active_latitude: tuple[Position, Position] | None = None
+        for k in pixel_map_keys_sorted_latitude:
+            if prev_latitude is not None:
+                latitude_in_range = (lat.to_decimal() > k.to_decimal()) and (lat.to_decimal() < prev_latitude.to_decimal())
+                if latitude_in_range:
+                    active_latitude = k, prev_latitude
+            prev_latitude = k
+        prev_longitude = None
+
+        active_longitude: tuple[Position, Position] | None = None
+        for k in pixel_map_keys_sorted_longitude:
+            if prev_longitude is not None:
+                longitude_in_range = (lon.to_decimal() > k.to_decimal()) and (lon.to_decimal() < prev_longitude.to_decimal())
+                if longitude_in_range:
+                    active_longitude = k, prev_longitude
+            prev_longitude = k
+
+        bounding_pixels = (
+            self.pixel_map[active_latitude[0]],
+            self.pixel_map[active_latitude[1]],
+            self.pixel_map[active_longitude[0]],
+            self.pixel_map[active_longitude[1]]
+        )
+
+
     @staticmethod
     def get_map_for_waypoints(wps: list['Waypoint']) -> 'MapData':
         for map_val in MapData.load_map_set():
@@ -98,4 +173,6 @@ class MapData(BaseModel):
 
 if __name__ == '__main__':
     loaded_set = MapData.load_map_set()
+    for s in loaded_set:
+        s.load_map_image()
     print(loaded_set)

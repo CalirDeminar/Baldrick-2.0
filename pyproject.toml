@@ -7,6 +7,7 @@ dependencies = [
     "haversine>=2.9.0",
     "pydantic>=2.13.2",
     "pyinstaller>=6.20.0",
+    "pyvips[binary]>=3.1.1",
     "pyyaml>=6.0.3",
     "questionary>=2.1.1",
     "rich>=15.0.0",
