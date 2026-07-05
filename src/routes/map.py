@@ -101,26 +101,26 @@ class MapData(BaseModel):
     def get_neighboring_pixels(self, position: Position) -> tuple[PixelMapPoint, PixelMapPoint, PixelMapPoint, PixelMapPoint]:
         lat = position.latitude
         lon = position.longitude
-        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.latitude.to_decimal())
-        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.longitude.to_decimal())
+        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.latitude.to_decimal())
+        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.longitude.to_decimal())
 
         prev_latitude: Position | None = None
         active_latitude: tuple[DMSDistance, DMSDistance] | None = None
         for k in pixel_map_keys_sorted_latitude:
-            if prev_latitude is not None:
-                latitude_in_range = (lat.to_decimal() > k.to_decimal()) and (lat.to_decimal() < prev_latitude.to_decimal())
+            if prev_latitude is not None and prev_latitude.latitude.to_decimal() != k.latitude.to_decimal():
+                latitude_in_range = (lat.to_decimal() >= prev_latitude.latitude.to_decimal()) and (lat.to_decimal() <= k.latitude.to_decimal())
                 if latitude_in_range:
-                    active_latitude = k.latitude, prev_latitude.latitude
+                    active_latitude = prev_latitude.latitude, k.latitude
             prev_latitude = k
 
         prev_longitude: Position | None = None
         active_longitude: tuple[DMSDistance, DMSDistance] | None = None
         for k in pixel_map_keys_sorted_longitude:
-            if prev_longitude is not None:
-                longitude_in_range = (lon.to_decimal() > k.to_decimal()) and (
-                            lon.to_decimal() < prev_longitude.to_decimal())
+            if prev_longitude is not None and prev_longitude.longitude.to_decimal() != k.longitude.to_decimal():
+                longitude_in_range = (lon.to_decimal() >= prev_longitude.longitude.to_decimal()) and (
+                            lon.to_decimal() <= k.longitude.to_decimal())
                 if longitude_in_range:
-                    active_longitude = k.longitude, prev_longitude.longitude
+                    active_longitude = prev_longitude.longitude, k.longitude
             prev_longitude = k
 
         keys =  (
@@ -132,36 +132,31 @@ class MapData(BaseModel):
         return self.pixel_map[keys[0]], self.pixel_map[keys[1]], self.pixel_map[keys[2]], self.pixel_map[keys[3]]
 
     def get_pixels_for_position(self, position: Position) -> tuple[int, int]:
-        lat = position.latitude
-        lon = position.longitude
+        lat = position.latitude.to_decimal()
+        lon = position.longitude.to_decimal()
 
-        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.latitude.to_decimal())
-        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.position.longitude.to_decimal())
+        for key, point in self.pixel_map.items():
+            if key.latitude.to_decimal() == lat and key.longitude.to_decimal() == lon:
+                return point.x_pixel, point.y_pixel
 
-        prev_latitude = None
-        active_latitude: tuple[Position, Position] | None = None
-        for k in pixel_map_keys_sorted_latitude:
-            if prev_latitude is not None:
-                latitude_in_range = (lat.to_decimal() > k.to_decimal()) and (lat.to_decimal() < prev_latitude.to_decimal())
-                if latitude_in_range:
-                    active_latitude = k, prev_latitude
-            prev_latitude = k
-        prev_longitude = None
+        sw, nw, se, ne = self.get_neighboring_pixels(position)
+        lat_low = sw.position.latitude.to_decimal()
+        lat_high = nw.position.latitude.to_decimal()
+        lon_low = sw.position.longitude.to_decimal()
+        lon_high = se.position.longitude.to_decimal()
 
-        active_longitude: tuple[Position, Position] | None = None
-        for k in pixel_map_keys_sorted_longitude:
-            if prev_longitude is not None:
-                longitude_in_range = (lon.to_decimal() > k.to_decimal()) and (lon.to_decimal() < prev_longitude.to_decimal())
-                if longitude_in_range:
-                    active_longitude = k, prev_longitude
-            prev_longitude = k
+        lat_low_factor = 1 - (lat - lat_low) / (lat_high - lat_low) if lat_high != lat_low else 1
+        lon_low_factor = 1 - (lon - lon_low) / (lon_high - lon_low) if lon_high != lon_low else 1
 
-        bounding_pixels = (
-            self.pixel_map[active_latitude[0]],
-            self.pixel_map[active_latitude[1]],
-            self.pixel_map[active_longitude[0]],
-            self.pixel_map[active_longitude[1]]
-        )
+        low_lon_x = (sw.x_pixel * lat_low_factor) + (nw.x_pixel * (1 - lat_low_factor))
+        high_lon_x = (se.x_pixel * lat_low_factor) + (ne.x_pixel * (1 - lat_low_factor))
+        x_pixel = (low_lon_x * lon_low_factor) + (high_lon_x * (1 - lon_low_factor))
+
+        low_lon_y = (sw.y_pixel * lat_low_factor) + (nw.y_pixel * (1 - lat_low_factor))
+        high_lon_y = (se.y_pixel * lat_low_factor) + (ne.y_pixel * (1 - lat_low_factor))
+        y_pixel = (low_lon_y * lon_low_factor) + (high_lon_y * (1 - lon_low_factor))
+
+        return round(x_pixel), round(y_pixel)
 
 
     @staticmethod

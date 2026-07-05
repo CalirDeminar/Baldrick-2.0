@@ -1,0 +1,15 @@
+The config format is a fixed yaml file the user defines. There is only ever one in use.
+The file defines user preferences, along with a series of named overrides that can be used via flags.
+
+The override system was designed to prevent a scenario that came up with the previous version, of needing to shuffle names of various config files when doing different types of flying.
+
+The Config file defines:
+* Route Colour: the colour the route lines will be drawn on the map
+* Min Cruise Speed: The minimum speed the  ToT calculator will be allowed to set a leg speed to
+* Default cruise speed: The speed that legs will default to if there is no ToT and speed set for the leg
+* Dash Speed: The speed that will be flown between IP and target. This will be considered by the ToT calculator when planning speeds and times
+* Units: The units being used in the config file. Can be set to NAUTICAL, METRIC or IMPERIAL
+* Fuel Map: The name of the default fuel map to be used unless otherwise specified
+* Reserve Fuel: The minimum fuel the planner should plan for an aircraft to have by the point it gets back to either it's home airfield or the divert field. The aircraft should never be planned to go below this fuel level.
+* Takeoff Fuel: The amount of fuel the user expects to use during startup, taxii and takeoff. This is fuel the fuel planning system will not consider itself to have access to
+* Overrides: A list of named overrides, that can override the above values when asked to. So for warbird override, an override would move the units to imperial and lower the default speeds down to reasonable warbird speeds. This field is optional, and can have 0 or more entries.
