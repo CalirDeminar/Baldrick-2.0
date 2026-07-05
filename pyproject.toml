@@ -1,10 +1,11 @@
 [project]
 name = "baldrick-2"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI generator for low-level navigation map and route kneeboards for DCS World"
 requires-python = ">=3.13"
 dependencies = [
     "haversine>=2.9.0",
+    "pillow>=12.3.0",
     "pydantic>=2.13.2",
     "pyinstaller>=6.20.0",
     "pyvips[binary]>=3.1.1",
@@ -15,3 +16,12 @@ dependencies = [
 ]
 [tool.uv]
 package = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

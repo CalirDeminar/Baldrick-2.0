@@ -1,3 +1,4 @@
+import math
 from pydantic import BaseModel
 from pydantic import Field
 from typing import TYPE_CHECKING
@@ -39,6 +40,19 @@ class Position(BaseModel):
 
     def distance_from(self, wp: 'Position', units: DistanceUnit) -> float:
         return haversine((self.latitude.to_decimal(), self.longitude.to_decimal()),(wp.latitude.to_decimal(), wp.longitude.to_decimal()), unit=haversine_unit[units])
+
+    def bearing_from(self, previous: 'Position') -> float:
+        """Initial true great-circle bearing (degrees) travelling from
+        ``previous`` to ``self``, in the range [0, 360)."""
+        own_lat = math.radians(self.latitude.to_decimal())
+        own_long = math.radians(self.longitude.to_decimal())
+        prev_lat = math.radians(previous.latitude.to_decimal())
+        prev_long = math.radians(previous.longitude.to_decimal())
+
+        d_long = own_long - prev_long
+        x = math.cos(own_lat) * math.sin(d_long)
+        y = math.cos(prev_lat) * math.sin(own_lat) - math.sin(prev_lat) * math.cos(own_lat) * math.cos(d_long)
+        return (math.degrees(math.atan2(x, y)) + 360) % 360
 
     def __repr__(self):
         return f"Position({self.latitude}, {self.longitude})"

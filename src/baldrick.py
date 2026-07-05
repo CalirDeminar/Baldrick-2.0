@@ -1,47 +1,71 @@
-from typing import Annotated
+from __future__ import annotations
+
 from datetime import timedelta
-import typer
-import sys
 from pathlib import Path
+from typing import Annotated
+
+import typer
+from rich.console import Console
+
+import paths
+from config.config import Config
+from errors import BaldrickError
+from pipeline import generate_kneeboards
 from routes.route import Route
 from routes.route_interactive_builder import build_route_interactive
-from config.config import Config
 
-is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+console = Console()
+baldrick = typer.Typer(add_completion=False, help="Generate DCS navigation kneeboards from a route.")
 
-config_path = Path(__file__).parent.parent.resolve() / 'config.yaml'
-
-route_folder_path = Path(__file__).parent.parent.resolve() / 'routes' if is_built else Path('./routes')
-
-baldrick = typer.Typer()
 
 def timedelta_parser(arg: str) -> timedelta:
     arg = arg.strip().replace("=", "")
-    [h, m, s] = arg.split(':')
-    return timedelta(hours=int(h), minutes=int(m), seconds=int(s))
+    parts = arg.split(":")
+    if len(parts) != 3:
+        raise typer.BadParameter(f"'{arg}' must be in HH:MM:SS format")
+    h, m, s = (int(p) for p in parts)
+    return timedelta(hours=h, minutes=m, seconds=s)
+
 
 @baldrick.command()
 def main(
-        route_name: Annotated[str | None, typer.Option("--route", "-r")] = None,
-        config_override: Annotated[str | None, typer.Option("--config", "-c")] = None,
-        time_on_target: Annotated[timedelta | None, typer.Option("--tot", "-t", formats=["%H:%M:%S"], parser=timedelta_parser)] = None,
-        push_time: Annotated[timedelta | None, typer.Option("--push", "-p", formats=["%H:%M:%S"], parser=timedelta_parser)] = None,
-    ) -> None:
-    conf = Config.from_file(config_path)
-    if config_override:
-        conf = conf.override(config_override)
-    route: Route | None = None
-    if not route_name:
-        route = build_route_interactive(conf)
-    else:
-        route_path = Path(route_folder_path / Path(f"{route_name}.yaml"))
-        route = Route.new(route_path, conf=conf)
-    print(f"routes: {route} config: {config_override} time: {time_on_target} push_time: {push_time}")
+    route_name: Annotated[str | None, typer.Option("--route", "-r", help="Route file name (without .yaml) in the routes folder")] = None,
+    config_override: Annotated[str | None, typer.Option("--config", "-c", help="Named config override to apply")] = None,
+    time_on_target: Annotated[timedelta | None, typer.Option("--tot", "-t", parser=timedelta_parser, help="Time on target, HH:MM:SS")] = None,
+    push_time: Annotated[timedelta | None, typer.Option("--push", "-p", parser=timedelta_parser, help="Push time, HH:MM:SS")] = None,
+) -> None:
+    try:
+        conf = Config.from_file()
+        if config_override:
+            conf = conf.override(config_override)
+
+        if route_name:
+            route_path = paths.routes_dir() / f"{route_name}.yaml"
+            if not route_path.exists():
+                raise BaldrickError(f"Route file not found: {route_path}")
+            route = Route.new(route_path, conf)
+        else:
+            route = build_route_interactive(conf)
+
+        console.print(f"[bold]Planning route[/bold] '{route.name}'...")
+        result = generate_kneeboards(route, conf, time_on_target, push_time)
+
+        for warning in result.warnings:
+            console.print(f"[yellow]WARNING:[/yellow] {warning}")
+
+        report = result.report
+        if report.bingo_fuel is not None:
+            dest = "divert" if report.return_to_divert else "home"
+            console.print(f"Bingo fuel: [cyan]{report.bingo_fuel:,} lb[/cyan] (return to {dest})")
+        console.print(
+            f"Total fuel required: [cyan]{report.total_required:,} lb[/cyan] "
+            f"of {report.capacity:,} lb capacity"
+        )
+        console.print(f"[green]Kneeboards written to[/green] {result.out_dir}")
+    except BaldrickError as exc:
+        console.print(f"[bold red]Error:[/bold red] {exc}")
+        raise typer.Exit(code=1)
+
 
 if __name__ == "__main__":
-    typer.run(main)
-# if __name__ == '__main__':
-#     from config.config import Config
-#     from routes.route_interactive_builder import build_route_interactive
-#     config = Config.from_file(Path('../config.yaml'))
-#     build_route_interactive(config)
+    baldrick()

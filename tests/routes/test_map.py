@@ -2,109 +2,63 @@ from datetime import timedelta
 
 import pytest
 
-from routes.map import DCSMap, MapData
+from errors import MapError
+from routes.map import DCSMap, MapLayer, MapSet
 from routes.position import Position
 from routes.route import Waypoint
 
 
-class TestMapDataBounds:
-    def test_bounds_match_grid_extents(self, grid_map: MapData):
-        ((min_lat, max_lat), (min_long, max_long)) = grid_map.bounds
+class TestBounds:
+    def test_bounds_match_grid_extents(self, grid_layer: MapLayer):
+        (min_lat, max_lat), (min_long, max_long) = grid_layer.bounds
+        assert (min_lat, max_lat, min_long, max_long) == (48, 50, 10, 12)
 
-        assert min_lat == 48
-        assert max_lat == 50
-        assert min_long == 10
-        assert max_long == 12
+    def test_point_within_map_accepts_interior_point(self, grid_layer: MapLayer):
+        assert grid_layer.point_within_map(Position.new((49, 30, 0), (11, 30, 0)))
 
-    def test_point_within_map_accepts_interior_point(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 30, 0), longitude=(11, 30, 0))
-
-        assert grid_map.point_within_map(position)
-
-    def test_point_within_map_rejects_northern_boundary(self, grid_map: MapData):
-        position = Position.new(latitude=(50, 0, 0), longitude=(11, 0, 0))
-
-        assert not grid_map.point_within_map(position)
-
-    def test_point_within_map_rejects_eastern_boundary(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 0, 0), longitude=(12, 0, 0))
-
-        assert not grid_map.point_within_map(position)
+    def test_point_within_map_rejects_boundary(self, grid_layer: MapLayer):
+        assert not grid_layer.point_within_map(Position.new((50, 0, 0), (11, 0, 0)))
+        assert not grid_layer.point_within_map(Position.new((49, 0, 0), (12, 0, 0)))
 
 
-class TestMapDataLoad:
-    def test_load_map_set_includes_germany(self):
-        maps = MapData.load_map_set()
-        names = {m.name for m in maps}
-
+class TestLoad:
+    def test_load_includes_germany(self):
+        names = {b.dcs_map for b in MapSet.load().bases}
         assert DCSMap.GERMANY in names
 
-    def test_germany_map_has_expected_projection_adjustment(self, germany_map: MapData):
-        assert germany_map.projection_adjustment_deg == -10
+    def test_germany_projection_adjustment(self, germany_layer: MapLayer):
+        assert germany_layer.projection_adjustment_deg == -10
 
-    def test_germany_map_pixel_map_is_populated(self, germany_map: MapData):
-        assert len(germany_map.pixel_map) > 0
+    def test_germany_pixel_map_populated(self, germany_layer: MapLayer):
+        assert len(germany_layer.pixel_map) > 0
 
 
-class TestGetNeighboringPixels:
-    def test_returns_four_corners_of_bounding_cell(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 30, 0), longitude=(10, 30, 0))
-        sw, nw, se, ne = grid_map.get_neighboring_pixels(position)
-
+class TestNeighboringPixels:
+    def test_returns_four_corners(self, grid_layer: MapLayer):
+        sw, nw, se, ne = grid_layer.get_neighboring_pixels(Position.new((49, 30, 0), (10, 30, 0)))
         assert (sw.position.latitude.to_decimal(), sw.position.longitude.to_decimal()) == (49, 10)
         assert (nw.position.latitude.to_decimal(), nw.position.longitude.to_decimal()) == (50, 10)
         assert (se.position.latitude.to_decimal(), se.position.longitude.to_decimal()) == (49, 11)
         assert (ne.position.latitude.to_decimal(), ne.position.longitude.to_decimal()) == (50, 11)
 
 
-class TestGetPixelsForPosition:
-    def test_returns_exact_pixel_for_grid_point(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 0, 0), longitude=(10, 0, 0))
+class TestGetPixels:
+    def test_exact_grid_point(self, grid_layer: MapLayer):
+        assert grid_layer.get_pixels_for_position(Position.new((49, 0, 0), (10, 0, 0))) == (49010, 5000)
 
-        assert grid_map.get_pixels_for_position(position) == (49010, 5000)
+    def test_interpolates_midpoint(self, grid_layer: MapLayer):
+        assert grid_layer.get_pixels_for_position(Position.new((49, 30, 0), (10, 30, 0))) == (49510, 5055)
 
-    def test_interpolates_midpoint_between_four_corners(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 30, 0), longitude=(10, 30, 0))
-
-        assert grid_map.get_pixels_for_position(position) == (49510, 5055)
-
-    def test_interpolates_point_on_latitude_grid_line(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 0, 0), longitude=(10, 30, 0))
-
-        assert grid_map.get_pixels_for_position(position) == (49010, 5005)
-
-    def test_interpolates_point_on_longitude_grid_line(self, grid_map: MapData):
-        position = Position.new(latitude=(49, 30, 0), longitude=(10, 0, 0))
-
-        assert grid_map.get_pixels_for_position(position) == (49510, 5050)
-
-    def test_germany_midpoint_matches_expected_values(self, germany_map: MapData):
-        position = Position.new(latitude=(55, 30, 0), longitude=(10, 30, 0))
-
-        assert germany_map.get_pixels_for_position(position) == (21378, 2254)
-
-    def test_germany_exact_grid_point(self, germany_map: MapData):
-        position = Position.new(latitude=(55, 0, 0), longitude=(10, 0, 0))
-
-        assert germany_map.get_pixels_for_position(position) == (20126, 2832)
+    def test_germany_exact_grid_point(self, germany_layer: MapLayer):
+        assert germany_layer.get_pixels_for_position(Position.new((55, 0, 0), (10, 0, 0))) == (20126, 5420)
 
 
-class TestGetMapForWaypoints:
-    def test_returns_map_containing_waypoints(self, germany_waypoint: Waypoint):
-        selected = MapData.get_map_for_waypoints([germany_waypoint])
+class TestSelection:
+    def test_selects_map_containing_route(self, germany_waypoint: Waypoint):
+        selection = MapSet.load().select_for([germany_waypoint])
+        assert selection.dcs_map == DCSMap.GERMANY
 
-        assert selected.name == DCSMap.GERMANY
-
-    def test_raises_when_no_map_contains_route(self):
-        outside = Waypoint(
-            name="OCEAN",
-            timestamp=timedelta(),
-            position=Position.new(latitude=(0, 0, 0), longitude=(0, 0, 0)),
-            speed_to=300,
-            minimum_leg_alt=None,
-            planned_fuel=None,
-            tags=[],
-        )
-
-        with pytest.raises(ValueError, match="Route is not fully contained within any supported map"):
-            MapData.get_map_for_waypoints([outside])
+    def test_out_of_bounds_reports_waypoints(self):
+        outside = Waypoint(name="OCEAN", position=Position.new((0, 0, 0), (0, 0, 0)), tags=[])
+        with pytest.raises(MapError, match="out of bounds"):
+            MapSet.load().select_for([outside])

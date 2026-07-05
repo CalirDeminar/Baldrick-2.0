@@ -1,135 +1,196 @@
-from typing import TYPE_CHECKING, Union, Any
+from __future__ import annotations
 
-from pydantic import BaseModel
-from pydantic import Field
-import pyvips
-from pathlib import Path
-import yaml
-import sys
+import math
 from enum import Enum
-from routes.position import Position, DMSDistance
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
+
+import yaml
+from pydantic import BaseModel, ConfigDict, Field
+
+import paths
+from errors import MapError
+from routes.position import DMSDistance, Position
+
 if TYPE_CHECKING:
-    from src.routes.route import Waypoint
+    from routes.route import Waypoint
 
-# cwd = Path(__file__).parent
-# map_data_folder = cwd / 'map_data'
 
-is_built = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
-map_data_folder = Path(__file__).parent.parent.resolve() / 'map_data' if is_built else Path('./map_data')
-image_folder = map_data_folder / 'map_data/image_files' if is_built else Path('./map_data/image_files')
-if __name__ == '__main__':
-    map_data_folder = Path('../../map_data')
-    image_folder = map_data_folder / 'image_files'
+class _PlainLoader(yaml.SafeLoader):
+    """SafeLoader with implicit type resolution disabled.
+
+    Map pixel coordinates are often written with leading zeros for alignment
+    (e.g. ``05420``); the default YAML loader would interpret those as octal.
+    Loading every scalar as a string and converting explicitly avoids that.
+    """
+
+
+_PlainLoader.yaml_implicit_resolvers = {}
+
 
 class DCSMap(Enum):
-    CAUCASUS = 'CAUCASUS'
-    GERMANY = 'GERMANY'
-    NORMANDY = 'NORMANDY'
-    NTTR = 'NTTR'
-    PERSIAN_GULF = 'PERSIAN_GULF'
-    SYRIA = 'SYRIA'
+    CAUCASUS = "CAUCASUS"
+    GERMANY = "GERMANY"
+    NORMANDY = "NORMANDY"
+    NTTR = "NTTR"
+    PERSIAN_GULF = "PERSIAN_GULF"
+    SYRIA = "SYRIA"
 
     @staticmethod
-    def from_route_waypoints(waypoints: list['Waypoint']):
-        return MapData.get_map_for_waypoints(waypoints).name
+    def from_name(name: str) -> "DCSMap | None":
+        try:
+            return DCSMap(name.strip().upper())
+        except ValueError:
+            return None
+
 
 class PixelMapPoint(BaseModel):
     position: Position = Field()
     x_pixel: int = Field()
     y_pixel: int = Field()
 
-class MapData(BaseModel):
-    name: 'DCSMap' = Field()
-    pixel_map: dict[Position, PixelMapPoint]
-    projection_adjustment_deg: float
-    map_image: Union[Any, None] = None
 
-    def load_map_image(self):
-        full_path = image_folder / f"{self.name.value}.jpg"
-        image = pyvips.Image.new_from_file(str(full_path))
-        self.map_image = image
+def _parse_dms_triplet(value: str) -> tuple[float, float, float]:
+    parts = [p.strip() for p in str(value).split(",")]
+    return float(parts[0]), float(parts[1]), float(parts[2])
 
-    @property
-    def bounds(self) -> tuple[tuple[float, float], tuple[float, float]]:
-        max_lat = max([point.position.latitude.to_decimal() for point in self.pixel_map.values()])
-        min_lat = min([point.position.latitude.to_decimal() for point in self.pixel_map.values()])
-        max_long = max([point.position.longitude.to_decimal() for point in self.pixel_map.values()])
-        min_long = min([point.position.longitude.to_decimal() for point in self.pixel_map.values()])
-        return (min_lat, max_lat), (min_long, max_long)
 
-    def point_within_map(self, wp: 'Position') -> bool:
-        ((min_lat, max_lat), (min_long, max_long)) = self.bounds
+class MinAltMap(BaseModel):
+    """Per-cell tallest-obstacle altitudes on a 30 arc-minute grid (feet)."""
 
-        return (
-            (min_lat <= wp.latitude.to_decimal() < max_lat) and
-            (min_long <= wp.longitude.to_decimal() < max_long)
-        )
-
-    def waypoints_all_within_map(self, wps: list['Waypoint']) -> bool:
-        return all([self.point_within_map(point.position) for point in wps])
+    cells: dict[tuple[int, int, int, int], int] = Field(default_factory=dict)
 
     @staticmethod
-    def load_map_set() -> list['MapData']:
-        map_data: list['MapData'] = []
-        for file in map_data_folder.iterdir():
-            if file.suffix != '.yaml':
-                continue
-            with open(file, 'r') as f:
-                pixels: dict[tuple[float, float], PixelMapPoint] = {}
-                file = yaml.load(f, Loader=yaml.SafeLoader)
-                pixel_data = file.get('pixel_map')
-                for point in pixel_data:
-                    lat_d, lat_m, lat_s = point.get('lat').split(",")
-                    lon_d, lon_m, lon_s = point.get('long').split(",")
+    def from_rows(rows: list[dict]) -> "MinAltMap":
+        cells: dict[tuple[int, int, int, int], int] = {}
+        for row in rows:
+            lat_d, lat_m, _ = _parse_dms_triplet(row["lat"])
+            lon_d, lon_m, _ = _parse_dms_triplet(row["long"])
+            key = (int(lat_d), _bucket_30(lat_m), int(lon_d), _bucket_30(lon_m))
+            cells[key] = int(row["altitude_ft"])
+        return MinAltMap(cells=cells)
 
-                    pos = Position.new(latitude=(lat_d, lat_m, lat_s), longitude=(lon_d, lon_m, lon_s))
+    def min_alt_at(self, position: Position) -> int | None:
+        lat = position.latitude.to_decimal()
+        lon = position.longitude.to_decimal()
+        key = (
+            int(math.floor(lat)),
+            _bucket_30((lat - math.floor(lat)) * 60),
+            int(math.floor(lon)),
+            _bucket_30((lon - math.floor(lon)) * 60),
+        )
+        return self.cells.get(key)
 
-                    pixels[pos] = PixelMapPoint(
-                            x_pixel=int(point.get('x_pixel')),
-                            y_pixel=int(point.get('y_pixel')),
-                            position=pos
-                        )
-                map_data.append(
-                    MapData(
-                        name=file.get('name').upper(),
-                        pixel_map=pixels,
-                        projection_adjustment_deg=float(file.get('projection_adjustment_deg')),
-                    )
-                )
-        return map_data
+    def min_alt_between(self, a: Position, b: Position, samples: int = 64) -> int | None:
+        lat_a, lon_a = a.to_decimal()
+        lat_b, lon_b = b.to_decimal()
+        highest: int | None = None
+        for i in range(samples + 1):
+            f = i / samples
+            pos = Position.new(
+                latitude=(lat_a + (lat_b - lat_a) * f, 0, 0),
+                longitude=(lon_a + (lon_b - lon_a) * f, 0, 0),
+            )
+            alt = self.min_alt_at(pos)
+            if alt is not None and (highest is None or alt > highest):
+                highest = alt
+        return highest
 
-    def get_neighboring_pixels(self, position: Position) -> tuple[PixelMapPoint, PixelMapPoint, PixelMapPoint, PixelMapPoint]:
+
+def _bucket_30(minutes: float) -> int:
+    return 0 if minutes < 30 else 30
+
+
+class MapLayer(BaseModel):
+    """A single map image plus its lat/long -> pixel mapping.
+
+    A layer is either a *base* map (its name matches a :class:`DCSMap`) or an
+    *HD overlay* covering a smaller, higher-resolution sub-region.
+    """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    name: str = Field()
+    pixel_map: dict[Position, PixelMapPoint] = Field()
+    projection_adjustment_deg: float = Field(default=0.0)
+    mag_var: float = Field(default=0.0)
+    layer_priority: int = Field(default=0)
+    image_file: str = Field()
+    min_alt: MinAltMap | None = Field(default=None)
+
+    # ---- classification -------------------------------------------------
+    @property
+    def dcs_map(self) -> DCSMap | None:
+        return DCSMap.from_name(self.name)
+
+    @property
+    def is_base(self) -> bool:
+        return self.dcs_map is not None
+
+    # ---- geometry -------------------------------------------------------
+    @property
+    def bounds(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        lats = [p.position.latitude.to_decimal() for p in self.pixel_map.values()]
+        lons = [p.position.longitude.to_decimal() for p in self.pixel_map.values()]
+        return (min(lats), max(lats)), (min(lons), max(lons))
+
+    def point_within_map(self, position: "Position") -> bool:
+        (min_lat, max_lat), (min_long, max_long) = self.bounds
+        return (
+            min_lat <= position.latitude.to_decimal() < max_lat
+            and min_long <= position.longitude.to_decimal() < max_long
+        )
+
+    def waypoints_all_within_map(self, wps: list["Waypoint"]) -> bool:
+        return all(self.point_within_map(wp.position) for wp in wps)
+
+    def contains_bounds(self, other: "MapLayer") -> bool:
+        (min_lat, max_lat), (min_long, max_long) = self.bounds
+        (o_min_lat, o_max_lat), (o_min_long, o_max_long) = other.bounds
+        return (
+            min_lat <= o_min_lat and o_max_lat <= max_lat
+            and min_long <= o_min_long and o_max_long <= max_long
+        )
+
+    def get_neighboring_pixels(
+        self, position: Position
+    ) -> tuple[PixelMapPoint, PixelMapPoint, PixelMapPoint, PixelMapPoint]:
         lat = position.latitude
         lon = position.longitude
-        pixel_map_keys_sorted_latitude = sorted(self.pixel_map.keys(), key=lambda p: p.latitude.to_decimal())
-        pixel_map_keys_sorted_longitude = sorted(self.pixel_map.keys(), key=lambda p: p.longitude.to_decimal())
+        keys_by_lat = sorted(self.pixel_map.keys(), key=lambda p: p.latitude.to_decimal())
+        keys_by_lon = sorted(self.pixel_map.keys(), key=lambda p: p.longitude.to_decimal())
 
-        prev_latitude: Position | None = None
-        active_latitude: tuple[DMSDistance, DMSDistance] | None = None
-        for k in pixel_map_keys_sorted_latitude:
-            if prev_latitude is not None and prev_latitude.latitude.to_decimal() != k.latitude.to_decimal():
-                latitude_in_range = (lat.to_decimal() >= prev_latitude.latitude.to_decimal()) and (lat.to_decimal() <= k.latitude.to_decimal())
-                if latitude_in_range:
-                    active_latitude = prev_latitude.latitude, k.latitude
-            prev_latitude = k
+        prev: Position | None = None
+        active_lat: tuple[DMSDistance, DMSDistance] | None = None
+        for k in keys_by_lat:
+            if prev is not None and prev.latitude.to_decimal() != k.latitude.to_decimal():
+                if prev.latitude.to_decimal() <= lat.to_decimal() <= k.latitude.to_decimal():
+                    active_lat = prev.latitude, k.latitude
+            prev = k
 
-        prev_longitude: Position | None = None
-        active_longitude: tuple[DMSDistance, DMSDistance] | None = None
-        for k in pixel_map_keys_sorted_longitude:
-            if prev_longitude is not None and prev_longitude.longitude.to_decimal() != k.longitude.to_decimal():
-                longitude_in_range = (lon.to_decimal() >= prev_longitude.longitude.to_decimal()) and (
-                            lon.to_decimal() <= k.longitude.to_decimal())
-                if longitude_in_range:
-                    active_longitude = prev_longitude.longitude, k.longitude
-            prev_longitude = k
+        prev = None
+        active_lon: tuple[DMSDistance, DMSDistance] | None = None
+        for k in keys_by_lon:
+            if prev is not None and prev.longitude.to_decimal() != k.longitude.to_decimal():
+                if prev.longitude.to_decimal() <= lon.to_decimal() <= k.longitude.to_decimal():
+                    active_lon = prev.longitude, k.longitude
+            prev = k
 
-        keys =  (
-            Position(latitude=active_latitude[0],longitude=active_longitude[0]),
-            Position(latitude=active_latitude[1], longitude=active_longitude[0]),
-            Position(latitude=active_latitude[0], longitude=active_longitude[1]),
-            Position(latitude=active_latitude[1], longitude=active_longitude[1]),
+        if active_lat is None or active_lon is None:
+            raise MapError(f"Position {position} is outside the pixel map for '{self.name}'")
+
+        keys = (
+            Position(latitude=active_lat[0], longitude=active_lon[0]),
+            Position(latitude=active_lat[1], longitude=active_lon[0]),
+            Position(latitude=active_lat[0], longitude=active_lon[1]),
+            Position(latitude=active_lat[1], longitude=active_lon[1]),
         )
-        return self.pixel_map[keys[0]], self.pixel_map[keys[1]], self.pixel_map[keys[2]], self.pixel_map[keys[3]]
+        return (
+            self.pixel_map[keys[0]],
+            self.pixel_map[keys[1]],
+            self.pixel_map[keys[2]],
+            self.pixel_map[keys[3]],
+        )
 
     def get_pixels_for_position(self, position: Position) -> tuple[int, int]:
         lat = position.latitude.to_decimal()
@@ -158,16 +219,108 @@ class MapData(BaseModel):
 
         return round(x_pixel), round(y_pixel)
 
+    def correspondence_to(self, base: "MapLayer") -> list[tuple[tuple[int, int], tuple[int, int]]]:
+        """Pairs of (this layer pixel, base layer pixel) for shared grid points,
+        used to fit an affine transform when compositing this layer onto base."""
+        pairs: list[tuple[tuple[int, int], tuple[int, int]]] = []
+        for point in self.pixel_map.values():
+            if base.point_within_map(point.position):
+                base_xy = base.get_pixels_for_position(point.position)
+                pairs.append(((point.x_pixel, point.y_pixel), base_xy))
+        return pairs
+
+    def image_path(self) -> Path:
+        return paths.map_image_dir() / self.image_file
+
+    def load_image(self) -> Any:
+        import pyvips
+
+        return pyvips.Image.new_from_file(str(self.image_path()), access="random")
+
+
+class MapSelection(BaseModel):
+    """A chosen base map plus any HD overlays that apply to a route."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    base: MapLayer
+    overlays: list[MapLayer] = Field(default_factory=list)
+
+    @property
+    def dcs_map(self) -> DCSMap | None:
+        return self.base.dcs_map
+
+
+def _load_layer_from_file(path: Path) -> MapLayer:
+    with path.open("r") as f:
+        data = yaml.load(f, Loader=_PlainLoader)
+    pixels: dict[Position, PixelMapPoint] = {}
+    for point in data.get("pixel_map", []):
+        pos = Position.new(
+            latitude=_parse_dms_triplet(point["lat"]),
+            longitude=_parse_dms_triplet(point["long"]),
+        )
+        pixels[pos] = PixelMapPoint(
+            position=pos,
+            x_pixel=int(point["x_pixel"]),
+            y_pixel=int(point["y_pixel"]),
+        )
+    name = str(data["name"])
+    image_file = data.get("image_file") or f"{name.strip().upper()}.jpg"
+    min_alt = None
+    if data.get("min_altitude_map"):
+        min_alt = MinAltMap.from_rows(data["min_altitude_map"])
+    return MapLayer(
+        name=name,
+        pixel_map=pixels,
+        projection_adjustment_deg=float(data.get("projection_adjustment_deg", 0.0)),
+        mag_var=float(data.get("mag_var", 0.0)),
+        layer_priority=int(data.get("layer_priority", 0)),
+        image_file=image_file,
+        min_alt=min_alt,
+    )
+
+
+class MapSet:
+    """All map layers discovered under ``map_data``."""
+
+    def __init__(self, layers: list[MapLayer]):
+        self.layers = layers
+        self.bases = [layer for layer in layers if layer.is_base]
+        self.overlays = [layer for layer in layers if not layer.is_base]
 
     @staticmethod
-    def get_map_for_waypoints(wps: list['Waypoint']) -> 'MapData':
-        for map_val in MapData.load_map_set():
-            if map_val.waypoints_all_within_map(wps):
-                return map_val
-        raise ValueError('Route is not fully contained within any supported map')
+    def load(map_data_dir: Path | None = None) -> "MapSet":
+        map_data_dir = map_data_dir or paths.map_data_dir()
+        layers: list[MapLayer] = []
+        for file in sorted(map_data_dir.iterdir()):
+            if file.suffix.lower() != ".yaml":
+                continue
+            layers.append(_load_layer_from_file(file))
+        return MapSet(layers)
 
-if __name__ == '__main__':
-    loaded_set = MapData.load_map_set()
-    for s in loaded_set:
-        s.load_map_image()
-    print(loaded_set)
+    def overlays_for(self, base: MapLayer) -> list[MapLayer]:
+        associated = [
+            overlay for overlay in self.overlays if base.contains_bounds(overlay)
+        ]
+        return sorted(associated, key=lambda layer: layer.layer_priority)
+
+    def select_for(self, waypoints: list["Waypoint"]) -> MapSelection:
+        base = next(
+            (b for b in self.bases if b.waypoints_all_within_map(waypoints)), None
+        )
+        if base is None:
+            raise MapError(self._out_of_bounds_report(waypoints))
+        return MapSelection(base=base, overlays=self.overlays_for(base))
+
+    def _out_of_bounds_report(self, waypoints: list["Waypoint"]) -> str:
+        lines = ["No supported map fully contains this route."]
+        if not self.bases:
+            lines.append("No base maps were found in the map_data folder.")
+        for base in self.bases:
+            outside = [wp.name for wp in waypoints if not base.point_within_map(wp.position)]
+            if outside:
+                lines.append(f"  {base.name}: waypoints out of bounds: {', '.join(outside)}")
+            else:
+                lines.append(f"  {base.name}: contains all waypoints")
+        return "\n".join(lines)

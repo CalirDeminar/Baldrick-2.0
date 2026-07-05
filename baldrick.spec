@@ -1,12 +1,32 @@
 # -*- mode: python ; coding: utf-8 -*-
+import glob
+import os
+import sysconfig
 
+from PyInstaller.utils.hooks import collect_all
+
+# libvips ships as loose files in site-packages root via the pyvips_binary
+# (delvewheel) wheel: the compiled cffi extension (_libvips*.pyd), the mangled
+# libvips DLL and a .load-order file the extension reads on import. PyInstaller
+# does not detect these automatically, so collect them explicitly.
+_site = sysconfig.get_paths()["purelib"]
+_vips_binaries = [
+    (p, ".")
+    for p in glob.glob(os.path.join(_site, "_libvips*.pyd"))
+    + glob.glob(os.path.join(_site, "libvips-*.dll"))
+]
+_vips_datas = [
+    (p, ".") for p in glob.glob(os.path.join(_site, ".load-order-pyvips_binary-*"))
+]
+
+_pyvips_datas, _pyvips_binaries, _pyvips_hidden = collect_all("pyvips")
 
 a = Analysis(
     ['src\\baldrick.py'],
-    pathex=[],
-    binaries=[],
-    datas=[('./map_data', 'map_data')],
-    hiddenimports=[],
+    pathex=['src'],
+    binaries=_vips_binaries + _pyvips_binaries,
+    datas=[('./map_data', 'map_data')] + _vips_datas + _pyvips_datas,
+    hiddenimports=['_libvips', 'cffi'] + _pyvips_hidden,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
