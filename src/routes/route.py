@@ -5,23 +5,32 @@ from datetime import timedelta
 from pathlib import Path
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from config.config import Config, DistanceUnit
 from enums import Tag
 from routes.map import DCSMap
-from routes.position import Position
+from routes.position import Position, parse_position
 
 
 class RawWaypoint(BaseModel):
     name: str = Field(min_length=1)
-    lat: str = Field(pattern=r"-?\d{1,3}\s*,\s*\d{1,2}\s*,\s*\d{1,2}")
-    long: str = Field(pattern=r"-?\d{1,3}\s*,\s*\d{1,2}\s*,\s*\d{1,2}")
+    lat: str | None = Field(default=None)
+    long: str | None = Field(default=None)
+    mgrs: str | None = Field(default=None)
     tags: list[Tag] | None = Field(default_factory=list)
     notes: str | None = Field(default=None)
     speed: int | None = Field(default=None, ge=0)
     timestamp: str | None = Field(default=None, pattern=r"\d{1,2}:\d{1,2}:\d{1,2}")
     altitude: int = Field(default=0, ge=0)
+
+    @model_validator(mode="after")
+    def validate_position_fields(self) -> "RawWaypoint":
+        if self.mgrs:
+            return self
+        if self.lat and self.long:
+            return self
+        raise ValueError("Waypoint requires lat/long coordinates or an mgrs value")
 
 
 def parse_timestamp(timestamp_str: str) -> timedelta:
@@ -31,11 +40,6 @@ def parse_timestamp(timestamp_str: str) -> timedelta:
     if not (0 <= h <= 24 and 0 <= m <= 59 and 0 <= s <= 59):
         raise ValueError(f"'{timestamp_str}' is not a valid HH:MM:SS timestamp")
     return timedelta(hours=h, minutes=m, seconds=s)
-
-
-def _parse_dms(value: str) -> tuple[float, float, float]:
-    parts = [p.strip() for p in value.split(",")]
-    return float(parts[0]), float(parts[1]), float(parts[2])
 
 
 class Waypoint(BaseModel):
@@ -64,7 +68,7 @@ class Waypoint(BaseModel):
     @staticmethod
     def from_dict(d: dict, conf: Config) -> "Waypoint":
         raw = RawWaypoint(**d)
-        position = Position.new(latitude=_parse_dms(raw.lat), longitude=_parse_dms(raw.long))
+        position = parse_position(lat=raw.lat, lon=raw.long, mgrs_value=raw.mgrs)
         timestamp = parse_timestamp(raw.timestamp) if raw.timestamp else None
         return Waypoint(
             name=raw.name,

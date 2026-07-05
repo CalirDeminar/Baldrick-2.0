@@ -3,7 +3,10 @@ They are defined in yaml, and consist of:
 A top level name field (value must be a string)
 A waypoint list, that must consist of elements of:
 * Name: The name for the WP. Required.
-* Lat/Long: The Lat/long of the waypoint, defined in DMS (integer). Required. Eventually ideally able to accept Degree Decimal Minutes or MGRS as well
+* Lat/Long: The Lat/long of the waypoint. Required unless `mgrs` is supplied. Each coordinate accepts:
+  * DMS (degrees, minutes, seconds) as `"D, M, S"` or `"D M S"` (commas or spaces)
+  * DDM (degree decimal minutes) as `"D MM.M"` with optional hemisphere prefix/suffix (`N`, `S`, `E`, `W`)
+* Mgrs: An optional MGRS grid reference (e.g. `"32U MV 12345 67890"`) that replaces lat/long for the waypoint. MGRS may also be supplied in the `lat` field alone.
 * Tags: An list of tags to apply meaning to the WP. Optional. A flight can have 0 or more tags. These tags can be any of:
   * HOME - the airfield the flight expects to return to
   * DIVERT - a contingency airfield the flight might have to land at instead of their home airfield

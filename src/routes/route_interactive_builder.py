@@ -8,7 +8,7 @@ from questionary import ValidationError, Validator
 
 from config.config import Config
 from enums import Tag
-from routes.position import DMSDistance, Position
+from routes.position import parse_coordinate, parse_position
 from routes.route import Route, Waypoint, parse_timestamp
 
 
@@ -30,26 +30,66 @@ class TimestampValidator(Validator):
             )
 
 
-class _DMSValidator(Validator):
+class _CoordinateValidator(Validator):
+    axis = "lat"
     max_degrees = 90
 
     def validate(self, document):
-        parts = document.text.split(" ")
-        if len(parts) != 3 or not all(p.lstrip("-").isdigit() for p in parts):
-            raise ValidationError(message="Enter DMS as 'D M S', e.g. '49 26 30'")
-        d, m, s = (float(p) for p in parts)
-        if not -self.max_degrees <= d <= self.max_degrees:
-            raise ValidationError(message=f"{d} is out of range for degrees")
-        if not (0 <= m <= 60 and 0 <= s <= 60):
-            raise ValidationError(message="Minutes and seconds must be between 0 and 60")
+        try:
+            parsed = parse_coordinate(document.text, kind=self.axis)
+        except ValueError as exc:
+            raise ValidationError(
+                message=str(exc),
+                cursor_position=len(document.text),
+            ) from exc
+        if abs(parsed.to_decimal()) > self.max_degrees:
+            raise ValidationError(
+                message=f"Value is out of range for {self.axis}",
+                cursor_position=len(document.text),
+            )
 
 
-class DMSLatValidator(_DMSValidator):
+class LatCoordinateValidator(_CoordinateValidator):
+    axis = "lat"
     max_degrees = 90
 
 
-class DMSLonValidator(_DMSValidator):
+class LonCoordinateValidator(_CoordinateValidator):
+    axis = "lon"
     max_degrees = 180
+
+
+class MGRSValidator(Validator):
+    def validate(self, document):
+        try:
+            parse_position(mgrs_value=document.text)
+        except ValueError as exc:
+            raise ValidationError(
+                message=str(exc),
+                cursor_position=len(document.text),
+            ) from exc
+
+
+def _ask_position(idx: int):
+    use_mgrs = questionary.confirm(
+        f"Waypoint[{idx}] enter position as MGRS?", default=False
+    ).ask()
+    if use_mgrs:
+        mgrs_value = questionary.text(
+            f"Waypoint[{idx}] MGRS coordinate",
+            validate=MGRSValidator,
+        ).ask()
+        return parse_position(mgrs_value=mgrs_value)
+
+    lat = questionary.text(
+        f"Waypoint[{idx}] Latitude (DMS 'D M S' or DDM 'D MM.M')",
+        validate=LatCoordinateValidator,
+    ).ask()
+    lon = questionary.text(
+        f"Waypoint[{idx}] Longitude (DMS 'D M S' or DDM 'D MM.M')",
+        validate=LonCoordinateValidator,
+    ).ask()
+    return parse_position(lat=lat, lon=lon)
 
 
 def build_route_interactive(conf: Config) -> Route:
@@ -64,8 +104,7 @@ def build_route_interactive(conf: Config) -> Route:
         raw_tags = questionary.checkbox(
             f"Waypoint[{idx}] tags:", choices=tag_choices
         ).ask() or []
-        lat = questionary.text(f"Waypoint[{idx}] Latitude (DMS 'D M S')", validate=DMSLatValidator).ask()
-        lon = questionary.text(f"Waypoint[{idx}] Longitude (DMS 'D M S')", validate=DMSLonValidator).ask()
+        position = _ask_position(idx)
 
         speed: int | None = None
         timestamp: timedelta | None = None
@@ -84,10 +123,7 @@ def build_route_interactive(conf: Config) -> Route:
         waypoints.append(
             Waypoint(
                 name=name,
-                position=Position(
-                    latitude=DMSDistance.from_str(lat),
-                    longitude=DMSDistance.from_str(lon),
-                ),
+                position=position,
                 tags=[Tag(t) for t in raw_tags],
                 speed_to=speed,
                 timestamp=timestamp,
