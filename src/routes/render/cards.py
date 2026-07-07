@@ -28,6 +28,7 @@ def render_overview(
     conf: "Config",
     base_pixels: list[tuple[int, int]],
     report: "FuelReport | None",
+    flot_pixels: list[tuple[int, int]] | None = None,
 ) -> Image.Image:
     xs = [p[0] for p in base_pixels]
     ys = [p[1] for p in base_pixels]
@@ -54,14 +55,30 @@ def render_overview(
     pil = vips_to_pil(ensure_rgb(canvas)).convert("RGBA")
 
     canvas_points = [((x - x0) * scale, (y - y0) * scale) for (x, y) in base_pixels]
-    tags = [(Tag.IP in wp.tags, Tag.TGT in wp.tags) for wp in route.waypoints]
-    times = [None for _ in route.waypoints]
+    main = route.main_waypoints
+    main_indices = [i for i, wp in enumerate(route.waypoints) if Tag.DIVERT not in wp.tags]
+    main_points = [canvas_points[i] for i in main_indices]
+    tags = [(Tag.IP in wp.tags, Tag.TGT in wp.tags) for wp in main]
+    times = [None for _ in main]
 
     style = MarkerStyle(
         radius=max(pil.width * 0.02, 6),
         line_width=max(int(pil.width * 0.004), 2),
     )
-    overlays.draw_route(pil, canvas_points, tags, times, None, overlays.hex_to_rgb(route.route_colour), style)
+    overlays.draw_route(
+        pil, main_points, tags, times, None, overlays.hex_to_rgb(route.route_colour), style
+    )
+    divert_points = [
+        canvas_points[i] for i, wp in enumerate(route.waypoints) if Tag.DIVERT in wp.tags
+    ]
+    if divert_points:
+        overlays.draw_contingency_markers(
+            pil, divert_points, overlays.hex_to_rgb(route.route_colour), style
+        )
+
+    if flot_pixels:
+        flot_points = [((x - x0) * scale, (y - y0) * scale) for (x, y) in flot_pixels]
+        overlays.draw_flot(pil, flot_points, style)
 
     _draw_overview_summary(pil, route, selection, report)
     return pil.convert("RGB")
@@ -109,6 +126,11 @@ def render_legend(route: "Route") -> Image.Image:
     draw.text((220, y - 30), "Route leg", font=font, fill=(0, 0, 0, 255))
     y += 160
 
+    flot_style = MarkerStyle(radius=48, line_width=10)
+    overlays.draw_flot(image, [(60, y), (180, y)], flot_style)
+    draw.text((220, y - 30), "FLOT (forward line of own troops)", font=font, fill=(0, 0, 0, 255))
+    y += 160
+
     doghouse_help = [
         "WP  - waypoint name",
         "MC  - magnetic course for the leg",
@@ -117,6 +139,7 @@ def render_legend(route: "Route") -> Image.Image:
         "ESA - emergency safe altitude",
         "TAS - true airspeed for the leg",
         "NMC - magnetic course for the next leg",
+        "Red FLOT CROSSED warning on legs that cross the FLOT",
     ]
     draw.text((60, y), "Doghouse fields:", font=font, fill=(0, 0, 0, 255))
     y += 80

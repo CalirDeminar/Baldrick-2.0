@@ -103,6 +103,52 @@ def compute_layout(
     )
 
 
+def compute_north_up_layout(
+    centre_xy: tuple[float, float],
+    image_w: int,
+    image_h: int,
+) -> BoardLayout:
+    """Board layout for a single-point card with map north at the top."""
+    cx, cy = centre_xy
+    board_h = float(MIN_BOARD_HEIGHT)
+    board_w = board_h * BOARD_ASPECT
+
+    x0f = cx - board_w / 2
+    y0f = cy - board_h / 2
+    wf = board_w
+    hf = board_h
+
+    pad_x = wf * AABB_PAD
+    pad_y = hf * AABB_PAD
+    x0f -= pad_x
+    y0f -= pad_y
+    wf += 2 * pad_x
+    hf += 2 * pad_y
+
+    x0 = max(int(math.floor(x0f)), 0)
+    y0 = max(int(math.floor(y0f)), 0)
+    x1 = min(int(math.ceil(x0f + wf)), image_w)
+    y1 = min(int(math.ceil(y0f + hf)), image_h)
+    crop_w = max(x1 - x0, 1)
+    crop_h = max(y1 - y0, 1)
+
+    scale = min(OUTPUT_W / board_w, MAX_UPSCALE)
+
+    return BoardLayout(
+        prev_xy=centre_xy,
+        cur_xy=centre_xy,
+        centre=(cx, cy),
+        angle_deg=0.0,
+        board_w=board_w,
+        board_h=board_h,
+        crop_x=x0,
+        crop_y=y0,
+        crop_w=crop_w,
+        crop_h=crop_h,
+        scale=scale,
+    )
+
+
 def to_canvas(xy: tuple[float, float], layout: BoardLayout) -> tuple[float, float]:
     return (
         (xy[0] - layout.crop_x) * layout.scale,

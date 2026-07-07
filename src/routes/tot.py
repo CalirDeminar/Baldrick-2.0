@@ -36,9 +36,9 @@ def _speed_options(min_cruise: int) -> list[int]:
     return options or [max(min_cruise, 60)]
 
 
-def _last_index_with_tag(route: "Route", tag: Tag) -> int | None:
+def _last_index_with_tag(wps: list, tag: Tag) -> int | None:
     idx = None
-    for i, wp in enumerate(route.waypoints):
+    for i, wp in enumerate(wps):
         if tag in wp.tags:
             idx = i
     return idx
@@ -50,13 +50,25 @@ def plan_route_times(
     time_on_target: timedelta | None = None,
     push_time: timedelta | None = None,
 ) -> list[str]:
-    """Assign timestamps + leg speeds to every waypoint in ``route``.
+    """Assign timestamps + leg speeds to every main-route waypoint in ``route``.
+
+    DIVERT waypoints are excluded from sequencing; their timing fields are cleared.
 
     Returns a list of non-fatal warnings.
     """
-    wps = route.waypoints
+    wps = route.main_waypoints
     n = len(wps)
     warnings: list[str] = []
+
+    for wp in route.divert_waypoints:
+        if wp.timestamp is not None or wp.speed_to is not None:
+            warnings.append(
+                f"DIVERT waypoint '{wp.name}' has timestamp/speed set; "
+                f"ignoring (divert waypoints are not part of the flown route)."
+            )
+        wp.timestamp = None
+        wp.speed_to = None
+
     if n == 0:
         return warnings
 
@@ -69,8 +81,8 @@ def plan_route_times(
     for i in range(1, n):
         dist[i] = wps[i].position.distance_from(wps[i - 1].position, units)
 
-    tgt_idx = _last_index_with_tag(route, Tag.TGT)
-    push_idx = _last_index_with_tag(route, Tag.PUSH)
+    tgt_idx = _last_index_with_tag(wps, Tag.TGT)
+    push_idx = _last_index_with_tag(wps, Tag.PUSH)
 
     # Fixed leg speed for the leg *into* waypoint i (None => free/cruise).
     fixed_speed: list[float | None] = [None] * n

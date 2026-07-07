@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -10,8 +11,8 @@ from typing import TYPE_CHECKING
 import paths
 from routes.render.cards import render_legend, render_overview
 from routes.render.kneeboard import (
-    build_doghouse_lines,
     format_clock,
+    render_contingency,
     render_leg,
 )
 from units import ALTITUDE_LABEL, SPEED_LABEL
@@ -40,23 +41,30 @@ def generate(
 
     base_image = selection.base.load_image()
     base_pixels = [selection.base.get_pixels_for_position(wp.position) for wp in route.waypoints]
+    flot_pixels = [selection.base.get_pixels_for_position(p) for p in route.flot]
 
     map_name = selection.base.name.upper()
-    n = len(route.waypoints)
+    main_count = len(route.main_waypoints)
 
-    def render_and_save(index: int) -> str:
-        board = render_leg(base_image, selection, route, index, conf, base_pixels)
-        filename = f"{map_name}-wp{index}.jpg"
+    def render_and_save(main_index: int) -> str:
+        board = render_leg(base_image, selection, route, main_index, conf, base_pixels, flot_pixels)
+        filename = f"{map_name}-wp{main_index}.jpg"
         board.save(out_dir / filename, quality=_JPEG_QUALITY)
         return filename
 
-    leg_indices = list(range(1, n))
+    leg_indices = list(range(1, main_count))
     if leg_indices:
         max_workers = min(len(leg_indices), (4))
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
             list(pool.map(render_and_save, leg_indices))
 
-    overview = render_overview(base_image, selection, route, conf, base_pixels, report)
+    for wp in route.divert_waypoints:
+        board = render_contingency(base_image, selection, route, wp, base_pixels, flot_pixels)
+        safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
+        filename = f"{map_name}-divert-{safe_name}.jpg"
+        board.save(out_dir / filename, quality=_JPEG_QUALITY)
+
+    overview = render_overview(base_image, selection, route, conf, base_pixels, report, flot_pixels)
     overview.save(out_dir / f"{map_name}-Overview.jpg", quality=_JPEG_QUALITY)
 
     legend = render_legend(route)
@@ -76,8 +84,8 @@ def _write_notes(
     units = route.units
     parts: list[str] = [f"Route: {route.name}", f"Map: {selection.base.name}", ""]
 
-    name_width = max((len(wp.name) for wp in route.waypoints), default=4)
-    for i, wp in enumerate(route.waypoints):
+    name_width = max((len(wp.name) for wp in route.main_waypoints), default=4)
+    for wp in route.main_waypoints:
         eta = format_clock(wp.timestamp.total_seconds() / 3600.0 if wp.timestamp else None)
         tags = ", ".join(t.value for t in wp.tags)
         speed = f"{wp.speed_to}{SPEED_LABEL[units]}" if wp.speed_to else "-"
@@ -87,6 +95,12 @@ def _write_notes(
             f"{wp.name.ljust(name_width)}  ETA {eta}  TAS {speed}  ESA {esa}  "
             f"PLANNED {fuel}  {tags}".rstrip()
         )
+
+    if route.divert_waypoints:
+        parts += ["", "Contingency:"]
+        for wp in route.divert_waypoints:
+            notes = wp.notes.replace("\\n", " / ") if wp.notes else ""
+            parts.append(f"  {wp.name}  DIVERT  {notes}".rstrip())
 
     if report is not None:
         parts += ["", "Fuel:"]

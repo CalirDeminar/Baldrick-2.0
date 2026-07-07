@@ -9,7 +9,7 @@ Given the route via either method, the user then defines if they want to use a c
 
 Using the above, the fuel map referenced in the config, their defined targets, Baldrick 2 then calculates the following
 * Leg speeds and ToTs (time on target) for each waypoint in the route (sticking to multiple of 60 speeds where possible to aid pilot timekeeping)
-* A bingo fuel for the route (Minimum fuel needed to get back to either the home airfield or divert airfield from the furthest point of the route)
+* A bingo fuel for the route (Minimum fuel needed to get back to either the home airfield or divert airfield from the furthest point of the route). Divert airfields are contingency waypoints and are not part of the flown route sequence.
 
 It then uses the above, plus internal maps and pixel to lat/long mappings against those maps, to create a series of kneeboards of a fixed 1600x2400 pixels that consist of:
 * A cropped and rotated section of the map that shows the leg of the route (with some padding around the edge of the leg so the surroundings are able to be seen)

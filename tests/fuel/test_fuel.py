@@ -109,3 +109,51 @@ class TestComputeFuel:
         )
         report = compute_fuel(route, conf)
         assert any("outside the fuel map" in w for w in report.warnings)
+
+
+class TestDivertExclusion:
+    def test_planned_fuel_excludes_divert_leg(self):
+        fm = make_fuel_map()
+        conf = make_conf(fm)
+        route_with_divert = Route.from_config(
+            "R",
+            [
+                wp("home", 50, 10, tags=[Tag.HOME]),
+                wp("a", 50, 11),
+                wp("divert", 50, 20, tags=[Tag.DIVERT]),
+                wp("b", 50, 12),
+                wp("home2", 50, 10, tags=[Tag.HOME]),
+            ],
+            conf,
+        )
+        route_without = Route.from_config(
+            "R",
+            [
+                wp("home", 50, 10, tags=[Tag.HOME]),
+                wp("a", 50, 11),
+                wp("b", 50, 12),
+                wp("home2", 50, 10, tags=[Tag.HOME]),
+            ],
+            conf,
+        )
+        report_with = compute_fuel(route_with_divert, conf)
+        report_without = compute_fuel(route_without, conf)
+        assert report_with.total_required == report_without.total_required
+        assert route_with_divert.main_waypoints[-1].planned_fuel == conf.reserve_fuel
+        assert route_with_divert.divert_waypoints[0].planned_fuel is None
+
+    def test_bingo_uses_nearer_divert(self):
+        fm = make_fuel_map()
+        conf = make_conf(fm)
+        route = Route.from_config(
+            "R",
+            [
+                wp("home", 50, 10, tags=[Tag.HOME]),
+                wp("tgt", 50, 15, tags=[Tag.TGT]),
+                wp("divert", 50, 14, tags=[Tag.DIVERT]),
+                wp("home2", 50, 10, tags=[Tag.HOME]),
+            ],
+            conf,
+        )
+        report = compute_fuel(route, conf)
+        assert report.return_to_divert is True

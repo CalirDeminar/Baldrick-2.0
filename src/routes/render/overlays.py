@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 FADED_ALPHA = 90
 FOCUSED_ALPHA = 255
+FLOT_COLOUR = (211, 47, 47)
 
 
 def hex_to_rgb(value: str) -> tuple[int, int, int]:
@@ -127,6 +128,80 @@ def draw_route(
         draw_marker(draw, canvas_points[i], incoming_track[i], is_ip, is_tgt, colour, style)
 
 
+def _draw_dashed_line(
+    draw: ImageDraw.ImageDraw,
+    start: tuple[float, float],
+    end: tuple[float, float],
+    colour: tuple[int, int, int, int],
+    width: int,
+    dash_len: float = 12.0,
+    gap_len: float = 8.0,
+    outline_colour: tuple[int, int, int, int] | None = None,
+    outline_extra: int = 0,
+) -> None:
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
+    length = math.hypot(dx, dy)
+    if length == 0:
+        return
+    tx, ty = dx / length, dy / length
+    pos = 0.0
+    while pos < length:
+        dash_end = min(pos + dash_len, length)
+        segment = [
+            (start[0] + tx * pos, start[1] + ty * pos),
+            (start[0] + tx * dash_end, start[1] + ty * dash_end),
+        ]
+        if outline_colour is not None and outline_extra > 0:
+            draw.line(segment, fill=outline_colour, width=width + outline_extra * 2)
+        draw.line(segment, fill=colour, width=width)
+        pos += dash_len + gap_len
+
+
+def draw_flot(
+    image: Image.Image,
+    canvas_points: list[tuple[float, float]],
+    style: MarkerStyle,
+) -> None:
+    """Draw FLOT polyline as dashed red segments between consecutive points."""
+    if len(canvas_points) < 2:
+        return
+    draw = ImageDraw.Draw(image, "RGBA")
+    colour = (*FLOT_COLOUR, FOCUSED_ALPHA)
+    width = max(style.line_width * 3, 3)
+    dash_len = max(width * 4, 8)
+    gap_len = max(width * 3, 6)
+    outline_extra = max(2, width // 4)
+    for i in range(len(canvas_points) - 1):
+        _draw_dashed_line(
+            draw,
+            canvas_points[i],
+            canvas_points[i + 1],
+            colour,
+            width,
+            dash_len=dash_len,
+            gap_len=gap_len,
+            outline_colour=(0, 0, 0, FOCUSED_ALPHA),
+            outline_extra=outline_extra,
+        )
+
+
+def draw_contingency_markers(
+    image: Image.Image,
+    canvas_points: list[tuple[float, float]],
+    colour_rgb: tuple[int, int, int],
+    style: MarkerStyle,
+) -> None:
+    """Draw waypoint markers only (no legs) for contingency airfields."""
+    if not canvas_points:
+        return
+    draw = ImageDraw.Draw(image, "RGBA")
+    colour = (*colour_rgb, FOCUSED_ALPHA)
+    track = (1.0, 0.0)
+    for centre in canvas_points:
+        draw_marker(draw, centre, track, False, False, colour, style)
+
+
 def _draw_minute_ticks(
     draw: ImageDraw.ImageDraw,
     prev: tuple[float, float],
@@ -155,9 +230,19 @@ def _draw_minute_ticks(
         )
 
 
+def _doghouse_row(
+    row: tuple[str, list[str]] | tuple[str, list[str], tuple[int, int, int]],
+) -> tuple[str, list[str], tuple[int, int, int]]:
+    if len(row) == 3:
+        label, values, text_colour = row
+        return label, values, text_colour
+    label, values = row
+    return label, values, (255, 255, 255)
+
+
 def draw_doghouse(
     image: Image.Image,
-    lines: list[tuple[str, list[str]]],
+    lines: list[tuple[str, list[str]] | tuple[str, list[str], tuple[int, int, int]]],
     colour_rgb: tuple[int, int, int],
 ) -> None:
     """Draw the info block in the bottom-left corner."""
@@ -167,14 +252,15 @@ def draw_doghouse(
     margin = int(font_size * 0.4)
     row_h = font_size + margin
 
-    label_w = max(draw.textlength(label, font=font) for label, _ in lines) if lines else 0
+    parsed = [_doghouse_row(row) for row in lines]
+    label_w = max(draw.textlength(label, font=font) for label, _, _ in parsed) if parsed else 0
     value_w = 0.0
-    for label, values in lines:
+    for label, values, _ in parsed:
         for v in values:
             indent = 0 if label else label_w
             value_w = max(value_w, draw.textlength(v, font=font) - indent)
     column_gap = font_size
-    total_rows = sum(len(values) for _, values in lines)
+    total_rows = sum(len(values) for _, values, _ in parsed)
     block_w = int(label_w + column_gap + value_w + margin * 2)
     block_h = total_rows * row_h
 
@@ -188,11 +274,16 @@ def draw_doghouse(
     )
 
     y = y0
-    for label, values in lines:
+    for label, values, text_colour in parsed:
         draw.line([(x0, y), (x0 + block_w, y)], fill=(255, 255, 255, 60), width=1)
         if label:
-            draw.text((x0 + margin, y), label, font=font, fill=(255, 255, 255, 255))
+            draw.text(
+                (x0 + margin, y),
+                label,
+                font=font,
+                fill=(*text_colour, 255),
+            )
         for v in values:
             vx = x0 + margin + (label_w + column_gap if label else 0)
-            draw.text((vx, y), v, font=font, fill=(255, 255, 255, 255))
+            draw.text((vx, y), v, font=font, fill=(*text_colour, 255))
             y += row_h

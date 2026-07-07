@@ -63,7 +63,7 @@ def compute_fuel(route: "Route", conf: "Config") -> FuelReport:
     reserve = conf.reserve_fuel
     warnings: list[str] = []
 
-    waypoints = route.waypoints
+    waypoints = route.main_waypoints
     leg_fuels: list[float] = []
     for i in range(1, len(waypoints)):
         a = waypoints[i - 1]

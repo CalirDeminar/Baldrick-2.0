@@ -110,3 +110,37 @@ class TestAnchorValidation:
         )
         with pytest.raises(ToTError, match="same time-on-target"):
             plan_route_times(route, conf)
+
+
+class TestDivertExclusion:
+    def test_divert_skipped_for_timing(self):
+        conf = make_conf()
+        route = make_route(
+            [
+                wp("start", 50, 10),
+                wp("divert", 50, 15, tags=[Tag.DIVERT]),
+                wp("tgt", 50, 12, tags=[Tag.TGT]),
+            ],
+            conf,
+        )
+        tot = timedelta(hours=12, minutes=30)
+        plan_route_times(route, conf, time_on_target=tot)
+        divert = route.waypoints[1]
+        assert divert.timestamp is None
+        assert divert.speed_to is None
+        assert route.waypoints[0].timestamp < route.waypoints[2].timestamp
+        assert route.waypoints[2].timestamp == tot
+
+    def test_divert_with_timestamp_warns(self):
+        conf = make_conf()
+        route = make_route(
+            [
+                wp("start", 50, 10),
+                wp("divert", 50, 15, tags=[Tag.DIVERT], timestamp=timedelta(hours=12)),
+                wp("tgt", 50, 12, tags=[Tag.TGT]),
+            ],
+            conf,
+        )
+        warnings = plan_route_times(route, conf)
+        assert any("DIVERT waypoint" in w for w in warnings)
+        assert route.waypoints[1].timestamp is None

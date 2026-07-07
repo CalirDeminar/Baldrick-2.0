@@ -34,9 +34,9 @@ def compute_esa(route: "Route", selection: "MapSelection", conf: "Config") -> li
 
     warnings: list[str] = []
     missing = 0
-    for i in range(1, len(route.waypoints)):
-        a = route.waypoints[i - 1]
-        b = route.waypoints[i]
+    for i in range(1, len(route.main_waypoints)):
+        a = route.main_waypoints[i - 1]
+        b = route.main_waypoints[i]
         highest_ft = min_alt.min_alt_between(a.position, b.position)
         if highest_ft is None:
             missing += 1

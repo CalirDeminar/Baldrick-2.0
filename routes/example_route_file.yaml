@@ -1,4 +1,11 @@
 name: Test Route 1
+flot:
+  - lat: 51, 10, 8
+    long: 10, 13, 49
+  - lat: 50, 38, 16
+    long: 09, 54, 56
+  - lat: 50, 14, 30
+    long: 10, 44, 22
 waypoints:
   - name: Ramstein
     lat: 49, 26, 30
@@ -13,7 +20,6 @@ waypoints:
     long: 9, 23, 30
     tags:
       - FIX
-    notes: FIX
   - name: Pre-IP
     lat: 51, 12, 30
     long: 10, 1, 30
@@ -41,3 +47,9 @@ waypoints:
     tags:
       - HOME
     notes: Home
+  - name: Wiesbaden
+    lat: 50, 02, 29
+    long: 8, 19, 31
+    tags:
+      - DIVERT
+    notes: TACAN 88X\n07/25
