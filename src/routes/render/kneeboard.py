@@ -98,6 +98,7 @@ def build_doghouse_lines(
         else "N/A"
     )
     tas = f"{wp.speed_to}{SPEED_LABEL[units]}" if wp.speed_to else "N/A"
+    min_fuel = f"{wp.min_fuel:,} lb" if wp.min_fuel is not None else "N/A"
 
     lines: list[tuple[str, list[str]]] = [
         ("WP:", [wp.name]),
@@ -106,6 +107,7 @@ def build_doghouse_lines(
         ("ETA:", eta_values),
         ("ESA:", [esa]),
         ("TAS:", [tas]),
+        ("MIN FUEL:", [min_fuel]),
         ("NMC:", [next_heading]),
     ]
 

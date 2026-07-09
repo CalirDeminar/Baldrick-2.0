@@ -90,10 +90,10 @@ def _write_notes(
         tags = ", ".join(t.value for t in wp.tags)
         speed = f"{wp.speed_to}{SPEED_LABEL[units]}" if wp.speed_to else "-"
         esa = f"{wp.minimum_leg_alt}{ALTITUDE_LABEL[units]}" if wp.minimum_leg_alt is not None else "-"
-        fuel = f"{wp.planned_fuel} lb" if wp.planned_fuel is not None else "-"
+        fuel = f"{wp.min_fuel} lb" if wp.min_fuel is not None else "-"
         parts.append(
             f"{wp.name.ljust(name_width)}  ETA {eta}  TAS {speed}  ESA {esa}  "
-            f"PLANNED {fuel}  {tags}".rstrip()
+            f"MIN FUEL {fuel}  {tags}".rstrip()
         )
 
     if route.divert_waypoints:

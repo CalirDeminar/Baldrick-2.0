@@ -78,14 +78,14 @@ class TestComputeFuel:
             conf,
         )
 
-    def test_reports_bingo_and_planned_fuel(self):
+    def test_reports_bingo_and_min_fuel(self):
         fm = make_fuel_map()
         conf = make_conf(fm)
         route = self._route(conf)
         report = compute_fuel(route, conf)
         assert report.bingo_fuel is not None
         assert report.total_required > 0
-        assert route.waypoints[-1].planned_fuel == conf.reserve_fuel
+        assert route.waypoints[-1].min_fuel == conf.reserve_fuel
 
     def test_insufficient_capacity_raises(self):
         fm = make_fuel_map(capacity=100)
@@ -112,7 +112,7 @@ class TestComputeFuel:
 
 
 class TestDivertExclusion:
-    def test_planned_fuel_excludes_divert_leg(self):
+    def test_min_fuel_excludes_divert_leg(self):
         fm = make_fuel_map()
         conf = make_conf(fm)
         route_with_divert = Route.from_config(
@@ -139,8 +139,8 @@ class TestDivertExclusion:
         report_with = compute_fuel(route_with_divert, conf)
         report_without = compute_fuel(route_without, conf)
         assert report_with.total_required == report_without.total_required
-        assert route_with_divert.main_waypoints[-1].planned_fuel == conf.reserve_fuel
-        assert route_with_divert.divert_waypoints[0].planned_fuel is None
+        assert route_with_divert.main_waypoints[-1].min_fuel == conf.reserve_fuel
+        assert route_with_divert.divert_waypoints[0].min_fuel is None
 
     def test_bingo_uses_nearer_divert(self):
         fm = make_fuel_map()

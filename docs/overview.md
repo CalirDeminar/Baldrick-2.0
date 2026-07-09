@@ -22,6 +22,7 @@ It then uses the above, plus internal maps and pixel to lat/long mappings agains
   * The ToT to arrive at the end of the leg (ETA: HH:MM:SS). Ideally with an absolute time *and* a relative time to a push point, if a push point is included (to be able to handle a delay/rolex to the expected push time)
   * The emergency safe altitude for the leg. This is an the altitude of the highest feature around the leg, plus a saftey margin, that the crew must climb to if they suddenly enter IMC and are at immediate risk of collision with the ground of obsticals.
   * Speed for the leg to be flown (TAS: Xkts)
+  * The minimum fuel needed on arrival at the waypoint to complete the remainder of the planned route back to HOME while keeping the reserve margin intact (MIN FUEL: X lb). Arriving with less means the flight must abort.
   * The magnetic course to be flown for the *next* heading (NMC: X°)
   * For FIX points, the lat/long of the fix point
   * Any notes defined for the leg

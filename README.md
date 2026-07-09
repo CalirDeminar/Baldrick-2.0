@@ -266,7 +266,7 @@ Each run creates `output/<route name>/` containing:
 | `<MAP>-wp1.jpg` … `<MAP>-wpN.jpg` | One kneeboard per route leg (1600×2400 JPEG) |
 | `<MAP>-Overview.jpg` | Whole-route overview with fuel summary |
 | `Legend.jpg` | Symbol and doghouse field key |
-| `notes.txt` | Text summary: ETAs, speeds, ESA, planned fuel, bingo/joker |
+| `notes.txt` | Text summary: ETAs, speeds, ESA, min fuel to complete route, bingo/joker |
 | `<route name>.zip` | Zip archive of the folder contents |
 
 Each leg card includes a cropped, rotated map section, route overlay (current leg solid, others faded), waypoint markers, and a doghouse block with WP name, magnetic course, distance, ETA (absolute and relative to push when applicable), ESA, TAS, next magnetic course, fix coordinates, and notes.

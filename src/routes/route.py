@@ -68,7 +68,7 @@ class Waypoint(BaseModel):
     altitude: int = Field(default=0, ge=0)
     notes: str | None = Field(default="")
     minimum_leg_alt: int | None = Field(default=None)
-    planned_fuel: int | None = Field(default=None)
+    min_fuel: int | None = Field(default=None)
 
     @property
     def is_fix(self) -> bool:

@@ -80,13 +80,16 @@ def compute_fuel(route: "Route", conf: "Config") -> FuelReport:
         efficiency = fuel_map.get_lb_per_mile_for_profile(altitude_ft, speed_kts)
         leg_fuels.append(distance_nm * efficiency)
 
-    # Planned fuel at each waypoint: fuel to fly all remaining legs plus reserve.
+    # Minimum fuel required at each waypoint to complete the remainder of the
+    # planned route (all remaining legs to HOME) while still landing with the
+    # reserve margin intact. Arriving with less than this means the mission can
+    # no longer be completed and the flight must abort.
     if waypoints:
-        waypoints[-1].planned_fuel = int(round(reserve))
+        waypoints[-1].min_fuel = int(round(reserve))
     running = float(reserve)
     for i in range(len(waypoints) - 1, 0, -1):
         running += leg_fuels[i - 1]
-        waypoints[i - 1].planned_fuel = int(round(running))
+        waypoints[i - 1].min_fuel = int(round(running))
 
     total_required = int(round(conf.takeoff_fuel + running))
 
