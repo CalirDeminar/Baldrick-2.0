@@ -7,6 +7,7 @@ import questionary
 from questionary import ValidationError, Validator
 
 from domain.config import Config
+from domain.map import MapLayer
 from domain.route import Route, Waypoint
 from parsing.coordinates import parse_coordinate, parse_position
 from parsing.route_loader import parse_timestamp
@@ -136,3 +137,13 @@ def build_route_interactive(conf: Config) -> Route:
             adding = questionary.confirm("Add another waypoint?", default=True).ask()
 
     return Route.from_config(name=route_name, waypoints=waypoints, conf=conf)
+
+
+def choose_map(candidates: list[MapLayer]) -> MapLayer:
+    """Prompt the user to pick a base map when a route fits more than one."""
+    choices = [layer.name for layer in candidates]
+    selected_name = questionary.select(
+        "This route fits multiple maps. Which map should be used?",
+        choices=choices,
+    ).ask()
+    return next(layer for layer in candidates if layer.name == selected_name)

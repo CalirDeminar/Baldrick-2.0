@@ -1,6 +1,6 @@
 name: Test Route 1
-flot:
-  - lat: 51, 10, 8
+# map: GERMANY   # optional: force base map when route fits multiple maps
+flot:  - lat: 51, 10, 8
     long: 10, 13, 49
   - lat: 50, 38, 16
     long: 09, 54, 56

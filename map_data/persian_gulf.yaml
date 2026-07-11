@@ -1,0 +1,177 @@
+name: PERSIAN_GULF
+pixel_map:
+  -
+      lat: 24, 0, 0
+      long: 54, 0, 0
+      x_pixel: 205
+      y_pixel: 4637
+  -
+      lat: 24, 0, 0
+      long: 55, 0, 0
+      x_pixel: 840
+      y_pixel: 4649
+  -
+      lat: 24, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1476
+      y_pixel: 4656
+  -
+      lat: 24, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2111
+      y_pixel: 4659
+  -
+      lat: 24, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2748
+      y_pixel: 4655
+  -
+      lat: 25, 0, 0
+      long: 54, 0, 0
+      x_pixel: 219
+      y_pixel: 3945
+  -
+      lat: 25, 0, 0
+      long: 55, 0, 0
+      x_pixel: 851
+      y_pixel: 3957
+  -
+      lat: 25, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1481
+      y_pixel: 3963
+  -
+      lat: 25, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2112
+      y_pixel: 3966
+  -
+      lat: 25, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2743
+      y_pixel: 3965
+  -
+      lat: 26, 0, 0
+      long: 54, 0, 0
+      x_pixel: 235
+      y_pixel: 3252
+  -
+      lat: 26, 0, 0
+      long: 55, 0, 0
+      x_pixel: 861
+      y_pixel: 3265
+  -
+      lat: 26, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1486
+      y_pixel: 3271
+  -
+      lat: 26, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2111
+      y_pixel: 3273
+  -
+      lat: 26, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2738
+      y_pixel: 3272
+  -
+      lat: 27, 0, 0
+      long: 54, 0, 0
+      x_pixel: 251
+      y_pixel: 2559
+  -
+      lat: 27, 0, 0
+      long: 55, 0, 0
+      x_pixel: 871
+      y_pixel: 2571
+  -
+      lat: 27, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1491
+      y_pixel: 2579
+  -
+      lat: 27, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2112
+      y_pixel: 2582
+  -
+      lat: 27, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2732
+      y_pixel: 2579
+  -
+      lat: 28, 0, 0
+      long: 54, 0, 0
+      x_pixel: 267
+      y_pixel: 1865
+  -
+      lat: 28, 0, 0
+      long: 55, 0, 0
+      x_pixel: 882
+      y_pixel: 1879
+  -
+      lat: 28, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1497
+      y_pixel: 1886
+  -
+      lat: 28, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2112
+      y_pixel: 1890
+  -
+      lat: 28, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2725
+      y_pixel: 1887
+  -
+      lat: 29, 0, 0
+      long: 54, 0, 0
+      x_pixel: 285
+      y_pixel: 1174
+  -
+      lat: 29, 0, 0
+      long: 55, 0, 0
+      x_pixel: 894
+      y_pixel: 1187
+  -
+      lat: 29, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1503
+      y_pixel: 1194
+  -
+      lat: 29, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2112
+      y_pixel: 1196
+  -
+      lat: 29, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2720
+      y_pixel: 1194
+  -
+      lat: 30, 0, 0
+      long: 54, 0, 0
+      x_pixel: 303
+      y_pixel: 481
+  -
+      lat: 30, 0, 0
+      long: 55, 0, 0
+      x_pixel: 905
+      y_pixel: 494
+  -
+      lat: 30, 0, 0
+      long: 56, 0, 0
+      x_pixel: 1508
+      y_pixel: 503
+  -
+      lat: 30, 0, 0
+      long: 57, 0, 0
+      x_pixel: 2111
+      y_pixel: 505
+  -
+      lat: 30, 0, 0
+      long: 58, 0, 0
+      x_pixel: 2713
+      y_pixel: 501

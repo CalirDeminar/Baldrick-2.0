@@ -1,0 +1,182 @@
+name: NORMANDY
+pixel_map:
+  -
+      lat: 48, 0, 0
+      long: -3, 0, 0
+      x_pixel: 417
+      y_pixel: 2669
+  -
+      lat: 48, 0, 0
+      long: -2, 0, 0
+      x_pixel: 882
+      y_pixel: 2665
+  -
+      lat: 48, 0, 0
+      long: -1, 0, 0
+      x_pixel: 1347
+      y_pixel: 2661
+  -
+      lat: 48, 0, 0
+      long: 0, 0, 0
+      x_pixel: 1735
+      y_pixel: 2648
+  -
+      lat: 48, 0, 0
+      long: 1, 0, 0
+      x_pixel: 2280
+      y_pixel: 2624
+  -
+      lat: 48, 0, 0
+      long: 2, 0, 0
+      x_pixel: 2747
+      y_pixel: 2596
+  -
+      lat: 48, 0, 0
+      long: 3, 0, 0
+      x_pixel: 3213
+      y_pixel: 2561
+  -
+      lat: 48, 0, 0
+      long: 4, 0, 0
+      x_pixel: 3675
+      y_pixel: 2521
+  -
+      lat: 49, 0, 0
+      long: -3, 0, 0
+      x_pixel: 414
+      y_pixel: 1973
+  -
+      lat: 49, 0, 0
+      long: -2, 0, 0
+      x_pixel: 873
+      y_pixel: 1969
+  -
+      lat: 49, 0, 0
+      long: -1, 0, 0
+      x_pixel: 1329
+      y_pixel: 1960
+  -
+      lat: 49, 0, 0
+      long: 0, 0, 0
+      x_pixel: 1785
+      y_pixel: 1946
+  -
+      lat: 49, 0, 0
+      long: 1, 0, 0
+      x_pixel: 2244
+      y_pixel: 1925
+  -
+      lat: 49, 0, 0
+      long: 2, 0, 0
+      x_pixel: 2701
+      y_pixel: 1895
+  -
+      lat: 49, 0, 0
+      long: 3, 0, 0
+      x_pixel: 3159
+      y_pixel: 1865
+  -
+      lat: 49, 0, 0
+      long: 4, 0, 0
+      x_pixel: 3615
+      y_pixel: 1825
+  -
+      lat: 50, 0, 0
+      long: -3, 0, 0
+      x_pixel: 417
+      y_pixel: 1277
+  -
+      lat: 50, 0, 0
+      long: -2, 0, 0
+      x_pixel: 865
+      y_pixel: 1275
+  -
+      lat: 50, 0, 0
+      long: -1, 0, 0
+      x_pixel: 1310
+      y_pixel: 1268
+  -
+      lat: 50, 0, 0
+      long: 0, 0, 0
+      x_pixel: 1759
+      y_pixel: 1253
+  -
+      lat: 50, 0, 0
+      long: 1, 0, 0
+      x_pixel: 2207
+      y_pixel: 1233
+  -
+      lat: 50, 0, 0
+      long: 2, 0, 0
+      x_pixel: 2655
+      y_pixel: 1204
+  -
+      lat: 50, 0, 0
+      long: 3, 0, 0
+      x_pixel: 3105
+      y_pixel: 1171
+  -
+      lat: 50, 0, 0
+      long: 4, 0, 0
+      x_pixel: 3554
+      y_pixel: 1132
+  -
+      lat: 51, 0, 0
+      long: -3, 0, 0
+      x_pixel: 417
+      y_pixel: 581
+  -
+      lat: 51, 0, 0
+      long: -2, 0, 0
+      x_pixel: 855
+      y_pixel: 579
+  -
+      lat: 51, 0, 0
+      long: -1, 0, 0
+      x_pixel: 1293
+      y_pixel: 571
+  -
+      lat: 51, 0, 0
+      long: 0, 0, 0
+      x_pixel: 1733
+      y_pixel: 557
+  -
+      lat: 51, 0, 0
+      long: 1, 0, 0
+      x_pixel: 2171
+      y_pixel: 536
+  -
+      lat: 51, 0, 0
+      long: 2, 0, 0
+      x_pixel: 2610
+      y_pixel: 507
+  -
+      lat: 51, 0, 0
+      long: 3, 0, 0
+      x_pixel: 3047
+      y_pixel: 476
+  -
+      lat: 51, 0, 0
+      long: 4, 0, 0
+      x_pixel: 3487
+      y_pixel: 439
+  -
+      lat: 52, 0, 0
+      long: -1, 0, 0
+      x_pixel: 1277
+      y_pixel: 0
+  -
+      lat: 52, 0, 0
+      long: 0, 0, 0
+      x_pixel: 1713
+      y_pixel: 0
+  -
+      lat: 52, 0, 0
+      long: 1, 0, 0
+      x_pixel: 2141
+      y_pixel: 0
+  -
+      lat: 52, 0, 0
+      long: 2, 0, 0
+      x_pixel: 2588
+      y_pixel: 0

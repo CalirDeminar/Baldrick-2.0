@@ -2,11 +2,44 @@ from datetime import timedelta
 
 import pytest
 
-from domain.map import DCSMap, MapLayer, MapSet
+from domain.map import DCSMap, MapLayer, MapSet, PixelMapPoint
 from domain.position import Position
 from domain.route import Waypoint
 from parsing.map_loader import load_map_set
 from shared.errors import MapError
+
+
+def _grid_layer(name: str) -> MapLayer:
+    """Minimal 3x3 degree grid base map with predictable pixel coordinates."""
+    pixel_map: dict[Position, PixelMapPoint] = {}
+    for lat in (48, 49, 50):
+        for lon in (10, 11, 12):
+            pos = Position.new(latitude=(lat, 0, 0), longitude=(lon, 0, 0))
+            pixel_map[pos] = PixelMapPoint(
+                position=pos,
+                x_pixel=lat * 1000 + lon,
+                y_pixel=lat * 100 + lon * 10,
+            )
+    return MapLayer(
+        name=name,
+        pixel_map=pixel_map,
+        projection_adjustment_deg=0.0,
+        image_file=f"{name}.jpg",
+    )
+
+
+@pytest.fixture
+def ambiguous_waypoint() -> Waypoint:
+    return Waypoint(
+        name="AMBIG",
+        position=Position.new(latitude=(49, 30, 0), longitude=(11, 30, 0)),
+        tags=[],
+    )
+
+
+@pytest.fixture
+def ambiguous_map_set() -> MapSet:
+    return MapSet([_grid_layer("GERMANY"), _grid_layer("NORMANDY")])
 
 
 class TestBounds:
@@ -63,3 +96,45 @@ class TestSelection:
         outside = Waypoint(name="OCEAN", position=Position.new((0, 0, 0), (0, 0, 0)), tags=[])
         with pytest.raises(MapError, match="out of bounds"):
             load_map_set().select_for([outside])
+
+    def test_candidate_bases_returns_all_containing_maps(
+        self, ambiguous_map_set: MapSet, ambiguous_waypoint: Waypoint
+    ):
+        candidates = ambiguous_map_set.candidate_bases([ambiguous_waypoint])
+        assert {layer.name for layer in candidates} == {"GERMANY", "NORMANDY"}
+
+    def test_ambiguous_route_uses_chooser(
+        self, ambiguous_map_set: MapSet, ambiguous_waypoint: Waypoint
+    ):
+        def pick_normandy(candidates: list[MapLayer]) -> MapLayer:
+            return next(layer for layer in candidates if layer.name == "NORMANDY")
+
+        selection = ambiguous_map_set.select_for(
+            [ambiguous_waypoint], chooser=pick_normandy
+        )
+        assert selection.dcs_map == DCSMap.NORMANDY
+
+    def test_ambiguous_route_uses_preferred_map(
+        self, ambiguous_map_set: MapSet, ambiguous_waypoint: Waypoint
+    ):
+        selection = ambiguous_map_set.select_for(
+            [ambiguous_waypoint], preferred=DCSMap.GERMANY
+        )
+        assert selection.dcs_map == DCSMap.GERMANY
+
+    def test_preferred_map_not_containing_route_raises(
+        self, ambiguous_map_set: MapSet
+    ):
+        outside = Waypoint(
+            name="OCEAN",
+            position=Position.new((0, 0, 0), (0, 0, 0)),
+            tags=[],
+        )
+        with pytest.raises(MapError, match="does not fully contain"):
+            ambiguous_map_set.select_for([outside], preferred=DCSMap.GERMANY)
+
+    def test_ambiguous_route_defaults_to_first_candidate_without_chooser(
+        self, ambiguous_map_set: MapSet, ambiguous_waypoint: Waypoint
+    ):
+        selection = ambiguous_map_set.select_for([ambiguous_waypoint])
+        assert selection.dcs_map == DCSMap.GERMANY

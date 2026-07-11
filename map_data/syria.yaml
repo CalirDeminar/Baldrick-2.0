@@ -1,0 +1,362 @@
+name: SYRIA
+pixel_map:
+  -
+      lat: 31, 0, 0
+      long: 32, 0, 0
+      x_pixel: 862
+      y_pixel: 5960
+  -
+      lat: 31, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1452
+      y_pixel: 5999
+  -
+      lat: 31, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2050
+      y_pixel: 6029
+  -
+      lat: 31, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2656
+      y_pixel: 6048
+  -
+      lat: 31, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3249
+      y_pixel: 6072
+  -
+      lat: 31, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3841
+      y_pixel: 6086
+  -
+      lat: 31, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4448
+      y_pixel: 6088
+  -
+      lat: 31, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5037
+      y_pixel: 6097
+  -
+      lat: 31, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5633
+      y_pixel: 6093
+  -
+      lat: 32, 0, 0
+      long: 32, 0, 0
+      x_pixel: 907
+      y_pixel: 5263
+  -
+      lat: 32, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1494
+      y_pixel: 5312
+  -
+      lat: 32, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2086
+      y_pixel: 5350
+  -
+      lat: 32, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2680
+      y_pixel: 5363
+  -
+      lat: 32, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3273
+      y_pixel: 5379
+  -
+      lat: 32, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3862
+      y_pixel: 5397
+  -
+      lat: 32, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4454
+      y_pixel: 5405
+  -
+      lat: 32, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5043
+      y_pixel: 5399
+  -
+      lat: 32, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5635
+      y_pixel: 5403
+  -
+      lat: 33, 0, 0
+      long: 32, 0, 0
+      x_pixel: 953
+      y_pixel: 4566
+  -
+      lat: 33, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1534
+      y_pixel: 4605
+  -
+      lat: 33, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2117
+      y_pixel: 4640
+  -
+      lat: 33, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2704
+      y_pixel: 4662
+  -
+      lat: 33, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3293
+      y_pixel: 4680
+  -
+      lat: 33, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3874
+      y_pixel: 4693
+  -
+      lat: 33, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4457
+      y_pixel: 4700
+  -
+      lat: 33, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5044
+      y_pixel: 4703
+  -
+      lat: 33, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5629
+      y_pixel: 4701
+  -
+      lat: 34, 0, 0
+      long: 32, 0, 0
+      x_pixel: 1000
+      y_pixel: 3875
+  -
+      lat: 34, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1573
+      y_pixel: 3912
+  -
+      lat: 34, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2151
+      y_pixel: 3943
+  -
+      lat: 34, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2731
+      y_pixel: 3967
+  -
+      lat: 34, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3313
+      y_pixel: 3985
+  -
+      lat: 34, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3886
+      y_pixel: 3999
+  -
+      lat: 34, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4464
+      y_pixel: 4008
+  -
+      lat: 34, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5044
+      y_pixel: 4012
+  -
+      lat: 34, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5624
+      y_pixel: 4008
+  -
+      lat: 35, 0, 0
+      long: 32, 0, 0
+      x_pixel: 1049
+      y_pixel: 3180
+  -
+      lat: 35, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1616
+      y_pixel: 3215
+  -
+      lat: 35, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2184
+      y_pixel: 3244
+  -
+      lat: 35, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2759
+      y_pixel: 3270
+  -
+      lat: 35, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3335
+      y_pixel: 3290
+  -
+      lat: 35, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3901
+      y_pixel: 3305
+  -
+      lat: 35, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4471
+      y_pixel: 3315
+  -
+      lat: 35, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5044
+      y_pixel: 3320
+  -
+      lat: 35, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5616
+      y_pixel: 3316
+  -
+      lat: 36, 0, 0
+      long: 32, 0, 0
+      x_pixel: 1098
+      y_pixel: 2485
+  -
+      lat: 36, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1662
+      y_pixel: 2520
+  -
+      lat: 36, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2226
+      y_pixel: 2554
+  -
+      lat: 36, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2790
+      y_pixel: 2580
+  -
+      lat: 36, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3356
+      y_pixel: 2600
+  -
+      lat: 36, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3916
+      y_pixel: 2613
+  -
+      lat: 36, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4478
+      y_pixel: 2623
+  -
+      lat: 36, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5043
+      y_pixel: 2627
+  -
+      lat: 36, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5610
+      y_pixel: 2622
+  -
+      lat: 37, 0, 0
+      long: 32, 0, 0
+      x_pixel: 1150
+      y_pixel: 1788
+  -
+      lat: 37, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1709
+      y_pixel: 1826
+  -
+      lat: 37, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2267
+      y_pixel: 1858
+  -
+      lat: 37, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2821
+      y_pixel: 1885
+  -
+      lat: 37, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3375
+      y_pixel: 1906
+  -
+      lat: 37, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3931
+      y_pixel: 1920
+  -
+      lat: 37, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4487
+      y_pixel: 1929
+  -
+      lat: 37, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5044
+      y_pixel: 1931
+  -
+      lat: 37, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5604
+      y_pixel: 1929
+  -
+      lat: 38, 0, 0
+      long: 32, 0, 0
+      x_pixel: 1200
+      y_pixel: 1095
+  -
+      lat: 38, 0, 0
+      long: 33, 0, 0
+      x_pixel: 1753
+      y_pixel: 1132
+  -
+      lat: 38, 0, 0
+      long: 34, 0, 0
+      x_pixel: 2303
+      y_pixel: 1166
+  -
+      lat: 38, 0, 0
+      long: 35, 0, 0
+      x_pixel: 2850
+      y_pixel: 1192
+  -
+      lat: 38, 0, 0
+      long: 36, 0, 0
+      x_pixel: 3398
+      y_pixel: 1213
+  -
+      lat: 38, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3943
+      y_pixel: 1227
+  -
+      lat: 38, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4493
+      y_pixel: 1236
+  -
+      lat: 38, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5043
+      y_pixel: 1240
+  -
+      lat: 38, 0, 0
+      long: 40, 0, 0
+      x_pixel: 5596
+      y_pixel: 1236

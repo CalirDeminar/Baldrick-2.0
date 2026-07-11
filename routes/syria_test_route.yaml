@@ -1,0 +1,55 @@
+name: Syria Test Route
+flot:
+  - lat: 36, 0, 0
+    long: 36, 30, 0
+  - lat: 35, 30, 0
+    long: 37, 0, 0
+  - lat: 35, 0, 0
+    long: 37, 30, 0
+waypoints:
+  - name: Incirlik
+    lat: 37, 0, 0
+    long: 35, 25, 0
+    notes: Home
+  - name: Fence In
+    lat: 36, 30, 0
+    long: 36, 0, 0
+    notes: Fence In
+  - name: FIX
+    lat: 36, 0, 0
+    long: 36, 30, 0
+    tags:
+      - FIX
+  - name: Pre-IP
+    lat: 35, 40, 0
+    long: 36, 50, 0
+    notes: Pre-IP
+  - name: IP
+    lat: 35, 30, 0
+    long: 37, 5, 0
+    tags:
+      - IP
+    notes: IP
+  - name: TGT
+    lat: 35, 20, 0
+    long: 37, 20, 0
+    tags:
+      - TGT
+    notes: TGT\nAirfield apron\nFuel depot
+    timestamp: "12:35:00"
+  - name: Egress
+    lat: 35, 50, 0
+    long: 36, 40, 0
+    notes: egress 300
+  - name: Incirlik
+    lat: 37, 0, 0
+    long: 35, 25, 0
+    tags:
+      - HOME
+    notes: Home
+  - name: Bassel Al-Assad
+    lat: 35, 24, 0
+    long: 35, 56, 0
+    tags:
+      - DIVERT
+    notes: TACAN 21X\n17/35

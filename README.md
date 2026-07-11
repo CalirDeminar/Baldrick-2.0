@@ -79,7 +79,7 @@ User-editable files sit next to `baldrick.exe`:
 
 Map data is bundled inside `_internal/` and is not user-editable.
 
-Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard.
+Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map (for example, Germany and Normandy), Baldrick prompts you to choose unless the route file sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard.
 
 ## Config file (`config.yaml`)
 
@@ -131,6 +131,7 @@ Route files define the flight path and optional timing/speed constraints.
 
 ```yaml
 name: My Route
+# map: GERMANY   # optional: force base map when route fits multiple maps
 waypoints:
   - name: Ramstein
     lat: 49, 26, 30
@@ -149,6 +150,15 @@ waypoints:
     altitude: 500
     notes: "Railyard"
 ```
+
+### Route fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Route name (output folder and card titles) |
+| `map` | No | Base DCS map name (e.g. `GERMANY`, `NORMANDY`). Use when a route fits multiple maps and you want to skip the interactive prompt |
+| `flot` | No | Forward line of troops as a list of lat/long points |
+| `waypoints` | Yes | Ordered list of waypoints (see below) |
 
 ### Waypoint fields
 

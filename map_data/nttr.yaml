@@ -1,0 +1,317 @@
+name: NTTR
+pixel_map:
+  -
+      lat: 34, 0, 0
+      long: -120, 0, 0
+      x_pixel: 82
+      y_pixel: 10722
+  -
+      lat: 34, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1526
+      y_pixel: 10760
+  -
+      lat: 34, 0, 0
+      long: -118, 0, 0
+      x_pixel: 2969
+      y_pixel: 10779
+  -
+      lat: 34, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4414
+      y_pixel: 10780
+  -
+      lat: 34, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5855
+      y_pixel: 10779
+  -
+      lat: 34, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7294
+      y_pixel: 10759
+  -
+      lat: 34, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8741
+      y_pixel: 10724
+  -
+      lat: 34, 0, 0
+      long: -113, 0, 0
+      x_pixel: 10184
+      y_pixel: 10673
+  -
+      lat: 34, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11626
+      y_pixel: 10609
+  -
+      lat: 35, 0, 0
+      long: -120, 0, 0
+      x_pixel: 135
+      y_pixel: 8986
+  -
+      lat: 35, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1560
+      y_pixel: 9025
+  -
+      lat: 35, 0, 0
+      long: -118, 0, 0
+      x_pixel: 2986
+      y_pixel: 9044
+  -
+      lat: 35, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4411
+      y_pixel: 9055
+  -
+      lat: 35, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5838
+      y_pixel: 9049
+  -
+      lat: 35, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7266
+      y_pixel: 9024
+  -
+      lat: 35, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8689
+      y_pixel: 8990
+  -
+      lat: 35, 0, 0
+      long: -113, 0, 0
+      x_pixel: 10113
+      y_pixel: 8938
+  -
+      lat: 35, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11542
+      y_pixel: 8873
+  -
+      lat: 36, 0, 0
+      long: -120, 0, 0
+      x_pixel: 183
+      y_pixel: 7260
+  -
+      lat: 36, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1596
+      y_pixel: 7293
+  -
+      lat: 36, 0, 0
+      long: -118, 0, 0
+      x_pixel: 3005
+      y_pixel: 7315
+  -
+      lat: 36, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4414
+      y_pixel: 7322
+  -
+      lat: 36, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5822
+      y_pixel: 7317
+  -
+      lat: 36, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7231
+      y_pixel: 7293
+  -
+      lat: 36, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8636
+      y_pixel: 7257
+  -
+      lat: 36, 0, 0
+      long: -113, 0, 0
+      x_pixel: 10045
+      y_pixel: 7205
+  -
+      lat: 36, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11453
+      y_pixel: 7143
+  -
+      lat: 37, 0, 0
+      long: -120, 0, 0
+      x_pixel: 240
+      y_pixel: 5508
+  -
+      lat: 37, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1632
+      y_pixel: 5558
+  -
+      lat: 37, 0, 0
+      long: -118, 0, 0
+      x_pixel: 3022
+      y_pixel: 5578
+  -
+      lat: 37, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4416
+      y_pixel: 5592
+  -
+      lat: 37, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5802
+      y_pixel: 5585
+  -
+      lat: 37, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7196
+      y_pixel: 5564
+  -
+      lat: 37, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8583
+      y_pixel: 5528
+  -
+      lat: 37, 0, 0
+      long: -113, 0, 0
+      x_pixel: 9974
+      y_pixel: 5472
+  -
+      lat: 37, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11366
+      y_pixel: 5403
+  -
+      lat: 38, 0, 0
+      long: -120, 0, 0
+      x_pixel: 294
+      y_pixel: 3788
+  -
+      lat: 38, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1668
+      y_pixel: 3822
+  -
+      lat: 38, 0, 0
+      long: -118, 0, 0
+      x_pixel: 3042
+      y_pixel: 3848
+  -
+      lat: 38, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4415
+      y_pixel: 3857
+  -
+      lat: 38, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5784
+      y_pixel: 3849
+  -
+      lat: 38, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7161
+      y_pixel: 3827
+  -
+      lat: 38, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8529
+      y_pixel: 3789
+  -
+      lat: 38, 0, 0
+      long: -113, 0, 0
+      x_pixel: 9902
+      y_pixel: 3738
+  -
+      lat: 38, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11276
+      y_pixel: 3671
+  -
+      lat: 39, 0, 0
+      long: -120, 0, 0
+      x_pixel: 351
+      y_pixel: 2051
+  -
+      lat: 39, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1706
+      y_pixel: 2088
+  -
+      lat: 39, 0, 0
+      long: -118, 0, 0
+      x_pixel: 3060
+      y_pixel: 2109
+  -
+      lat: 39, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4415
+      y_pixel: 2117
+  -
+      lat: 39, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5766
+      y_pixel: 2109
+  -
+      lat: 39, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7122
+      y_pixel: 2088
+  -
+      lat: 39, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8409
+      y_pixel: 2055
+  -
+      lat: 39, 0, 0
+      long: -113, 0, 0
+      x_pixel: 9827
+      y_pixel: 2000
+  -
+      lat: 39, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11180
+      y_pixel: 1931
+  -
+      lat: 40, 0, 0
+      long: -120, 0, 0
+      x_pixel: 411
+      y_pixel: 315
+  -
+      lat: 40, 0, 0
+      long: -119, 0, 0
+      x_pixel: 1745
+      y_pixel: 353
+  -
+      lat: 40, 0, 0
+      long: -118, 0, 0
+      x_pixel: 3081
+      y_pixel: 377
+  -
+      lat: 40, 0, 0
+      long: -117, 0, 0
+      x_pixel: 4412
+      y_pixel: 384
+  -
+      lat: 40, 0, 0
+      long: -116, 0, 0
+      x_pixel: 5747
+      y_pixel: 377
+  -
+      lat: 40, 0, 0
+      long: -115, 0, 0
+      x_pixel: 7077
+      y_pixel: 356
+  -
+      lat: 40, 0, 0
+      long: -114, 0, 0
+      x_pixel: 8414
+      y_pixel: 318
+  -
+      lat: 40, 0, 0
+      long: -113, 0, 0
+      x_pixel: 9750
+      y_pixel: 264
+  -
+      lat: 40, 0, 0
+      long: -112, 0, 0
+      x_pixel: 11084
+      y_pixel: 201

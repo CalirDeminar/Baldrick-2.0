@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from domain.esa import compute_esa
 from domain.fuel import FuelReport, compute_fuel
@@ -14,6 +14,7 @@ from rendering import output
 
 if TYPE_CHECKING:
     from domain.config import Config
+    from domain.map import MapLayer
     from domain.route import Route
 
 
@@ -30,10 +31,13 @@ def generate_kneeboards(
     time_on_target: timedelta | None = None,
     push_time: timedelta | None = None,
     output_root: Path | None = None,
+    map_chooser: Callable[[list["MapLayer"]], "MapLayer"] | None = None,
 ) -> PlanResult:
     warnings: list[str] = []
 
-    selection = load_map_set().select_for(route.waypoints)
+    selection = load_map_set().select_for(
+        route.waypoints, preferred=route.map_name, chooser=map_chooser
+    )
     route.map_name = selection.dcs_map
     route.time_on_target = time_on_target
     route.push_time = push_time

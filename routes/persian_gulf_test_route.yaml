@@ -1,0 +1,55 @@
+name: Persian Gulf Test Route
+flot:
+  - lat: 26, 30, 0
+    long: 55, 30, 0
+  - lat: 26, 0, 0
+    long: 56, 0, 0
+  - lat: 25, 30, 0
+    long: 56, 30, 0
+waypoints:
+  - name: Al Dhafra
+    lat: 24, 15, 0
+    long: 54, 33, 0
+    notes: Home
+  - name: Fence In
+    lat: 24, 45, 0
+    long: 55, 0, 0
+    notes: Fence In
+  - name: FIX
+    lat: 25, 20, 0
+    long: 55, 30, 0
+    tags:
+      - FIX
+  - name: Pre-IP
+    lat: 25, 50, 0
+    long: 55, 50, 0
+    notes: Pre-IP
+  - name: IP
+    lat: 26, 5, 0
+    long: 56, 5, 0
+    tags:
+      - IP
+    notes: IP
+  - name: TGT
+    lat: 26, 20, 0
+    long: 56, 20, 0
+    tags:
+      - TGT
+    notes: TGT\nPort facility\nRadar site
+    timestamp: "12:35:00"
+  - name: Egress
+    lat: 25, 40, 0
+    long: 55, 40, 0
+    notes: egress 220
+  - name: Al Dhafra
+    lat: 24, 15, 0
+    long: 54, 33, 0
+    tags:
+      - HOME
+    notes: Home
+  - name: Al Minhad
+    lat: 25, 1, 0
+    long: 55, 22, 0
+    tags:
+      - DIVERT
+    notes: TACAN 74X\n09/27

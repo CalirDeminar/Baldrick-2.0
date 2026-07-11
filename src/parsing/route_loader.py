@@ -8,10 +8,12 @@ import yaml
 from pydantic import BaseModel, Field, model_validator
 
 from domain.config import Config
+from domain.map import DCSMap
 from domain.position import Position
 from domain.route import Route, Waypoint
 from parsing.coordinates import parse_position
 from shared.enums import Tag
+from shared.errors import BaldrickError
 
 
 class RawWaypoint(BaseModel):
@@ -77,4 +79,16 @@ def load_route(path: Path, conf: Config) -> Route:
     raw_waypoints = data.get("waypoints") or []
     waypoints = [waypoint_from_dict(wp, conf) for wp in raw_waypoints]
     flot = parse_flot(data.get("flot"))
-    return Route.from_config(name=data.get("name"), waypoints=waypoints, conf=conf, flot=flot)
+    route = Route.from_config(name=data.get("name"), waypoints=waypoints, conf=conf, flot=flot)
+
+    raw_map = data.get("map")
+    if raw_map is not None:
+        map_name = DCSMap.from_name(str(raw_map))
+        if map_name is None:
+            raise BaldrickError(
+                f"Unrecognised map '{raw_map}'. "
+                f"Expected one of: {', '.join(m.value for m in DCSMap)}"
+            )
+        route.map_name = map_name
+
+    return route

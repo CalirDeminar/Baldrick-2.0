@@ -7,7 +7,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
-from app.interactive import build_route_interactive
+from app.interactive import build_route_interactive, choose_map
 from app.pipeline import generate_kneeboards
 from parsing.config_loader import apply_override, load_config
 from parsing.route_loader import load_route
@@ -48,7 +48,7 @@ def main(
             route = build_route_interactive(conf)
 
         console.print(f"[bold]Planning route[/bold] '{route.name}'...")
-        result = generate_kneeboards(route, conf, time_on_target, push_time)
+        result = generate_kneeboards(route, conf, time_on_target, push_time, map_chooser=choose_map)
 
         for warning in result.warnings:
             console.print(f"[yellow]WARNING:[/yellow] {warning}")

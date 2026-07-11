@@ -1,0 +1,247 @@
+name: CAUCASUS
+pixel_map:
+  -
+      lat: 41, 0, 0
+      long: 35, 0, 0
+      x_pixel: 1071
+      y_pixel: 14607
+  -
+      lat: 41, 0, 0
+      long: 36, 0, 0
+      x_pixel: 2385
+      y_pixel: 14569
+  -
+      lat: 41, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3699
+      y_pixel: 14517
+  -
+      lat: 41, 0, 0
+      long: 38, 0, 0
+      x_pixel: 5015
+      y_pixel: 14449
+  -
+      lat: 41, 0, 0
+      long: 39, 0, 0
+      x_pixel: 6330
+      y_pixel: 14368
+  -
+      lat: 41, 0, 0
+      long: 40, 0, 0
+      x_pixel: 7646
+      y_pixel: 14269
+  -
+      lat: 41, 0, 0
+      long: 41, 0, 0
+      x_pixel: 8961
+      y_pixel: 14154
+  -
+      lat: 41, 0, 0
+      long: 42, 0, 0
+      x_pixel: 10279
+      y_pixel: 14025
+  -
+      lat: 41, 0, 0
+      long: 43, 0, 0
+      x_pixel: 11591
+      y_pixel: 13883
+  -
+      lat: 41, 0, 0
+      long: 44, 0, 0
+      x_pixel: 12911
+      y_pixel: 13722
+  -
+      lat: 41, 0, 0
+      long: 45, 0, 0
+      x_pixel: 14229
+      y_pixel: 13547
+  -
+      lat: 41, 0, 0
+      long: 46, 0, 0
+      x_pixel: 15546
+      y_pixel: 13356
+  -
+      lat: 42, 0, 0
+      long: 35, 0, 0
+      x_pixel: 1032
+      y_pixel: 12874
+  -
+      lat: 42, 0, 0
+      long: 36, 0, 0
+      x_pixel: 2327
+      y_pixel: 12836
+  -
+      lat: 42, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3621
+      y_pixel: 12784
+  -
+      lat: 42, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4915
+      y_pixel: 12717
+  -
+      lat: 42, 0, 0
+      long: 39, 0, 0
+      x_pixel: 6210
+      y_pixel: 12636
+  -
+      lat: 42, 0, 0
+      long: 40, 0, 0
+      x_pixel: 7507
+      y_pixel: 12535
+  -
+      lat: 42, 0, 0
+      long: 41, 0, 0
+      x_pixel: 8801
+      y_pixel: 12422
+  -
+      lat: 42, 0, 0
+      long: 42, 0, 0
+      x_pixel: 10097
+      y_pixel: 12292
+  -
+      lat: 42, 0, 0
+      long: 43, 0, 0
+      x_pixel: 11391
+      y_pixel: 12148
+  -
+      lat: 42, 0, 0
+      long: 44, 0, 0
+      x_pixel: 12687
+      y_pixel: 11986
+  -
+      lat: 42, 0, 0
+      long: 45, 0, 0
+      x_pixel: 13985
+      y_pixel: 11811
+  -
+      lat: 42, 0, 0
+      long: 46, 0, 0
+      x_pixel: 15281
+      y_pixel: 11618
+  -
+      lat: 43, 0, 0
+      long: 35, 0, 0
+      x_pixel: 990
+      y_pixel: 11138
+  -
+      lat: 43, 0, 0
+      long: 36, 0, 0
+      x_pixel: 2268
+      y_pixel: 11101
+  -
+      lat: 43, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3543
+      y_pixel: 11048
+  -
+      lat: 43, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4813
+      y_pixel: 10978
+  -
+      lat: 43, 0, 0
+      long: 39, 0, 0
+      x_pixel: 6086
+      y_pixel: 10896
+  -
+      lat: 43, 0, 0
+      long: 40, 0, 0
+      x_pixel: 7361
+      y_pixel: 10797
+  -
+      lat: 43, 0, 0
+      long: 41, 0, 0
+      x_pixel: 8636
+      y_pixel: 10682
+  -
+      lat: 43, 0, 0
+      long: 42, 0, 0
+      x_pixel: 9911
+      y_pixel: 10552
+  -
+      lat: 43, 0, 0
+      long: 43, 0, 0
+      x_pixel: 11183
+      y_pixel: 10410
+  -
+      lat: 43, 0, 0
+      long: 44, 0, 0
+      x_pixel: 12457
+      y_pixel: 10246
+  -
+      lat: 43, 0, 0
+      long: 45, 0, 0
+      x_pixel: 13735
+      y_pixel: 10067
+  -
+      lat: 43, 0, 0
+      long: 46, 0, 0
+      x_pixel: 15010
+      y_pixel: 9876
+  -
+      lat: 48, 0, 0
+      long: 36, 0, 0
+      x_pixel: 1938
+      y_pixel: 15655
+  -
+      lat: 48, 0, 0
+      long: 37, 0, 0
+      x_pixel: 3104
+      y_pixel: 2368
+  -
+      lat: 48, 0, 0
+      long: 38, 0, 0
+      x_pixel: 4270
+      y_pixel: 2300
+  -
+      lat: 48, 0, 0
+      long: 39, 0, 0
+      x_pixel: 5434
+      y_pixel: 2214
+  -
+      lat: 48, 0, 0
+      long: 40, 0, 0
+      x_pixel: 6602
+      y_pixel: 2116
+  -
+      lat: 48, 0, 0
+      long: 41, 0, 0
+      x_pixel: 7766
+      y_pixel: 2005
+  -
+      lat: 48, 0, 0
+      long: 42, 0, 0
+      x_pixel: 8935
+      y_pixel: 1871
+  -
+      lat: 48, 0, 0
+      long: 43, 0, 0
+      x_pixel: 10092
+      y_pixel: 1729
+  -
+      lat: 48, 0, 0
+      long: 44, 0, 0
+      x_pixel: 11257
+      y_pixel: 1567
+  -
+      lat: 48, 0, 0
+      long: 45, 0, 0
+      x_pixel: 12421
+      y_pixel: 1390
+  -
+      lat: 48, 0, 0
+      long: 46, 0, 0
+      x_pixel: 13582
+      y_pixel: 1198
+  -
+      lat: 48, 0, 0
+      long: 47, 0, 0
+      x_pixel: 14746
+      y_pixel: 990
+  -
+      lat: 48, 0, 0
+      long: 48, 0, 0
+      x_pixel: 15904
+      y_pixel: 769

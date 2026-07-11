@@ -1,0 +1,55 @@
+name: NTTR Test Route
+flot:
+  - lat: 37, 30, 0
+    long: -116, 0, 0
+  - lat: 37, 0, 0
+    long: -115, 40, 0
+  - lat: 36, 30, 0
+    long: -115, 20, 0
+waypoints:
+  - name: Nellis
+    lat: 36, 14, 0
+    long: -115, 2, 0
+    notes: Home
+  - name: Fence In
+    lat: 36, 40, 0
+    long: -115, 30, 0
+    notes: Fence In
+  - name: FIX
+    lat: 37, 0, 0
+    long: -116, 0, 0
+    tags:
+      - FIX
+  - name: Pre-IP
+    lat: 37, 15, 0
+    long: -116, 20, 0
+    notes: Pre-IP
+  - name: IP
+    lat: 37, 20, 0
+    long: -116, 35, 0
+    tags:
+      - IP
+    notes: IP
+  - name: TGT
+    lat: 37, 25, 0
+    long: -116, 50, 0
+    tags:
+      - TGT
+    notes: TGT\nRunway strip\nSAM site
+    timestamp: "12:35:00"
+  - name: Egress
+    lat: 37, 5, 0
+    long: -116, 10, 0
+    notes: egress 130
+  - name: Nellis
+    lat: 36, 14, 0
+    long: -115, 2, 0
+    tags:
+      - HOME
+    notes: Home
+  - name: Creech
+    lat: 36, 35, 0
+    long: -115, 40, 0
+    tags:
+      - DIVERT
+    notes: TACAN 111X\n08/26

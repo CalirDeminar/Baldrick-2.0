@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from enum import Enum
 from pathlib import Path
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -237,13 +238,51 @@ class MapSet:
         ]
         return sorted(associated, key=lambda layer: layer.layer_priority)
 
-    def select_for(self, waypoints: list["Waypoint"]) -> MapSelection:
-        base = next(
-            (b for b in self.bases if b.waypoints_all_within_map(waypoints)), None
-        )
-        if base is None:
+    def candidate_bases(self, waypoints: list["Waypoint"]) -> list[MapLayer]:
+        return [b for b in self.bases if b.waypoints_all_within_map(waypoints)]
+
+    def select_for(
+        self,
+        waypoints: list["Waypoint"],
+        preferred: DCSMap | None = None,
+        chooser: Callable[[list[MapLayer]], MapLayer] | None = None,
+    ) -> MapSelection:
+        candidates = self.candidate_bases(waypoints)
+
+        if preferred is not None:
+            base = next((b for b in candidates if b.dcs_map == preferred), None)
+            if base is None:
+                raise MapError(self._preferred_map_report(preferred, waypoints))
+            return MapSelection(base=base, overlays=self.overlays_for(base))
+
+        if not candidates:
             raise MapError(self._out_of_bounds_report(waypoints))
+
+        if len(candidates) == 1:
+            base = candidates[0]
+        elif chooser is not None:
+            base = chooser(candidates)
+        else:
+            base = candidates[0]
+
         return MapSelection(base=base, overlays=self.overlays_for(base))
+
+    def _preferred_map_report(self, preferred: DCSMap, waypoints: list["Waypoint"]) -> str:
+        lines = [
+            f"Route declares map '{preferred.value}' but that map does not fully contain this route.",
+        ]
+        preferred_layer = next((b for b in self.bases if b.dcs_map == preferred), None)
+        if preferred_layer is None:
+            lines.append(f"No base map named '{preferred.value}' was found in the map_data folder.")
+        else:
+            outside = [
+                wp.name for wp in waypoints if not preferred_layer.point_within_map(wp.position)
+            ]
+            if outside:
+                lines.append(f"  Waypoints out of bounds: {', '.join(outside)}")
+            else:
+                lines.append("  All waypoints are within bounds, but another map selection rule failed.")
+        return "\n".join(lines)
 
     def _out_of_bounds_report(self, waypoints: list["Waypoint"]) -> str:
         lines = ["No supported map fully contains this route."]
