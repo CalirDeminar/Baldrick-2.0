@@ -263,9 +263,9 @@ Each run creates `output/<route name>/` containing:
 
 | File | Description |
 |------|-------------|
-| `<MAP>-wp1.jpg` … `<MAP>-wpN.jpg` | One kneeboard per route leg (1600×2400 JPEG) |
-| `<MAP>-Overview.jpg` | Whole-route overview with fuel summary |
-| `Legend.jpg` | Symbol and doghouse field key |
+| `<MAP>-02-wp01.jpg` … `<MAP>-02-wpNN.jpg` | One kneeboard per route leg (1600×2400 JPEG) |
+| `<MAP>-01-Overview.jpg` | Whole-route overview with fuel summary |
+| `<MAP>-00-Legend.jpg` | Symbol and doghouse field key |
 | `notes.txt` | Text summary: ETAs, speeds, ESA, min fuel to complete route, bingo/joker |
 | `<route name>.zip` | Zip archive of the folder contents |
 

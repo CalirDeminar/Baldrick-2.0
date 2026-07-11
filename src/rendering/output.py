@@ -50,7 +50,7 @@ def generate(
         board = render_leg(
             base_image, selection, route, main_index, conf, base_pixels, flot_pixels, report
         )
-        filename = f"{map_name}-wp{main_index}.jpg"
+        filename = f"{map_name}-02-wp{main_index:02d}.jpg"
         board.save(out_dir / filename, quality=_JPEG_QUALITY)
         return filename
 
@@ -63,14 +63,14 @@ def generate(
     for wp in route.divert_waypoints:
         board = render_contingency(base_image, selection, route, wp, base_pixels, flot_pixels)
         safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
-        filename = f"{map_name}-divert-{safe_name}.jpg"
+        filename = f"{map_name}-03-divert-{safe_name}.jpg"
         board.save(out_dir / filename, quality=_JPEG_QUALITY)
 
     overview = render_overview(base_image, selection, route, conf, base_pixels, report, flot_pixels)
-    overview.save(out_dir / f"{map_name}-Overview.jpg", quality=_JPEG_QUALITY)
+    overview.save(out_dir / f"{map_name}-01-Overview.jpg", quality=_JPEG_QUALITY)
 
     legend = render_legend(route)
-    legend.save(out_dir / "Legend.jpg", quality=_JPEG_QUALITY)
+    legend.save(out_dir / f"{map_name}-00-Legend.jpg", quality=_JPEG_QUALITY)
 
     (out_dir / "notes.txt").write_text(_write_notes(route, selection, conf, report), encoding="utf-8")
 
