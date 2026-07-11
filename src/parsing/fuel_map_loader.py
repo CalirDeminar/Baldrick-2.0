@@ -136,7 +136,7 @@ def _parse_row(row: dict, defaults: dict) -> tuple[int, int, float]:
 
 
 def load_fuel_map(path: Path) -> FuelMap:
-    with path.open("r") as f:
+    with path.open("r", encoding="utf-8") as f:
         data = yaml.load(f, Loader=yaml.SafeLoader)
 
     defaults = {

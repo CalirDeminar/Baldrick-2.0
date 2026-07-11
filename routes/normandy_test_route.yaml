@@ -30,7 +30,7 @@ waypoints:
     tags:
       - IP
     notes: IP
-  - name: TGT
+  - name: TGT Début
     lat: 49, 2, 0
     long: -2, 0, 0
     tags:

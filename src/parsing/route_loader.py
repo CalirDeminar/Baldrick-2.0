@@ -74,7 +74,7 @@ def parse_flot(raw_flot: list[dict] | None) -> list[Position]:
 
 
 def load_route(path: Path, conf: Config) -> Route:
-    with path.open("r") as file:
+    with path.open("r", encoding="utf-8") as file:
         data = yaml.load(file, Loader=yaml.SafeLoader) or {}
     raw_waypoints = data.get("waypoints") or []
     waypoints = [waypoint_from_dict(wp, conf) for wp in raw_waypoints]

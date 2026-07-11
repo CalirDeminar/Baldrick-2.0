@@ -3,8 +3,11 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from functools import lru_cache
 
 from PIL import Image, ImageDraw, ImageFont
+
+from shared import paths
 
 FADED_ALPHA = 90
 FOCUSED_ALPHA = 255
@@ -18,8 +21,12 @@ def hex_to_rgb(value: str) -> tuple[int, int, int]:
     return int(value[0:2], 16), int(value[2:4], 16), int(value[4:6], 16)
 
 
+@lru_cache(maxsize=None)
 def get_font(size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.load_default(size=size)
+    try:
+        return ImageFont.truetype(str(paths.font_path()), size)
+    except OSError:
+        return ImageFont.load_default(size=size)
 
 
 @dataclass

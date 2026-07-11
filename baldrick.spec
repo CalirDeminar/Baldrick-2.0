@@ -31,7 +31,7 @@ a = Analysis(
     ['src\\baldrick.py'],
     pathex=['src'],
     binaries=_vips_binaries + _pyvips_binaries + _mgrs_binaries,
-    datas=[('./map_data', 'map_data')] + _vips_datas + _pyvips_datas,
+    datas=[('./map_data', 'map_data'), ('./assets', 'assets')] + _vips_datas + _pyvips_datas,
     hiddenimports=['_libvips', 'cffi', 'mgrs', 'mgrs.core'] + _pyvips_hidden,
     hookspath=[],
     hooksconfig={},

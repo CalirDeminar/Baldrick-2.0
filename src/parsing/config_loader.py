@@ -17,7 +17,7 @@ def attach_fuel_map(conf: Config) -> None:
 
 def load_config(path: Path | None = None) -> Config:
     path = path or paths.config_path()
-    with path.open("r") as file:
+    with path.open("r", encoding="utf-8") as file:
         data = yaml.load(file, Loader=yaml.SafeLoader) or {}
     raw_overrides = data.pop("overrides", None) or []
     overrides = [ConfigOverride(**entry) for entry in raw_overrides]

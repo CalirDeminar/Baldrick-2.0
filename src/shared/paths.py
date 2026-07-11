@@ -28,6 +28,14 @@ def app_dir() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def assets_dir() -> Path:
+    return bundle_dir() / "assets"
+
+
+def font_path() -> Path:
+    return assets_dir() / "fonts" / "Aileron-Regular.otf"
+
+
 def map_data_dir() -> Path:
     return bundle_dir() / "map_data"
 

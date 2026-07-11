@@ -41,7 +41,7 @@ def min_alt_map_from_rows(rows: list[dict]) -> MinAltMap:
 
 
 def load_layer_from_file(path: Path) -> MapLayer:
-    with path.open("r") as f:
+    with path.open("r", encoding="utf-8") as f:
         data = yaml.load(f, Loader=_PlainLoader)
     pixels: dict[Position, PixelMapPoint] = {}
     for point in data.get("pixel_map", []):
