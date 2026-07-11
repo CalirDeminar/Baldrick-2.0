@@ -43,6 +43,10 @@ def render_overview(
     crop_h = max(y1 - y0, 1)
 
     scale = 1.0 / max(conf.overview_card_downsample_factor, 0.01)
+    # Don't downsample below the normal kneeboard size: keep the card at least
+    # OUTPUT_W x OUTPUT_H, but never upscale the native crop beyond 1:1.
+    min_scale = min(max(OUTPUT_W / crop_w, OUTPUT_H / crop_h), 1.0)
+    scale = max(scale, min_scale)
     layout = BoardLayout(
         prev_xy=(0, 0), cur_xy=(0, 0), centre=(0, 0), angle_deg=0.0,
         board_w=crop_w, board_h=crop_h,
