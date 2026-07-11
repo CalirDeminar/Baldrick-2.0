@@ -86,6 +86,10 @@ class Waypoint(BaseModel):
     def is_divert(self) -> bool:
         return Tag.DIVERT in self.tags
 
+    @property
+    def is_aar(self) -> bool:
+        return Tag.AAR in self.tags
+
     @staticmethod
     def from_dict(d: dict, conf: Config) -> "Waypoint":
         raw = RawWaypoint(**d)
@@ -185,3 +189,7 @@ class Route(BaseModel):
     @property
     def divert_waypoints(self) -> list[Waypoint]:
         return [wp for wp in self.waypoints if Tag.DIVERT in wp.tags]
+
+    @property
+    def aar_waypoints(self) -> list[Waypoint]:
+        return [wp for wp in self.main_waypoints if Tag.AAR in wp.tags]

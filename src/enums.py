@@ -7,3 +7,4 @@ class Tag(Enum):
     PUSH = 'PUSH'
     HOME = 'HOME'
     DIVERT = 'DIVERT'
+    AAR = 'AAR'

@@ -22,6 +22,7 @@ from units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL
 
 if TYPE_CHECKING:
     from config.config import Config
+    from fuel.fuel import FuelReport
     from routes.map import MapSelection
     from routes.route import Route, Waypoint
 
@@ -66,7 +67,11 @@ def _magnetic_course(from_wp: "Waypoint", to_wp: "Waypoint", mag_var: float) -> 
 
 
 def build_doghouse_lines(
-    route: "Route", main_index: int, selection: "MapSelection", conf: "Config"
+    route: "Route",
+    main_index: int,
+    selection: "MapSelection",
+    conf: "Config",
+    report: "FuelReport | None" = None,
 ) -> list[tuple[str, list[str]]]:
     main = route.main_waypoints
     wp = main[main_index]
@@ -118,6 +123,12 @@ def build_doghouse_lines(
         lat_str, lon_str = _dms_parts(wp.position)
         notes.append(f"FIX: {lat_str}")
         notes.append(f"     {lon_str}")
+    if Tag.AAR in wp.tags and report is not None:
+        topup = next((t for t in report.aar_topups if t.name == wp.name), None)
+        if topup is not None:
+            lines.append(
+                ("AAR:", [f"top up to complete: {topup.route_min:,} lb"])
+            )
     if notes:
         lines.append(("", notes))
     if route.leg_crosses_flot(prev.position, wp.position):
@@ -167,6 +178,7 @@ def render_leg(
     conf: "Config",
     base_pixels: list[tuple[int, int]],
     flot_pixels: list[tuple[int, int]] | None = None,
+    report: "FuelReport | None" = None,
 ) -> Image.Image:
     main_pixels = _main_route_pixels(route, base_pixels)
     layout = compute_layout(
@@ -211,7 +223,7 @@ def render_leg(
     )
     board = rotated.crop(tuple(int(round(v)) for v in box))
 
-    lines = build_doghouse_lines(route, main_index, selection, conf)
+    lines = build_doghouse_lines(route, main_index, selection, conf, report)
     overlays.draw_doghouse(board, lines, _colour(route))
 
     return board.convert("RGB").resize((OUTPUT_W, OUTPUT_H), _RESAMPLE)

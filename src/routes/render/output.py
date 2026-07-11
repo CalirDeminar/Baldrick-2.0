@@ -47,7 +47,9 @@ def generate(
     main_count = len(route.main_waypoints)
 
     def render_and_save(main_index: int) -> str:
-        board = render_leg(base_image, selection, route, main_index, conf, base_pixels, flot_pixels)
+        board = render_leg(
+            base_image, selection, route, main_index, conf, base_pixels, flot_pixels, report
+        )
         filename = f"{map_name}-wp{main_index}.jpg"
         board.save(out_dir / filename, quality=_JPEG_QUALITY)
         return filename
@@ -110,6 +112,13 @@ def _write_notes(
         if report.joker_fuel is not None:
             parts.append(f"  Joker: {report.joker_fuel} lb")
         parts.append(f"  Total required: {report.total_required} lb of {report.capacity} lb capacity")
+        if report.aar_topups:
+            parts += ["", "Tanker:"]
+            for topup in report.aar_topups:
+                parts.append(
+                    f"  {topup.name}  min leaving {topup.route_min} lb of "
+                    f"{report.post_aar_capacity} lb usable after top-up"
+                )
         for warning in report.warnings:
             parts.append(f"  WARNING: {warning}")
 

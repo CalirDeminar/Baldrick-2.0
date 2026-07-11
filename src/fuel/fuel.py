@@ -13,12 +13,20 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class AarTopup:
+    name: str
+    route_min: int
+
+
+@dataclass
 class FuelReport:
     bingo_fuel: int | None
     joker_fuel: int | None
     return_to_divert: bool
     total_required: int
     capacity: int
+    post_aar_capacity: int
+    aar_topups: list[AarTopup] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
 
@@ -84,12 +92,21 @@ def compute_fuel(route: "Route", conf: "Config") -> FuelReport:
     # planned route (all remaining legs to HOME) while still landing with the
     # reserve margin intact. Arriving with less than this means the mission can
     # no longer be completed and the flight must abort.
+    # AAR waypoints reset the running total: only reserve is needed on arrival
+    # (refuel there), and the route_min for that tanker is recorded separately.
+    aar_topups: list[AarTopup] = []
+    running = float(reserve)
     if waypoints:
         waypoints[-1].min_fuel = int(round(reserve))
-    running = float(reserve)
     for i in range(len(waypoints) - 1, 0, -1):
         running += leg_fuels[i - 1]
-        waypoints[i - 1].min_fuel = int(round(running))
+        wp = waypoints[i - 1]
+        if Tag.AAR in wp.tags:
+            aar_topups.append(AarTopup(name=wp.name, route_min=int(round(running))))
+            wp.min_fuel = int(round(reserve))
+            running = float(reserve)
+        else:
+            wp.min_fuel = int(round(running))
 
     total_required = int(round(conf.takeoff_fuel + running))
 
@@ -133,11 +150,27 @@ def compute_fuel(route: "Route", conf: "Config") -> FuelReport:
             f"without cutting into the reserve."
         )
 
+    post_aar_capacity = max(fuel_map.capacity - conf.takeoff_fuel, 0)
+    for topup in aar_topups:
+        if topup.route_min > post_aar_capacity:
+            deficit = topup.route_min - post_aar_capacity
+            raise FuelError(
+                f"Tanker '{topup.name}' requires at least {topup.route_min} lb to complete "
+                f"the remainder of the route, but only {post_aar_capacity} lb is usable after "
+                f"a full top-up ({fuel_map.capacity} lb capacity minus {conf.takeoff_fuel} lb "
+                f"takeoff/holding margin) (short by {deficit} lb). Even a full top-up at the "
+                f"tanker cannot complete the route."
+            )
+
+    aar_topups.reverse()
+
     return FuelReport(
         bingo_fuel=bingo_fuel,
         joker_fuel=joker_fuel,
         return_to_divert=return_to_divert,
         total_required=total_required,
         capacity=fuel_map.capacity,
+        post_aar_capacity=post_aar_capacity,
+        aar_topups=aar_topups,
         warnings=warnings,
     )

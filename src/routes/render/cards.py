@@ -97,6 +97,12 @@ def _draw_overview_summary(
             lines.append(("Bingo:", [f"{report.bingo_fuel:,} lb ({dest})"]))
         if report.joker_fuel is not None:
             lines.append(("Joker:", [f"{report.joker_fuel:,} lb"]))
+        if report.aar_topups:
+            tanker_lines = [
+                f"{t.name}: {t.route_min:,} / {report.post_aar_capacity:,} lb"
+                for t in report.aar_topups
+            ]
+            lines.append(("Tanker:", tanker_lines))
         lines.append(("Fuel:", [f"{report.total_required:,} / {report.capacity:,} lb"]))
     overlays.draw_doghouse(image, lines, overlays.hex_to_rgb(route.route_colour))
 
