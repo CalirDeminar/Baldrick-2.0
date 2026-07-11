@@ -1,11 +1,11 @@
 import pyvips
 import pytest
 
-import paths
-from routes.map import MapLayer, MapSet, PixelMapPoint
-from routes.position import Position
-from routes.render.compositor import composite_overlays, fit_affine
-from routes.render.geometry import BoardLayout
+from shared import paths
+from domain.map import MapLayer, MapSet, PixelMapPoint
+from domain.position import Position
+from rendering.compositor import composite_overlays, fit_affine
+from rendering.geometry import BoardLayout
 
 
 def _grid_layer(name, lat_range, lon_range, px_scale=100, priority=0, image="x.jpg"):

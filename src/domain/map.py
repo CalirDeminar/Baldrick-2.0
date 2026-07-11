@@ -5,27 +5,14 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
-import paths
-from errors import MapError
-from routes.position import DMSDistance, Position
+from domain.position import DMSDistance, Position
+from shared import paths
+from shared.errors import MapError
 
 if TYPE_CHECKING:
-    from routes.route import Waypoint
-
-
-class _PlainLoader(yaml.SafeLoader):
-    """SafeLoader with implicit type resolution disabled.
-
-    Map pixel coordinates are often written with leading zeros for alignment
-    (e.g. ``05420``); the default YAML loader would interpret those as octal.
-    Loading every scalar as a string and converting explicitly avoids that.
-    """
-
-
-_PlainLoader.yaml_implicit_resolvers = {}
+    from domain.route import Waypoint
 
 
 class DCSMap(Enum):
@@ -50,25 +37,14 @@ class PixelMapPoint(BaseModel):
     y_pixel: int = Field()
 
 
-def _parse_dms_triplet(value: str) -> tuple[float, float, float]:
-    parts = [p.strip() for p in str(value).split(",")]
-    return float(parts[0]), float(parts[1]), float(parts[2])
+def _bucket_30(minutes: float) -> int:
+    return 0 if minutes < 30 else 30
 
 
 class MinAltMap(BaseModel):
     """Per-cell tallest-obstacle altitudes on a 30 arc-minute grid (feet)."""
 
     cells: dict[tuple[int, int, int, int], int] = Field(default_factory=dict)
-
-    @staticmethod
-    def from_rows(rows: list[dict]) -> "MinAltMap":
-        cells: dict[tuple[int, int, int, int], int] = {}
-        for row in rows:
-            lat_d, lat_m, _ = _parse_dms_triplet(row["lat"])
-            lon_d, lon_m, _ = _parse_dms_triplet(row["long"])
-            key = (int(lat_d), _bucket_30(lat_m), int(lon_d), _bucket_30(lon_m))
-            cells[key] = int(row["altitude_ft"])
-        return MinAltMap(cells=cells)
 
     def min_alt_at(self, position: Position) -> int | None:
         lat = position.latitude.to_decimal()
@@ -95,10 +71,6 @@ class MinAltMap(BaseModel):
             if alt is not None and (highest is None or alt > highest):
                 highest = alt
         return highest
-
-
-def _bucket_30(minutes: float) -> int:
-    return 0 if minutes < 30 else 30
 
 
 class MapLayer(BaseModel):
@@ -251,36 +223,6 @@ class MapSelection(BaseModel):
         return self.base.dcs_map
 
 
-def _load_layer_from_file(path: Path) -> MapLayer:
-    with path.open("r") as f:
-        data = yaml.load(f, Loader=_PlainLoader)
-    pixels: dict[Position, PixelMapPoint] = {}
-    for point in data.get("pixel_map", []):
-        pos = Position.new(
-            latitude=_parse_dms_triplet(point["lat"]),
-            longitude=_parse_dms_triplet(point["long"]),
-        )
-        pixels[pos] = PixelMapPoint(
-            position=pos,
-            x_pixel=int(point["x_pixel"]),
-            y_pixel=int(point["y_pixel"]),
-        )
-    name = str(data["name"])
-    image_file = data.get("image_file") or f"{name.strip().upper()}.jpg"
-    min_alt = None
-    if data.get("min_altitude_map"):
-        min_alt = MinAltMap.from_rows(data["min_altitude_map"])
-    return MapLayer(
-        name=name,
-        pixel_map=pixels,
-        projection_adjustment_deg=float(data.get("projection_adjustment_deg", 0.0)),
-        mag_var=float(data.get("mag_var", 0.0)),
-        layer_priority=int(data.get("layer_priority", 0)),
-        image_file=image_file,
-        min_alt=min_alt,
-    )
-
-
 class MapSet:
     """All map layers discovered under ``map_data``."""
 
@@ -288,16 +230,6 @@ class MapSet:
         self.layers = layers
         self.bases = [layer for layer in layers if layer.is_base]
         self.overlays = [layer for layer in layers if not layer.is_base]
-
-    @staticmethod
-    def load(map_data_dir: Path | None = None) -> "MapSet":
-        map_data_dir = map_data_dir or paths.map_data_dir()
-        layers: list[MapLayer] = []
-        for file in sorted(map_data_dir.iterdir()):
-            if file.suffix.lower() != ".yaml":
-                continue
-            layers.append(_load_layer_from_file(file))
-        return MapSet(layers)
 
     def overlays_for(self, base: MapLayer) -> list[MapLayer]:
         associated = [

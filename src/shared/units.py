@@ -7,12 +7,19 @@ canonical units first.
 """
 from __future__ import annotations
 
-from config.config import DistanceUnit
+from enum import Enum
 
 # 1 nautical mile in other distance units.
 _NM_PER_KM = 1.0 / 1.852
 _NM_PER_MILE = 1.0 / 1.150779448
 _FT_PER_METRE = 3.280839895
+
+
+class DistanceUnit(Enum):
+    NAUTICAL = "NAUTICAL"
+    METRIC = "METRIC"
+    IMPERIAL = "IMPERIAL"
+
 
 DISTANCE_LABEL: dict[DistanceUnit, str] = {
     DistanceUnit.NAUTICAL: "nm",

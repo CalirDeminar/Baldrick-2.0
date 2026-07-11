@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from routes.render.geometry import BoardLayout
+from rendering.geometry import BoardLayout
 
 if TYPE_CHECKING:
-    from routes.map import MapLayer, MapSelection
+    from domain.map import MapLayer, MapSelection
 
 
 def _solve3(matrix: list[list[float]], rhs: list[float]) -> list[float] | None:

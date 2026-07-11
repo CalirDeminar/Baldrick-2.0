@@ -2,9 +2,9 @@ from datetime import timedelta
 
 import pytest
 
-from routes.map import DCSMap, MapLayer, PixelMapPoint
-from routes.position import Position
-from routes.route import Waypoint
+from domain.map import DCSMap, MapLayer, PixelMapPoint
+from domain.position import Position
+from domain.route import Waypoint
 
 
 @pytest.fixture
@@ -29,9 +29,9 @@ def grid_layer() -> MapLayer:
 
 @pytest.fixture
 def germany_layer() -> MapLayer:
-    from routes.map import MapSet
+    from parsing.map_loader import load_map_set
 
-    return next(b for b in MapSet.load().bases if b.dcs_map == DCSMap.GERMANY)
+    return next(b for b in load_map_set().bases if b.dcs_map == DCSMap.GERMANY)
 
 
 @pytest.fixture

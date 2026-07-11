@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
-from enums import Tag
-from routes.render import overlays
-from routes.render.compositor import composite_overlays
-from routes.render.geometry import (
+from shared.enums import Tag
+from rendering import overlays
+from rendering.compositor import composite_overlays
+from rendering.geometry import (
     OUTPUT_H,
     OUTPUT_W,
     BoardLayout,
@@ -16,15 +16,15 @@ from routes.render.geometry import (
     compute_north_up_layout,
     to_canvas,
 )
-from routes.render.overlays import MarkerStyle
-from routes.render.vips_util import ensure_rgb, vips_to_pil
-from units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL
+from rendering.overlays import MarkerStyle
+from rendering.vips_util import ensure_rgb, vips_to_pil
+from shared.units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from fuel.fuel import FuelReport
-    from routes.map import MapSelection
-    from routes.route import Route, Waypoint
+    from domain.config import Config
+    from domain.fuel import FuelReport
+    from domain.map import MapSelection
+    from domain.route import Route, Waypoint
 
 _RESAMPLE = Image.Resampling.BICUBIC
 

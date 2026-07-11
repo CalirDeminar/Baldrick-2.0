@@ -2,10 +2,11 @@ from datetime import timedelta
 
 import pytest
 
-from errors import MapError
-from routes.map import DCSMap, MapLayer, MapSet
-from routes.position import Position
-from routes.route import Waypoint
+from domain.map import DCSMap, MapLayer, MapSet
+from domain.position import Position
+from domain.route import Waypoint
+from parsing.map_loader import load_map_set
+from shared.errors import MapError
 
 
 class TestBounds:
@@ -23,7 +24,7 @@ class TestBounds:
 
 class TestLoad:
     def test_load_includes_germany(self):
-        names = {b.dcs_map for b in MapSet.load().bases}
+        names = {b.dcs_map for b in load_map_set().bases}
         assert DCSMap.GERMANY in names
 
     def test_germany_projection_adjustment(self, germany_layer: MapLayer):
@@ -55,10 +56,10 @@ class TestGetPixels:
 
 class TestSelection:
     def test_selects_map_containing_route(self, germany_waypoint: Waypoint):
-        selection = MapSet.load().select_for([germany_waypoint])
+        selection = load_map_set().select_for([germany_waypoint])
         assert selection.dcs_map == DCSMap.GERMANY
 
     def test_out_of_bounds_reports_waypoints(self):
         outside = Waypoint(name="OCEAN", position=Position.new((0, 0, 0), (0, 0, 0)), tags=[])
         with pytest.raises(MapError, match="out of bounds"):
-            MapSet.load().select_for([outside])
+            load_map_set().select_for([outside])

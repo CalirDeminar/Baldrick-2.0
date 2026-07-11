@@ -1,8 +1,10 @@
-from config.config import Config, DistanceUnit
-from routes.esa import compute_esa
-from routes.map import MapLayer, MapSelection, MinAltMap, PixelMapPoint
-from routes.position import Position
-from routes.route import Route, Waypoint
+from domain.config import Config
+from domain.esa import compute_esa
+from domain.map import MapLayer, MapSelection, PixelMapPoint
+from domain.position import Position
+from domain.route import Route, Waypoint
+from parsing.map_loader import min_alt_map_from_rows
+from shared.units import DistanceUnit
 
 
 def _layer_with_min_alt() -> MapLayer:
@@ -11,7 +13,7 @@ def _layer_with_min_alt() -> MapLayer:
         for lon in (10, 11, 12):
             pos = Position.new((lat, 0, 0), (lon, 0, 0))
             pixel_map[pos] = PixelMapPoint(position=pos, x_pixel=lat, y_pixel=lon)
-    min_alt = MinAltMap.from_rows(
+    min_alt = min_alt_map_from_rows(
         [
             {"lat": "50, 0, 0", "long": "10, 0, 0", "altitude_ft": 3200},
             {"lat": "50, 0, 0", "long": "11, 0, 0", "altitude_ft": 1500},

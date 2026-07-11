@@ -19,14 +19,20 @@ _vips_datas = [
     (p, ".") for p in glob.glob(os.path.join(_site, ".load-order-pyvips_binary-*"))
 ]
 
+# mgrs ships its compiled extension as a loose .pyd in site-packages root
+# (same layout as libvips). PyInstaller does not detect it automatically.
+_mgrs_binaries = [
+    (p, ".") for p in glob.glob(os.path.join(_site, "libmgrs*.pyd"))
+]
+
 _pyvips_datas, _pyvips_binaries, _pyvips_hidden = collect_all("pyvips")
 
 a = Analysis(
     ['src\\baldrick.py'],
     pathex=['src'],
-    binaries=_vips_binaries + _pyvips_binaries,
+    binaries=_vips_binaries + _pyvips_binaries + _mgrs_binaries,
     datas=[('./map_data', 'map_data')] + _vips_datas + _pyvips_datas,
-    hiddenimports=['_libvips', 'cffi'] + _pyvips_hidden,
+    hiddenimports=['_libvips', 'cffi', 'mgrs', 'mgrs.core'] + _pyvips_hidden,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

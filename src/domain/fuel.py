@@ -3,13 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from enums import Tag
-from errors import FuelError
-from units import altitude_to_ft, distance_to_nm, speed_to_kts
+from shared.enums import Tag
+from shared.errors import FuelError
+from shared.units import altitude_to_ft, distance_to_nm, speed_to_kts
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from routes.route import Route, Waypoint
+    from domain.config import Config
+    from domain.route import Route, Waypoint
 
 
 @dataclass

@@ -5,18 +5,18 @@ from typing import TYPE_CHECKING, Any
 
 from PIL import Image, ImageDraw
 
-from enums import Tag
-from routes.render import overlays
-from routes.render.compositor import composite_overlays
-from routes.render.geometry import OUTPUT_H, OUTPUT_W, BoardLayout
-from routes.render.overlays import MarkerStyle, draw_marker, get_font
-from routes.render.vips_util import ensure_rgb, vips_to_pil
+from shared.enums import Tag
+from rendering import overlays
+from rendering.compositor import composite_overlays
+from rendering.geometry import OUTPUT_H, OUTPUT_W, BoardLayout
+from rendering.overlays import MarkerStyle, draw_marker, get_font
+from rendering.vips_util import ensure_rgb, vips_to_pil
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from fuel.fuel import FuelReport
-    from routes.map import MapSelection
-    from routes.route import Route
+    from domain.config import Config
+    from domain.fuel import FuelReport
+    from domain.map import MapSelection
+    from domain.route import Route
 
 _RESAMPLE = Image.Resampling.BICUBIC
 

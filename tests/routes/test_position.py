@@ -2,7 +2,8 @@
 
 import pytest
 
-from routes.position import DMSDistance, Position, parse_coordinate, parse_position
+from domain.position import DMSDistance, Position
+from parsing.coordinates import parse_coordinate, parse_position
 
 
 class TestDMSParsing:

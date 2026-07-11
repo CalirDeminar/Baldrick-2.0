@@ -1,23 +1,12 @@
 from __future__ import annotations
 
-from enum import Enum
-from pathlib import Path
-
-import yaml
 from pydantic import BaseModel, Field
 
-from fuel.fuel_map import FuelMap
-import paths
-
-
-class DistanceUnit(Enum):
-    NAUTICAL = "NAUTICAL"
-    METRIC = "METRIC"
-    IMPERIAL = "IMPERIAL"
-
+from domain.fuel_map import FuelMap
+from shared.units import DistanceUnit
 
 # Scalar fields that a named override is allowed to replace.
-_OVERRIDABLE_FIELDS = (
+OVERRIDABLE_FIELDS = (
     "route_colour",
     "min_cruise_speed",
     "default_cruise_speed",
@@ -67,42 +56,11 @@ class Config(BaseModel):
     # Emergency safe altitude margin (feet) added above the tallest obstacle.
     esa_safety_margin_ft: int = Field(ge=0, default=1000)
 
-    @staticmethod
-    def from_file(path: Path | None = None) -> "Config":
-        path = path or paths.config_path()
-        with path.open("r") as file:
-            data = yaml.load(file, Loader=yaml.SafeLoader) or {}
-        raw_overrides = data.pop("overrides", None) or []
-        overrides = [ConfigOverride(**entry) for entry in raw_overrides]
-        conf = Config(**data, overrides=overrides)
-        conf.load_fuel_map()
-        return conf
-
-    def override(self, override: str | None) -> "Config":
-        if override is None:
-            return self
-        match = next((o for o in self.overrides if o.name == override), None)
-        if match is None:
-            raise ValueError(
-                f"Config override '{override}' not found. "
-                f"Available: {[o.name for o in self.overrides] or 'none'}"
-            )
-        values = {field: getattr(self, field) for field in _OVERRIDABLE_FIELDS}
-        for field in _OVERRIDABLE_FIELDS:
+    def with_override(self, match: ConfigOverride) -> "Config":
+        """Return a new Config with scalar fields replaced by the override."""
+        values = {field: getattr(self, field) for field in OVERRIDABLE_FIELDS}
+        for field in OVERRIDABLE_FIELDS:
             override_value = getattr(match, field)
             if override_value is not None:
                 values[field] = override_value
-        result = Config(**values, overrides=self.overrides)
-        result.load_fuel_map()
-        return result
-
-    def load_fuel_map(self) -> None:
-        if self.fuel_map is not None:
-            fuel_map_path = paths.fuel_maps_dir() / f"{self.fuel_map}.yaml"
-            self.active_fuel_map = FuelMap.from_file(fuel_map_path)
-
-
-if __name__ == "__main__":
-    conf = Config.from_file()
-    print(conf)
-    print(conf.override("warbirds"))
+        return Config(**values, overrides=self.overrides)

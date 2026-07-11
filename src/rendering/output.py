@@ -8,20 +8,20 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import paths
-from routes.render.cards import render_legend, render_overview
-from routes.render.kneeboard import (
+from shared import paths
+from rendering.cards import render_legend, render_overview
+from rendering.kneeboard import (
     format_clock,
     render_contingency,
     render_leg,
 )
-from units import ALTITUDE_LABEL, SPEED_LABEL
+from shared.units import ALTITUDE_LABEL, SPEED_LABEL
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from fuel.fuel import FuelReport
-    from routes.map import MapSelection
-    from routes.route import Route
+    from domain.config import Config
+    from domain.fuel import FuelReport
+    from domain.map import MapSelection
+    from domain.route import Route
 
 _JPEG_QUALITY = 90
 

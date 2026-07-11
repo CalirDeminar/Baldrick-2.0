@@ -1,7 +1,8 @@
-from config.config import Config, DistanceUnit
-from enums import Tag
-from routes.position import Position
-from routes.route import Route, Waypoint
+from domain.config import Config
+from domain.position import Position
+from domain.route import Route, Waypoint
+from shared.enums import Tag
+from shared.units import DistanceUnit
 
 
 def _conf() -> Config:

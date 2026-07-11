@@ -2,14 +2,15 @@ from datetime import timedelta
 
 import pyvips
 
-from config.config import Config, DistanceUnit
-from enums import Tag
-from routes.map import MapLayer, MapSelection, PixelMapPoint
-from routes.position import Position
-from routes.render.geometry import compute_north_up_layout
-from routes.render import overlays
-from routes.render.kneeboard import build_doghouse_lines, format_relative, render_contingency, render_leg
-from routes.route import Route, Waypoint
+from domain.config import Config
+from domain.map import MapLayer, MapSelection, PixelMapPoint
+from domain.position import Position
+from domain.route import Route, Waypoint
+from rendering import overlays
+from rendering.geometry import compute_north_up_layout
+from rendering.kneeboard import build_doghouse_lines, format_relative, render_contingency, render_leg
+from shared.enums import Tag
+from shared.units import DistanceUnit
 
 
 def _conf() -> Config:

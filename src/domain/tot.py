@@ -17,12 +17,12 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
-from enums import Tag
-from errors import ToTError
+from shared.enums import Tag
+from shared.errors import ToTError
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from routes.route import Route
+    from domain.config import Config
+    from domain.route import Route
 
 # Tolerance (hours) when matching anchor times exactly.
 _TOL = 1e-6

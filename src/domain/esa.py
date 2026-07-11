@@ -10,12 +10,12 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-from units import altitude_from_ft
+from shared.units import altitude_from_ft
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from routes.map import MapSelection
-    from routes.route import Route
+    from domain.config import Config
+    from domain.map import MapSelection
+    from domain.route import Route
 
 
 def _round_up_100(value: float) -> int:

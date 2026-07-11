@@ -6,10 +6,11 @@ from datetime import timedelta
 import questionary
 from questionary import ValidationError, Validator
 
-from config.config import Config
-from enums import Tag
-from routes.position import parse_coordinate, parse_position
-from routes.route import Route, Waypoint, parse_timestamp
+from domain.config import Config
+from domain.route import Route, Waypoint
+from parsing.coordinates import parse_coordinate, parse_position
+from parsing.route_loader import parse_timestamp
+from shared.enums import Tag
 
 
 class IntegerValidator(Validator):

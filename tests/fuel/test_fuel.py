@@ -1,12 +1,13 @@
 import pytest
 
-from config.config import Config, DistanceUnit
-from enums import Tag
-from errors import FuelError
-from fuel.fuel import compute_fuel
-from fuel.fuel_map import FuelMap
-from routes.position import Position
-from routes.route import Route, Waypoint
+from domain.config import Config
+from domain.fuel import compute_fuel
+from domain.fuel_map import FuelMap, FuelMapBySpeed, FuelMapCell
+from domain.position import Position
+from domain.route import Route, Waypoint
+from shared.enums import Tag
+from shared.errors import FuelError
+from shared.units import DistanceUnit
 
 
 def make_fuel_map(capacity=16800) -> FuelMap:
@@ -17,9 +18,6 @@ def make_fuel_map(capacity=16800) -> FuelMap:
         {"altitude_ft": 10000, "speed_kts": 600, "lb_per_nm": 30.0},
     ]
     data = {"name": "TESTMAP", "capacity": capacity, "fuelMap": rows}
-    # Reuse FuelMap.from_file logic via a small shim.
-    from fuel.fuel_map import FuelMapBySpeed, FuelMapCell
-
     by_alt: dict[int, FuelMapBySpeed] = {}
     for r in rows:
         a = r["altitude_ft"]
@@ -211,7 +209,7 @@ class TestAarRefuel:
         a = main[tanker_idx]
         b = main[tanker_idx + 1]
         distance_nm = b.position.distance_from(a.position, route.units)
-        from units import distance_to_nm, altitude_to_ft, speed_to_kts
+        from shared.units import distance_to_nm, altitude_to_ft, speed_to_kts
         altitude_ft = altitude_to_ft(b.altitude, route.units)
         speed_kts = speed_to_kts(b.speed_to or 0, route.units)
         efficiency = fm.get_lb_per_mile_for_profile(altitude_ft, speed_kts)

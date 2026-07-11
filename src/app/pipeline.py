@@ -6,15 +6,15 @@ from datetime import timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from fuel.fuel import FuelReport, compute_fuel
-from routes.esa import compute_esa
-from routes.map import MapSet
-from routes.render import output
-from routes.tot import plan_route_times
+from domain.esa import compute_esa
+from domain.fuel import FuelReport, compute_fuel
+from domain.tot import plan_route_times
+from parsing.map_loader import load_map_set
+from rendering import output
 
 if TYPE_CHECKING:
-    from config.config import Config
-    from routes.route import Route
+    from domain.config import Config
+    from domain.route import Route
 
 
 @dataclass
@@ -33,7 +33,7 @@ def generate_kneeboards(
 ) -> PlanResult:
     warnings: list[str] = []
 
-    selection = MapSet.load().select_for(route.waypoints)
+    selection = load_map_set().select_for(route.waypoints)
     route.map_name = selection.dcs_map
     route.time_on_target = time_on_target
     route.push_time = push_time

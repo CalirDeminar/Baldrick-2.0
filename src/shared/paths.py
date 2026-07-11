@@ -18,14 +18,14 @@ def bundle_dir() -> Path:
     """Directory containing read-only bundled assets (e.g. ``map_data``)."""
     if _IS_FROZEN:
         return Path(sys._MEIPASS)  # type: ignore[attr-defined]
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def app_dir() -> Path:
     """Directory for user-editable files (config, routes, fuel maps, output)."""
     if _IS_FROZEN:
         return Path(sys.executable).resolve().parent
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def map_data_dir() -> Path:
