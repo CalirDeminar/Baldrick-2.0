@@ -7,12 +7,21 @@ import yaml
 from domain.config import Config, ConfigOverride
 from parsing.fuel_map_loader import load_fuel_map
 from shared import paths
+from shared.errors import BaldrickError
 
 
 def attach_fuel_map(conf: Config) -> None:
-    if conf.fuel_map is not None:
-        fuel_map_path = paths.fuel_maps_dir() / f"{conf.fuel_map}.yaml"
-        conf.active_fuel_map = load_fuel_map(fuel_map_path)
+    """Load the configured fuel map, or leave fuel planning disabled."""
+    if not conf.fuel_map:
+        conf.active_fuel_map = None
+        return
+    fuel_map_path = paths.fuel_maps_dir() / f"{conf.fuel_map}.yaml"
+    if not fuel_map_path.exists():
+        raise BaldrickError(
+            f"Fuel map '{conf.fuel_map}' not found at {fuel_map_path}. "
+            f"Omit or null 'fuel_map' in config.yaml to skip fuel calculations."
+        )
+    conf.active_fuel_map = load_fuel_map(fuel_map_path)
 
 
 def load_config(path: Path | None = None) -> Config:

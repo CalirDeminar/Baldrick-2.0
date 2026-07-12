@@ -62,10 +62,22 @@ def calculate_max_return_distance(
     return return_type, max_distance
 
 
-def compute_fuel(route: "Route", conf: "Config") -> FuelReport:
+NO_FUEL_MAP_WARNING = (
+    "Fuel planning skipped: no fuel map configured. "
+    "Set 'fuel_map' in config.yaml to enable bingo, joker, and min-fuel calculations."
+)
+
+
+def compute_fuel(route: "Route", conf: "Config") -> FuelReport | None:
+    """Compute fuel planning for the route.
+
+    Returns ``None`` when no fuel map is configured, so callers can skip fuel
+    output without treating the absence as an error. Callers should surface
+    ``NO_FUEL_MAP_WARNING`` in that case.
+    """
     fuel_map = conf.active_fuel_map
     if fuel_map is None:
-        raise FuelError("No fuel map is configured; set 'fuel_map' in config.yaml")
+        return None
 
     units = route.units
     reserve = conf.reserve_fuel

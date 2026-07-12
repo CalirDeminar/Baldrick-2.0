@@ -1,6 +1,6 @@
 # Baldrick 2
 
-Baldrick 2 is a CLI tool that plans low-level navigation routes and generates map kneeboards for flight simulators, primarily [DCS World](https://www.digitalcombatsimulator.com/). Given a route, config, and fuel map, it calculates leg speeds and times, bingo fuel, emergency safe altitudes, and renders a set of 1600×2400 JPEG kneeboard cards.
+Baldrick 2 is a CLI tool that plans low-level navigation routes and generates map kneeboards for flight simulators, primarily [DCS World](https://www.digitalcombatsimulator.com/). Given a route and config (and optionally a fuel map), it calculates leg speeds and times, emergency safe altitudes, and renders a set of 1600×2400 JPEG kneeboard cards. When a fuel map is configured it also calculates bingo fuel and related figures.
 
 ## Installation
 
@@ -64,7 +64,7 @@ REM Build a route interactively
 baldrick.exe
 ```
 
-On success the CLI prints bingo fuel, total fuel required, any warnings, and the output folder path. On failure it prints `Error: …` and exits with code 1.
+On success the CLI prints bingo fuel and total fuel required when a fuel map is configured, any warnings, and the output folder path. On failure it prints `Error: …` and exits with code 1.
 
 ## Folder layout
 
@@ -94,7 +94,7 @@ The config defines display and planning defaults. Only one config is active; nam
 | `default_cruise_speed` | Speed used when no ToT or leg speed is specified |
 | `dash_speed` | Speed flown on the IP → TGT leg |
 | `units` | `NAUTICAL` (kts / nm / ft), `METRIC` (km/h / km / m), or `IMPERIAL` (mph / mi / ft) |
-| `fuel_map` | Name of the fuel map file in `fuel_maps/` (without `.yaml`) |
+| `fuel_map` | Optional. Name of the fuel map file in `fuel_maps/` (without `.yaml`). Omit, set to `null`, or leave blank to skip fuel calculations |
 | `reserve_fuel` | Minimum fuel the aircraft should still have on reaching HOME or DIVERT (lb) |
 | `takeoff_fuel` | Fuel consumed before the route planning begins (startup, taxi, takeoff; lb) |
 | `rtb_altitude` | Altitude assumed for return-to-base bingo/joker calculations |
@@ -235,7 +235,7 @@ fuelMap:
     consumption_time_unit: hr
 ```
 
-Reference the map from config with `fuel_map: F4-6-2` (filename without `.yaml`).
+Reference the map from config with `fuel_map: F4-6-2` (filename without `.yaml`). To skip fuel planning entirely, omit `fuel_map` or set it to `null`.
 
 ### Top-level fields
 
@@ -316,11 +316,11 @@ Raised when fixed timestamps and speed constraints cannot be satisfied:
 
 Midnight wraps (a later waypoint with an earlier clock time) are handled automatically by adding 24 hours.
 
-### Fuel errors (`FuelError`)
+### Fuel / config errors
 
 | Situation | Example message |
 |-----------|-----------------|
-| No fuel map configured | `No fuel map is configured; set 'fuel_map' in config.yaml` |
+| Named fuel map file missing | `Fuel map 'F4-6-2' not found at … Omit or null 'fuel_map' in config.yaml to skip fuel calculations.` |
 | Route exceeds capacity | `Route requires 18500 lb of fuel … but the 'F4-6-2' capacity is only 16800 lb (short by 1700 lb). The route cannot be flown without cutting into the reserve.` |
 
 ### Input validation errors
@@ -343,6 +343,7 @@ Warnings do **not** stop the run. They are printed in yellow and also included i
 | ToT planner | `--tot` given but route has no TGT waypoint |
 | ToT planner | `--push` given but route has no PUSH waypoint |
 | ToT planner | Segment could not keep a multiple-of-60 cruise speed |
+| Fuel calculator | No fuel map configured (fuel planning skipped) |
 | Fuel calculator | Leg speed/altitude outside fuel map bounds |
 | Fuel calculator | RTB profile outside fuel map bounds |
 | Fuel calculator | Route has no HOME waypoint (bingo/joker skipped) |

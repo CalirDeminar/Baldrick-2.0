@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from shared import paths
+from domain.fuel import NO_FUEL_MAP_WARNING
 from rendering.cards import render_legend, render_overview
 from rendering.kneeboard import (
     format_clock,
@@ -121,5 +122,7 @@ def _write_notes(
                 )
         for warning in report.warnings:
             parts.append(f"  WARNING: {warning}")
+    else:
+        parts += ["", "Fuel:", f"  WARNING: {NO_FUEL_MAP_WARNING}"]
 
     return "\n".join(parts) + "\n"

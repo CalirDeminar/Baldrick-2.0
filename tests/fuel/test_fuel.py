@@ -108,6 +108,12 @@ class TestComputeFuel:
         report = compute_fuel(route, conf)
         assert any("outside the fuel map" in w for w in report.warnings)
 
+    def test_returns_none_when_no_fuel_map(self):
+        conf = make_conf(None)
+        route = self._route(conf)
+        assert compute_fuel(route, conf) is None
+        assert all(wp.min_fuel is None for wp in route.waypoints)
+
 
 class TestDivertExclusion:
     def test_min_fuel_excludes_divert_leg(self):

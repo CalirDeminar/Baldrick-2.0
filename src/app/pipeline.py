@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable
 
 from domain.esa import compute_esa
-from domain.fuel import FuelReport, compute_fuel
+from domain.fuel import NO_FUEL_MAP_WARNING, FuelReport, compute_fuel
 from domain.tot import plan_route_times
 from parsing.map_loader import load_map_set
 from rendering import output
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 @dataclass
 class PlanResult:
     out_dir: Path
-    report: FuelReport
+    report: FuelReport | None
     warnings: list[str] = field(default_factory=list)
 
 
@@ -46,10 +46,13 @@ def generate_kneeboards(
     warnings += compute_esa(route, selection, conf)
 
     report = compute_fuel(route, conf)
-    warnings += report.warnings
-    route.bingo_fuel = report.bingo_fuel
-    route.joker_fuel = report.joker_fuel
-    route.return_to_divert = report.return_to_divert
+    if report is None:
+        warnings.append(NO_FUEL_MAP_WARNING)
+    else:
+        warnings += report.warnings
+        route.bingo_fuel = report.bingo_fuel
+        route.joker_fuel = report.joker_fuel
+        route.return_to_divert = report.return_to_divert
 
     out_dir = output.generate(route, selection, conf, report, output_root=output_root)
     return PlanResult(out_dir=out_dir, report=report, warnings=warnings)

@@ -54,13 +54,16 @@ def main(
             console.print(f"[yellow]WARNING:[/yellow] {warning}")
 
         report = result.report
-        if report.bingo_fuel is not None:
-            dest = "divert" if report.return_to_divert else "home"
-            console.print(f"Bingo fuel: [cyan]{report.bingo_fuel:,} lb[/cyan] (return to {dest})")
-        console.print(
-            f"Total fuel required: [cyan]{report.total_required:,} lb[/cyan] "
-            f"of {report.capacity:,} lb capacity"
-        )
+        if report is not None:
+            if report.bingo_fuel is not None:
+                dest = "divert" if report.return_to_divert else "home"
+                console.print(
+                    f"Bingo fuel: [cyan]{report.bingo_fuel:,} lb[/cyan] (return to {dest})"
+                )
+            console.print(
+                f"Total fuel required: [cyan]{report.total_required:,} lb[/cyan] "
+                f"of {report.capacity:,} lb capacity"
+            )
         console.print(f"[green]Kneeboards written to[/green] {result.out_dir}")
     except BaldrickError as exc:
         console.print(f"[bold red]Error:[/bold red] {exc}")
