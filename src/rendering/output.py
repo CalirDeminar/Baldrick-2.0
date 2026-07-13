@@ -8,7 +8,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from PIL import Image
+
 from shared import paths
+from domain.config import effective_card_alpha
 from domain.fuel import NO_FUEL_MAP_WARNING
 from rendering.cards import render_legend, render_overview
 from rendering.kneeboard import (
@@ -25,6 +28,28 @@ if TYPE_CHECKING:
     from domain.route import Route
 
 _JPEG_QUALITY = 90
+
+
+def finalize_card(image: Image.Image, card_alpha: int) -> tuple[Image.Image, str]:
+    """Return (image, extension). 'jpg' when opaque, 'png' when transparent."""
+    if card_alpha >= 255:
+        return image.convert("RGB"), "jpg"
+    rgba = image.convert("RGBA")
+    r, g, b, a = rgba.split()
+    scale = card_alpha / 255.0
+    a = a.point(lambda p: int(p * scale))
+    return Image.merge("RGBA", (r, g, b, a)), "png"
+
+
+def _save_card(image: Image.Image, path_stem: Path, card_alpha: int) -> str:
+    finalized, ext = finalize_card(image, card_alpha)
+    filename = f"{path_stem.name}.{ext}"
+    path = path_stem.parent / filename
+    if ext == "jpg":
+        finalized.save(path, quality=_JPEG_QUALITY)
+    else:
+        finalized.save(path)
+    return filename
 
 
 def generate(
@@ -46,14 +71,14 @@ def generate(
 
     map_name = selection.base.name.upper()
     main_count = len(route.main_waypoints)
+    card_alpha = effective_card_alpha(conf)
 
     def render_and_save(main_index: int) -> str:
         board = render_leg(
             base_image, selection, route, main_index, conf, base_pixels, flot_pixels, report
         )
-        filename = f"{map_name}-02-wp{main_index:02d}.jpg"
-        board.save(out_dir / filename, quality=_JPEG_QUALITY)
-        return filename
+        stem = out_dir / f"{map_name}-02-wp{main_index:02d}"
+        return _save_card(board, stem, card_alpha)
 
     leg_indices = list(range(1, main_count))
     if leg_indices:
@@ -64,14 +89,13 @@ def generate(
     for wp in route.divert_waypoints:
         board = render_contingency(base_image, selection, route, wp, base_pixels, flot_pixels)
         safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
-        filename = f"{map_name}-03-divert-{safe_name}.jpg"
-        board.save(out_dir / filename, quality=_JPEG_QUALITY)
+        _save_card(board, out_dir / f"{map_name}-03-divert-{safe_name}", card_alpha)
 
     overview = render_overview(base_image, selection, route, conf, base_pixels, report, flot_pixels)
-    overview.save(out_dir / f"{map_name}-01-Overview.jpg", quality=_JPEG_QUALITY)
+    _save_card(overview, out_dir / f"{map_name}-01-Overview", card_alpha)
 
     legend = render_legend(route)
-    legend.save(out_dir / f"{map_name}-00-Legend.jpg", quality=_JPEG_QUALITY)
+    _save_card(legend, out_dir / f"{map_name}-00-Legend", card_alpha)
 
     (out_dir / "notes.txt").write_text(_write_notes(route, selection, conf, report), encoding="utf-8")
 

@@ -1,4 +1,4 @@
-from domain.config import Config, ConfigOverride
+from domain.config import Config, ConfigOverride, effective_card_alpha
 from parsing.config_loader import apply_override, attach_fuel_map
 from shared.units import DistanceUnit
 
@@ -81,3 +81,43 @@ class TestFuelMapOptional:
         result = conf.with_override(override)
         assert result.takeoff_fuel == 2500
         assert result.min_cruise_speed == 200
+
+
+class TestCardAlpha:
+    def test_omitted_card_alpha_is_none(self):
+        conf = _base_conf()
+        assert conf.card_alpha is None
+        assert effective_card_alpha(conf) == 255
+
+    def test_null_card_alpha_resolves_to_opaque(self):
+        conf = _base_conf(card_alpha=None)
+        assert effective_card_alpha(conf) == 255
+
+    def test_explicit_card_alpha_is_used(self):
+        conf = _base_conf(card_alpha=180)
+        assert effective_card_alpha(conf) == 180
+
+    def test_override_can_set_card_alpha(self):
+        override = ConfigOverride.model_validate({"name": "transparent", "card_alpha": 128})
+        conf = Config(
+            min_cruise_speed=300,
+            default_cruise_speed=420,
+            dash_speed=540,
+            overrides=[override],
+        )
+        result = conf.with_override(override)
+        assert result.card_alpha == 128
+        assert effective_card_alpha(result) == 128
+
+    def test_override_can_clear_card_alpha_to_opaque(self):
+        override = ConfigOverride.model_validate({"name": "opaque", "card_alpha": None})
+        conf = Config(
+            min_cruise_speed=300,
+            default_cruise_speed=420,
+            dash_speed=540,
+            card_alpha=128,
+            overrides=[override],
+        )
+        result = conf.with_override(override)
+        assert result.card_alpha is None
+        assert effective_card_alpha(result) == 255

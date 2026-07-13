@@ -101,11 +101,12 @@ The config defines display and planning defaults. Only one config is active; nam
 | `rtb_speed` | Speed assumed for return-to-base bingo/joker calculations |
 | `esa_safety_margin_ft` | Feet added above the tallest obstacle when computing ESA (default `1000`) |
 | `overview_card_downsample_factor` | Downscale factor for the route overview card (default `3`) |
+| `card_alpha` | Optional. Output-card opacity `0`–`255` (`255` = fully opaque). Omit or `null` for opaque JPEG output; lower values save cards as PNG with transparency (for DCS 2D kneeboard overlays) |
 | `overrides` | Optional list of named override blocks (see below) |
 
 ### Overrides
 
-Each override has a `name` and any subset of the overridable fields above (`route_colour`, speeds, `units`, `fuel_map`, `takeoff_fuel`, `reserve_fuel`, `rtb_altitude`, `rtb_speed`, `overview_card_downsample_factor`, `esa_safety_margin_ft`). Pass the name with `--config` / `-c`.
+Each override has a `name` and any subset of the overridable fields above (`route_colour`, speeds, `units`, `fuel_map`, `takeoff_fuel`, `reserve_fuel`, `rtb_altitude`, `rtb_speed`, `overview_card_downsample_factor`, `esa_safety_margin_ft`, `card_alpha`). Pass the name with `--config` / `-c`.
 
 Example:
 
@@ -273,9 +274,9 @@ Each run creates `output/<route name>/` containing:
 
 | File | Description |
 |------|-------------|
-| `<MAP>-02-wp01.jpg` … `<MAP>-02-wpNN.jpg` | One kneeboard per route leg (1600×2400 JPEG) |
-| `<MAP>-01-Overview.jpg` | Whole-route overview with fuel summary |
-| `<MAP>-00-Legend.jpg` | Symbol and doghouse field key |
+| `<MAP>-02-wp01.jpg` … `<MAP>-02-wpNN.jpg` | One kneeboard per route leg (1600×2400 JPEG, or `.png` when `card_alpha` is below 255) |
+| `<MAP>-01-Overview.jpg` | Whole-route overview with fuel summary (`.png` when semi-transparent) |
+| `<MAP>-00-Legend.jpg` | Symbol and doghouse field key (`.png` when semi-transparent) |
 | `notes.txt` | Text summary: ETAs, speeds, ESA, min fuel to complete route, bingo/joker |
 | `<route name>.zip` | Zip archive of the folder contents |
 

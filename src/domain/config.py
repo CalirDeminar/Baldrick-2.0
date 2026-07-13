@@ -21,7 +21,11 @@ OVERRIDABLE_FIELDS = (
     "rtb_speed",
     "overview_card_downsample_factor",
     "esa_safety_margin_ft",
+    "card_alpha",
 )
+
+# Override fields that may be explicitly cleared with null in YAML.
+NULLABLE_OVERRIDE_FIELDS = frozenset({"fuel_map", "card_alpha"})
 
 
 def _blank_str_to_none(value: Any) -> Any:
@@ -47,6 +51,7 @@ class ConfigOverride(BaseModel):
     rtb_speed: int | None = Field(default=None, ge=0)
     overview_card_downsample_factor: float | None = Field(default=None, gt=0)
     esa_safety_margin_ft: int | None = Field(default=None, ge=0)
+    card_alpha: int | None = Field(default=None, ge=0, le=255)
 
     @field_validator("fuel_map", mode="before")
     @classmethod
@@ -71,6 +76,8 @@ class Config(BaseModel):
     rtb_speed: int = Field(ge=0, default=420)
     # Emergency safe altitude margin (feet) added above the tallest obstacle.
     esa_safety_margin_ft: int = Field(ge=0, default=1000)
+    # Output card opacity (0=transparent, 255=opaque). Omit or null for fully opaque.
+    card_alpha: int | None = Field(default=None, ge=0, le=255)
 
     @field_validator("fuel_map", mode="before")
     @classmethod
@@ -85,10 +92,15 @@ class Config(BaseModel):
         """
         values = {field: getattr(self, field) for field in OVERRIDABLE_FIELDS}
         for field in OVERRIDABLE_FIELDS:
-            if field == "fuel_map" and field in match.model_fields_set:
+            if field in NULLABLE_OVERRIDE_FIELDS and field in match.model_fields_set:
                 values[field] = getattr(match, field)
                 continue
             override_value = getattr(match, field)
             if override_value is not None:
                 values[field] = override_value
         return Config(**values, overrides=self.overrides)
+
+
+def effective_card_alpha(conf: Config) -> int:
+    """Resolved output-card alpha: omitted or null means fully opaque (255)."""
+    return 255 if conf.card_alpha is None else conf.card_alpha
