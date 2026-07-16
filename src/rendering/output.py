@@ -13,6 +13,8 @@ from PIL import Image
 from shared import paths
 from domain.config import effective_card_alpha
 from domain.fuel import NO_FUEL_MAP_WARNING
+from domain.config import effective_card_alpha
+from domain.turn_geometry import leg_start_position
 from rendering.cards import render_legend, render_overview
 from rendering.kneeboard import (
     format_clock,
@@ -28,6 +30,28 @@ if TYPE_CHECKING:
     from domain.route import Route
 
 _JPEG_QUALITY = 90
+
+
+def _turn_overlay_pixels(
+    route: "Route", selection: "MapSelection"
+) -> tuple[list[list[tuple[int, int]] | None] | None, list[tuple[int, int] | None] | None]:
+    turns = route.turn_arcs
+    if turns is None:
+        return None, None
+    main = route.main_waypoints
+    arc_pixels: list[list[tuple[int, int]] | None] = []
+    for arc in turns:
+        if arc is None:
+            arc_pixels.append(None)
+        else:
+            arc_pixels.append(
+                [selection.base.get_pixels_for_position(p) for p in arc.arc_points]
+            )
+    leg_starts: list[tuple[int, int] | None] = [None]
+    for i in range(1, len(main)):
+        start = leg_start_position(route, turns, i)
+        leg_starts.append(selection.base.get_pixels_for_position(start))
+    return arc_pixels, leg_starts
 
 
 def finalize_card(image: Image.Image, card_alpha: int) -> tuple[Image.Image, str]:
@@ -68,6 +92,7 @@ def generate(
     base_image = selection.base.load_image()
     base_pixels = [selection.base.get_pixels_for_position(wp.position) for wp in route.waypoints]
     flot_pixels = [selection.base.get_pixels_for_position(p) for p in route.flot]
+    arc_base_pixels, leg_start_base_pixels = _turn_overlay_pixels(route, selection)
 
     map_name = selection.base.name.upper()
     main_count = len(route.main_waypoints)
@@ -75,7 +100,16 @@ def generate(
 
     def render_and_save(main_index: int) -> str:
         board = render_leg(
-            base_image, selection, route, main_index, conf, base_pixels, flot_pixels, report
+            base_image,
+            selection,
+            route,
+            main_index,
+            conf,
+            base_pixels,
+            flot_pixels,
+            report,
+            arc_base_pixels=arc_base_pixels,
+            leg_start_base_pixels=leg_start_base_pixels,
         )
         stem = out_dir / f"{map_name}-02-wp{main_index:02d}"
         return _save_card(board, stem, card_alpha)
@@ -91,7 +125,17 @@ def generate(
         safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
         _save_card(board, out_dir / f"{map_name}-03-divert-{safe_name}", card_alpha)
 
-    overview = render_overview(base_image, selection, route, conf, base_pixels, report, flot_pixels)
+    overview = render_overview(
+        base_image,
+        selection,
+        route,
+        conf,
+        base_pixels,
+        report,
+        flot_pixels,
+        arc_base_pixels=arc_base_pixels,
+        leg_start_base_pixels=leg_start_base_pixels,
+    )
     _save_card(overview, out_dir / f"{map_name}-01-Overview", card_alpha)
 
     legend = render_legend(route)

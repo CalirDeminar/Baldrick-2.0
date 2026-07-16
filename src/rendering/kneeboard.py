@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from PIL import Image
 
+from domain.turn_geometry import effective_leg_distances, leg_start_position
 from shared.enums import Tag
 from rendering import overlays
 from rendering.compositor import composite_overlays
@@ -62,7 +63,13 @@ def _dms_parts(position) -> tuple[str, str]:
 
 
 def _magnetic_course(from_wp: "Waypoint", to_wp: "Waypoint", mag_var: float) -> int:
-    true_course = to_wp.position.bearing_from(from_wp.position)
+    return _magnetic_course_from_positions(from_wp.position, to_wp.position, mag_var)
+
+
+def _magnetic_course_from_positions(
+    from_pos, to_pos, mag_var: float
+) -> int:
+    true_course = to_pos.bearing_from(from_pos)
     return int(round((true_course - mag_var) % 360))
 
 
@@ -78,15 +85,26 @@ def build_doghouse_lines(
     prev = main[main_index - 1]
     mag_var = selection.base.mag_var
     units = route.units
+    turns = route.turn_arcs or [None] * len(main)
 
-    heading = f"{_magnetic_course(prev, wp, mag_var)}\u00b0"
+    mc_from = leg_start_position(route, turns, main_index)
+    heading = f"{_magnetic_course_from_positions(mc_from, wp.position, mag_var)}\u00b0"
     if main_index < len(main) - 1:
         nxt = main[main_index + 1]
-        next_heading = f"{_magnetic_course(wp, nxt, mag_var)}\u00b0"
+        nmc_from = (
+            turns[main_index].exit_point
+            if turns[main_index] is not None
+            else wp.position
+        )
+        next_heading = f"{_magnetic_course_from_positions(nmc_from, nxt.position, mag_var)}\u00b0"
     else:
         next_heading = "N/A"
 
-    distance = wp.position.distance_from(prev.position, units)
+    if route.turn_arcs is not None:
+        leg_distances = effective_leg_distances(route, route.turn_arcs)
+        distance = leg_distances[main_index]
+    else:
+        distance = wp.position.distance_from(prev.position, units)
     dist_str = f"{distance:.1f}{DISTANCE_LABEL[units]}"
 
     push_wp = route.push_waypoint
@@ -133,6 +151,15 @@ def build_doghouse_lines(
         lines.append(("", notes))
     if route.leg_crosses_flot(prev.position, wp.position):
         lines.append(("", ["! FLOT CROSSED THIS LEG"], overlays.FLOT_COLOUR))
+    prev_turn = turns[main_index - 1] if main_index > 0 else None
+    if prev_turn is not None and prev_turn.required_g is not None:
+        lines.append(
+            (
+                "",
+                [f"! TURN REQUIRES ~{prev_turn.required_g:.1f}G"],
+                overlays.TURN_WARNING_COLOUR,
+            )
+        )
     return lines
 
 
@@ -164,6 +191,25 @@ def _divert_route_pixels(
     return [base_pixels[i] for i, wp in enumerate(route.waypoints) if Tag.DIVERT in wp.tags]
 
 
+def _leg_straight_start_times(route: "Route") -> list[float | None]:
+    main = route.main_waypoints
+    turns = route.turn_arcs or [None] * len(main)
+    times = [_hours(wp.timestamp) for wp in main]
+    starts: list[float | None] = [None] * len(main)
+    for i in range(1, len(main)):
+        if times[i - 1] is None:
+            starts[i] = None
+            continue
+        arc = turns[i - 1]
+        if arc is not None:
+            speed = main[i].speed_to or 1
+            arc_hours = arc.arc_length / speed if speed else 0.0
+            starts[i] = times[i - 1] + arc_hours
+        else:
+            starts[i] = times[i - 1]
+    return starts
+
+
 def _pixel_for_waypoint(
     route: "Route", base_pixels: list[tuple[int, int]], wp: "Waypoint"
 ) -> tuple[int, int]:
@@ -179,10 +225,21 @@ def render_leg(
     base_pixels: list[tuple[int, int]],
     flot_pixels: list[tuple[int, int]] | None = None,
     report: "FuelReport | None" = None,
+    arc_base_pixels: list[list[tuple[int, int]] | None] | None = None,
+    leg_start_base_pixels: list[tuple[int, int] | None] | None = None,
 ) -> Image.Image:
     main_pixels = _main_route_pixels(route, base_pixels)
+    turns = route.turn_arcs or [None] * len(route.main_waypoints)
+    if leg_start_base_pixels is not None:
+        prev_layout_xy = leg_start_base_pixels[main_index - 1] or main_pixels[main_index - 1]
+    elif turns[main_index - 1] is not None:
+        prev_layout_xy = selection.base.get_pixels_for_position(
+            turns[main_index - 1].exit_point
+        )
+    else:
+        prev_layout_xy = main_pixels[main_index - 1]
     layout = compute_layout(
-        main_pixels[main_index - 1], main_pixels[main_index], base_image.width, base_image.height
+        prev_layout_xy, main_pixels[main_index], base_image.width, base_image.height
     )
 
     base_crop = base_image.crop(layout.crop_x, layout.crop_y, layout.crop_w, layout.crop_h)
@@ -195,12 +252,36 @@ def render_leg(
     tags = [(Tag.IP in wp.tags, Tag.TGT in wp.tags) for wp in main]
     times = [_hours(wp.timestamp) for wp in main]
 
+    arc_canvas: list[list[tuple[float, float]] | None] | None = None
+    leg_starts_canvas: list[tuple[float, float] | None] | None = None
+    if arc_base_pixels is not None:
+        arc_canvas = [
+            [to_canvas(xy, layout) for xy in arc] if arc else None
+            for arc in arc_base_pixels
+        ]
+    if leg_start_base_pixels is not None:
+        leg_starts_canvas = [
+            to_canvas(xy, layout) if xy is not None else None
+            for xy in leg_start_base_pixels
+        ]
+
     board_w_canvas = layout.board_w * layout.scale
     style = MarkerStyle(
         radius=max(board_w_canvas * 0.045, 8),
         line_width=max(int(board_w_canvas * 0.008), 2),
     )
-    overlays.draw_route(pil, canvas_points, tags, times, main_index, _colour(route), style)
+    overlays.draw_route(
+        pil,
+        canvas_points,
+        tags,
+        times,
+        main_index,
+        _colour(route),
+        style,
+        arc_polylines=arc_canvas,
+        leg_start_points=leg_starts_canvas,
+        leg_time_starts=_leg_straight_start_times(route),
+    )
 
     if flot_pixels:
         flot_canvas = [to_canvas(xy, layout) for xy in flot_pixels]

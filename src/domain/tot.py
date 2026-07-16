@@ -49,6 +49,7 @@ def plan_route_times(
     conf: "Config",
     time_on_target: timedelta | None = None,
     push_time: timedelta | None = None,
+    leg_distances: list[float] | None = None,
 ) -> list[str]:
     """Assign timestamps + leg speeds to every main-route waypoint in ``route``.
 
@@ -78,8 +79,16 @@ def plan_route_times(
     options = _speed_options(min_cruise)
 
     dist = [0.0] * n
-    for i in range(1, n):
-        dist[i] = wps[i].position.distance_from(wps[i - 1].position, units)
+    if leg_distances is not None:
+        if len(leg_distances) != n:
+            raise ValueError(
+                f"leg_distances length {len(leg_distances)} does not match "
+                f"main waypoint count {n}"
+            )
+        dist = list(leg_distances)
+    else:
+        for i in range(1, n):
+            dist[i] = wps[i].position.distance_from(wps[i - 1].position, units)
 
     tgt_idx = _last_index_with_tag(wps, Tag.TGT)
     push_idx = _last_index_with_tag(wps, Tag.PUSH)

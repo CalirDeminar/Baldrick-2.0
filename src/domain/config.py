@@ -22,6 +22,8 @@ OVERRIDABLE_FIELDS = (
     "overview_card_downsample_factor",
     "esa_safety_margin_ft",
     "card_alpha",
+    "turn_g",
+    "turn_rate_deg_per_sec",
 )
 
 # Override fields that may be explicitly cleared with null in YAML.
@@ -52,6 +54,8 @@ class ConfigOverride(BaseModel):
     overview_card_downsample_factor: float | None = Field(default=None, gt=0)
     esa_safety_margin_ft: int | None = Field(default=None, ge=0)
     card_alpha: int | None = Field(default=None, ge=0, le=255)
+    turn_g: float | None = Field(default=None, gt=1.0)
+    turn_rate_deg_per_sec: float | None = Field(default=None, gt=0)
 
     @field_validator("fuel_map", mode="before")
     @classmethod
@@ -78,6 +82,10 @@ class Config(BaseModel):
     esa_safety_margin_ft: int = Field(ge=0, default=1000)
     # Output card opacity (0=transparent, 255=opaque). Omit or null for fully opaque.
     card_alpha: int | None = Field(default=None, ge=0, le=255)
+    # Coordinated turn load factor (must exceed 1G). Default 2G ≈ 60° bank.
+    turn_g: float = Field(default=2.0, gt=1.0)
+    # Optional radar/sensor turn-rate cap (deg/s). None = no limit.
+    turn_rate_deg_per_sec: float | None = Field(default=None, gt=0)
 
     @field_validator("fuel_map", mode="before")
     @classmethod

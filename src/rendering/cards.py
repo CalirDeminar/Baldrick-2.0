@@ -29,6 +29,8 @@ def render_overview(
     base_pixels: list[tuple[int, int]],
     report: "FuelReport | None",
     flot_pixels: list[tuple[int, int]] | None = None,
+    arc_base_pixels: list[list[tuple[int, int]] | None] | None = None,
+    leg_start_base_pixels: list[tuple[int, int] | None] | None = None,
 ) -> Image.Image:
     xs = [p[0] for p in base_pixels]
     ys = [p[1] for p in base_pixels]
@@ -65,12 +67,34 @@ def render_overview(
     tags = [(Tag.IP in wp.tags, Tag.TGT in wp.tags) for wp in main]
     times = [None for _ in main]
 
+    def _scale_point(xy: tuple[int, int]) -> tuple[float, float]:
+        return ((xy[0] - x0) * scale, (xy[1] - y0) * scale)
+
+    arc_canvas: list[list[tuple[float, float]] | None] | None = None
+    leg_starts_canvas: list[tuple[float, float] | None] | None = None
+    if arc_base_pixels is not None:
+        arc_canvas = [
+            [_scale_point(p) for p in arc] if arc else None for arc in arc_base_pixels
+        ]
+    if leg_start_base_pixels is not None:
+        leg_starts_canvas = [
+            _scale_point(p) if p is not None else None for p in leg_start_base_pixels
+        ]
+
     style = MarkerStyle(
         radius=max(pil.width * 0.02, 6),
         line_width=max(int(pil.width * 0.004), 2),
     )
     overlays.draw_route(
-        pil, main_points, tags, times, None, overlays.hex_to_rgb(route.route_colour), style
+        pil,
+        main_points,
+        tags,
+        times,
+        None,
+        overlays.hex_to_rgb(route.route_colour),
+        style,
+        arc_polylines=arc_canvas,
+        leg_start_points=leg_starts_canvas,
     )
     divert_points = [
         canvas_points[i] for i, wp in enumerate(route.waypoints) if Tag.DIVERT in wp.tags
@@ -150,6 +174,7 @@ def render_legend(route: "Route") -> Image.Image:
         "TAS - true airspeed for the leg",
         "NMC - magnetic course for the next leg",
         "Red FLOT CROSSED warning on legs that cross the FLOT",
+        "Orange TURN REQUIRES warning when a turn needs more G than configured",
     ]
     draw.text((60, y), "Doghouse fields:", font=font, fill=(0, 0, 0, 255))
     y += 80

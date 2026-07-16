@@ -113,6 +113,41 @@ class TestAnchorValidation:
             plan_route_times(route, conf)
 
 
+class TestLegDistancesOverride:
+    def test_custom_leg_distances_used_for_timing(self):
+        conf = make_conf()
+        route = make_route(
+            [
+                wp("start", 50, 10),
+                wp("mid", 50, 11),
+                wp("tgt", 50, 12, tags=[Tag.TGT]),
+            ],
+            conf,
+        )
+        straight = [
+            0.0,
+            route.main_waypoints[1].position.distance_from(
+                route.main_waypoints[0].position, route.units
+            ),
+            route.main_waypoints[2].position.distance_from(
+                route.main_waypoints[1].position, route.units
+            ),
+        ]
+        longer = [0.0, straight[1] * 1.5, straight[2] * 1.5]
+        plan_route_times(route, conf)
+        base_time = route.main_waypoints[2].timestamp
+        route2 = make_route(
+            [
+                wp("start", 50, 10),
+                wp("mid", 50, 11),
+                wp("tgt", 50, 12, tags=[Tag.TGT]),
+            ],
+            conf,
+        )
+        plan_route_times(route2, conf, leg_distances=longer)
+        assert route2.main_waypoints[2].timestamp > base_time
+
+
 class TestDivertExclusion:
     def test_divert_skipped_for_timing(self):
         conf = make_conf()

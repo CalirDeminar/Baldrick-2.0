@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from domain.config import Config
 from domain.map import DCSMap
 from domain.position import Position
+from domain.turn_geometry import TurnArc
 from shared.enums import Tag
 from shared.units import DistanceUnit
 
@@ -75,6 +76,7 @@ class Route(BaseModel):
     joker_fuel: int | None = Field(default=None)
     return_to_divert: bool | None = Field(default=None)
     flot: list[Position] = Field(default_factory=list)
+    turn_arcs: list[TurnArc | None] | None = Field(default=None)
 
     @staticmethod
     def from_config(

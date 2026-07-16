@@ -12,6 +12,9 @@ from shared import paths
 FADED_ALPHA = 90
 FOCUSED_ALPHA = 255
 FLOT_COLOUR = (211, 47, 47)
+TURN_WARNING_COLOUR = (255, 152, 0)
+# When True, draw the full turn arc (debug). When False, trim at marker boundary.
+SHOW_FULL_TURN_ARCS = True
 
 
 def hex_to_rgb(value: str) -> tuple[int, int, int]:
@@ -93,6 +96,9 @@ def draw_route(
     focused_index: int | None,
     colour_rgb: tuple[int, int, int],
     style: MarkerStyle,
+    arc_polylines: list[list[tuple[float, float]] | None] | None = None,
+    leg_start_points: list[tuple[float, float] | None] | None = None,
+    leg_time_starts: list[float | None] | None = None,
 ) -> None:
     """Draw legs + markers. ``focused_index`` is the leg (into that index) drawn
     at full opacity; ``None`` (overview) draws everything focused."""
@@ -101,12 +107,36 @@ def draw_route(
 
     incoming_track: list[tuple[float, float]] = [(0.0, 0.0)] * n
     for i in range(1, n):
+        leg_start = (
+            leg_start_points[i]
+            if leg_start_points is not None and leg_start_points[i] is not None
+            else canvas_points[i - 1]
+        )
         incoming_track[i] = _unit(
-            canvas_points[i][0] - canvas_points[i - 1][0],
-            canvas_points[i][1] - canvas_points[i - 1][1],
+            canvas_points[i][0] - leg_start[0],
+            canvas_points[i][1] - leg_start[1],
         )
     if n > 1:
         incoming_track[0] = incoming_track[1]
+
+    # Turn arcs leaving each waypoint (before the leg into the next index).
+    if arc_polylines is not None:
+        for i in range(n - 1):
+            arc = arc_polylines[i]
+            if not arc:
+                continue
+            leg_into = i + 1
+            focused = focused_index is None or leg_into == focused_index
+            alpha = FOCUSED_ALPHA if focused else FADED_ALPHA
+            colour = (*colour_rgb, alpha)
+            points = list(arc)
+            if not SHOW_FULL_TURN_ARCS and len(points) >= 2:
+                r = _marker_radius(tags[i][0], tags[i][1], style.radius)
+                tx, ty = incoming_track[i + 1] if i + 1 < n else incoming_track[i]
+                wp = canvas_points[i]
+                points[0] = (wp[0] + tx * r, wp[1] + ty * r)
+            if len(points) >= 2:
+                draw.line(points, fill=colour, width=style.line_width)
 
     # Legs.
     for i in range(1, n):
@@ -115,15 +145,25 @@ def draw_route(
         colour = (*colour_rgb, alpha)
         prev = canvas_points[i - 1]
         cur = canvas_points[i]
-        tx, ty = _unit(cur[0] - prev[0], cur[1] - prev[1])
+        leg_start = (
+            leg_start_points[i]
+            if leg_start_points is not None and leg_start_points[i] is not None
+            else prev
+        )
+        tx, ty = _unit(cur[0] - leg_start[0], cur[1] - leg_start[1])
         r_prev = _marker_radius(tags[i - 1][0], tags[i - 1][1], style.radius)
         r_cur = _marker_radius(tags[i][0], tags[i][1], style.radius)
-        start = (prev[0] + tx * r_prev, prev[1] + ty * r_prev)
+        start = (leg_start[0] + tx * r_prev, leg_start[1] + ty * r_prev)
         end = (cur[0] - tx * r_cur, cur[1] - ty * r_cur)
         draw.line([start, end], fill=colour, width=style.line_width)
         if focused and focused_index is not None:
+            tick_start = (
+                leg_time_starts[i]
+                if leg_time_starts is not None and leg_time_starts[i] is not None
+                else times_hours[i - 1]
+            )
             _draw_minute_ticks(
-                draw, prev, cur, times_hours[i - 1], times_hours[i], colour, style
+                draw, leg_start, cur, tick_start, times_hours[i], colour, style
             )
 
     # Markers on top.

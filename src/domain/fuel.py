@@ -68,7 +68,9 @@ NO_FUEL_MAP_WARNING = (
 )
 
 
-def compute_fuel(route: "Route", conf: "Config") -> FuelReport | None:
+def compute_fuel(
+    route: "Route", conf: "Config", leg_distances: list[float] | None = None
+) -> FuelReport | None:
     """Compute fuel planning for the route.
 
     Returns ``None`` when no fuel map is configured, so callers can skip fuel
@@ -88,7 +90,11 @@ def compute_fuel(route: "Route", conf: "Config") -> FuelReport | None:
     for i in range(1, len(waypoints)):
         a = waypoints[i - 1]
         b = waypoints[i]
-        distance_nm = distance_to_nm(b.position.distance_from(a.position, units), units)
+        if leg_distances is not None:
+            distance = leg_distances[i]
+        else:
+            distance = b.position.distance_from(a.position, units)
+        distance_nm = distance_to_nm(distance, units)
         altitude_ft = altitude_to_ft(b.altitude, units)
         speed_kts = speed_to_kts(b.speed_to or 0, units)
         if not fuel_map.is_within_bounds(altitude_ft, speed_kts):
