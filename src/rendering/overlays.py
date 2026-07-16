@@ -13,8 +13,6 @@ FADED_ALPHA = 90
 FOCUSED_ALPHA = 255
 FLOT_COLOUR = (211, 47, 47)
 TURN_WARNING_COLOUR = (255, 152, 0)
-# When True, draw the full turn arc (debug). When False, trim at marker boundary.
-SHOW_FULL_TURN_ARCS = True
 
 
 def hex_to_rgb(value: str) -> tuple[int, int, int]:
@@ -43,6 +41,39 @@ def _unit(dx: float, dy: float) -> tuple[float, float]:
     if length == 0:
         return 1.0, 0.0
     return dx / length, dy / length
+
+
+def _trim_polyline_outside_circle(
+    points: list[tuple[float, float]],
+    centre: tuple[float, float],
+    radius: float,
+) -> list[tuple[float, float]]:
+    """Drop leading points inside the circle, clipping the first crossing
+    segment exactly at the circle boundary."""
+    cx, cy = centre
+    first_outside = None
+    for idx, (x, y) in enumerate(points):
+        if math.hypot(x - cx, y - cy) >= radius:
+            first_outside = idx
+            break
+    if first_outside is None:
+        return []
+    if first_outside == 0:
+        return points
+    x0, y0 = points[first_outside - 1]
+    x1, y1 = points[first_outside]
+    dx, dy = x1 - x0, y1 - y0
+    fx, fy = x0 - cx, y0 - cy
+    a = dx * dx + dy * dy
+    b = 2.0 * (fx * dx + fy * dy)
+    c = fx * fx + fy * fy - radius * radius
+    disc = b * b - 4.0 * a * c
+    if a <= 0 or disc < 0:
+        return points[first_outside:]
+    t = (-b + math.sqrt(disc)) / (2.0 * a)
+    t = min(max(t, 0.0), 1.0)
+    boundary = (x0 + dx * t, y0 + dy * t)
+    return [boundary] + points[first_outside:]
 
 
 def _marker_radius(is_ip: bool, is_tgt: bool, base_radius: float) -> float:
@@ -129,12 +160,8 @@ def draw_route(
             focused = focused_index is None or leg_into == focused_index
             alpha = FOCUSED_ALPHA if focused else FADED_ALPHA
             colour = (*colour_rgb, alpha)
-            points = list(arc)
-            if not SHOW_FULL_TURN_ARCS and len(points) >= 2:
-                r = _marker_radius(tags[i][0], tags[i][1], style.radius)
-                tx, ty = incoming_track[i + 1] if i + 1 < n else incoming_track[i]
-                wp = canvas_points[i]
-                points[0] = (wp[0] + tx * r, wp[1] + ty * r)
+            r = _marker_radius(tags[i][0], tags[i][1], style.radius)
+            points = _trim_polyline_outside_circle(list(arc), canvas_points[i], r)
             if len(points) >= 2:
                 draw.line(points, fill=colour, width=style.line_width)
 
@@ -145,16 +172,21 @@ def draw_route(
         colour = (*colour_rgb, alpha)
         prev = canvas_points[i - 1]
         cur = canvas_points[i]
-        leg_start = (
-            leg_start_points[i]
-            if leg_start_points is not None and leg_start_points[i] is not None
-            else prev
-        )
+        starts_at_arc_exit = leg_start_points is not None and leg_start_points[i] is not None
+        leg_start = leg_start_points[i] if starts_at_arc_exit else prev
         tx, ty = _unit(cur[0] - leg_start[0], cur[1] - leg_start[1])
         r_prev = _marker_radius(tags[i - 1][0], tags[i - 1][1], style.radius)
         r_cur = _marker_radius(tags[i][0], tags[i][1], style.radius)
-        start = (leg_start[0] + tx * r_prev, leg_start[1] + ty * r_prev)
         end = (cur[0] - tx * r_cur, cur[1] - ty * r_cur)
+        if starts_at_arc_exit:
+            # Leg continues from the turn-arc exit point, but a shallow turn
+            # can leave that exit inside the marker circle; clip to its edge.
+            clipped = _trim_polyline_outside_circle([leg_start, end], prev, r_prev)
+            if len(clipped) < 2:
+                continue
+            start = clipped[0]
+        else:
+            start = (leg_start[0] + tx * r_prev, leg_start[1] + ty * r_prev)
         draw.line([start, end], fill=colour, width=style.line_width)
         if focused and focused_index is not None:
             tick_start = (
