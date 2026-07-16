@@ -231,7 +231,9 @@ def render_leg(
     main_pixels = _main_route_pixels(route, base_pixels)
     turns = route.turn_arcs or [None] * len(route.main_waypoints)
     if leg_start_base_pixels is not None:
-        prev_layout_xy = leg_start_base_pixels[main_index - 1] or main_pixels[main_index - 1]
+        # leg_start_base_pixels[i] is the (turn-offset) start of the leg INTO
+        # waypoint i, so the card for this leg anchors on index main_index.
+        prev_layout_xy = leg_start_base_pixels[main_index] or main_pixels[main_index - 1]
     elif turns[main_index - 1] is not None:
         prev_layout_xy = selection.base.get_pixels_for_position(
             turns[main_index - 1].exit_point
