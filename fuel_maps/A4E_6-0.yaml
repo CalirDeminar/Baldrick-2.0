@@ -1,0 +1,30 @@
+name: A4E-6-0
+capacity: 5,400
+fuelMap:
+  - 
+    altitude_ft: 0
+    speed_kts: 360
+    lb_per_nm: 12.5
+  - 
+    altitude_ft: 0
+    speed_kts: 420
+    lb_per_nm: 11.9
+  - 
+    altitude_ft: 0
+    speed_kts: 480
+    lb_per_nm: 16.67
+  - 
+    altitude_ft: 0
+    speed_kts: 540
+  - 
+    altitude_ft: 4000
+    speed_kts: 360
+    lb_per_nm: 12.98
+  - 
+    altitude_ft: 4000
+    speed_kts: 420
+    lb_per_nm: 15.53
+  - 
+    altitude_ft: 16000
+    speed_kts: 360
+    lb_per_nm: 15.22

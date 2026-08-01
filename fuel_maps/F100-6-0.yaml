@@ -1,0 +1,71 @@
+name: F100-6-0
+capacity: 4,303
+# F-100D, 6 stores, no external tanks.
+# Source figures are IAS + pph; lb_per_nm uses ISA TAS for distance at altitude
+# (TAS = IAS / sqrt(density ratio); deck TAS = IAS).
+# Deck / 420 kts was logged as 5000-6000 pph; 5500 pph used.
+fuelMap:
+  -
+    altitude_ft: 0
+    speed_kts: 300
+    lb_per_nm: 6.67
+  -
+    altitude_ft: 0
+    speed_kts: 360
+    lb_per_nm: 7.22
+  -
+    altitude_ft: 0
+    speed_kts: 420
+    lb_per_nm: 13.10
+  -
+    altitude_ft: 0
+    speed_kts: 480
+    lb_per_nm: 16.67
+  -
+    altitude_ft: 5000
+    speed_kts: 300
+    lb_per_nm: 6.65
+  -
+    altitude_ft: 5000
+    speed_kts: 360
+    lb_per_nm: 6.96
+  -
+    altitude_ft: 5000
+    speed_kts: 420
+    lb_per_nm: 13.26
+  -
+    altitude_ft: 5000
+    speed_kts: 480
+    lb_per_nm: 13.54
+  -
+    altitude_ft: 10000
+    speed_kts: 300
+    lb_per_nm: 6.02
+  -
+    altitude_ft: 10000
+    speed_kts: 360
+    lb_per_nm: 6.92
+  -
+    altitude_ft: 10000
+    speed_kts: 420
+    lb_per_nm: 14.32
+  -
+    altitude_ft: 20000
+    speed_kts: 300
+    lb_per_nm: 4.38
+  -
+    altitude_ft: 20000
+    speed_kts: 360
+    lb_per_nm: 5.27
+  -
+    altitude_ft: 20000
+    speed_kts: 400
+    lb_per_nm: 9.12
+  -
+    altitude_ft: 30000
+    speed_kts: 300
+    lb_per_nm: 3.67
+  -
+    altitude_ft: 30000
+    speed_kts: 320
+    lb_per_nm: 4.59

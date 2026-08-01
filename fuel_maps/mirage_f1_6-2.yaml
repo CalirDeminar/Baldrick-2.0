@@ -1,0 +1,83 @@
+name: F1-4-2
+capacity: 11,580
+fuelMap:
+  -
+    altitude_ft: 0
+    speed_kts: 300
+    lb_per_nm: 15.93
+  -
+    altitude_ft: 0
+    speed_kts: 360
+    lb_per_nm: 14.75
+  -
+    altitude_ft: 0
+    speed_kts: 420
+    lb_per_nm: 15.17
+  -
+    altitude_ft: 0
+    speed_kts: 480
+    lb_per_nm: 16.59
+  -
+    altitude_ft: 0
+    speed_kts: 540
+    lb_per_nm: 19.67
+  -
+    altitude_ft: 5000
+    speed_kts: 300
+    lb_per_nm: 14.79
+  -
+    altitude_ft: 5000
+    speed_kts: 360
+    lb_per_nm: 13.69
+  -
+    altitude_ft: 5000
+    speed_kts: 420
+    lb_per_nm: 12.91
+  -
+    altitude_ft: 5000
+    speed_kts: 480
+    lb_per_nm: 14.38
+  -
+    altitude_ft: 5000
+    speed_kts: 540
+    lb_per_nm: 21.91
+  -
+    altitude_ft: 10000
+    speed_kts: 300
+    lb_per_nm: 18.25
+  -
+    altitude_ft: 10000
+    speed_kts: 360
+    lb_per_nm: 11.41
+  -
+    altitude_ft: 10000
+    speed_kts: 420
+    lb_per_nm: 13.04
+  -
+    altitude_ft: 10000
+    speed_kts: 480
+    lb_per_nm: 15.21
+  -
+    altitude_ft: 10000
+    speed_kts: 540
+    lb_per_nm: 52.39
+  -
+    altitude_ft: 20000
+    speed_kts: 300
+    lb_per_nm: 10.34
+  -
+    altitude_ft: 20000
+    speed_kts: 360
+    lb_per_nm: 8.61
+  -
+    altitude_ft: 20000
+    speed_kts: 420
+    lb_per_nm: 23.07
+  -
+    altitude_ft: 30000
+    speed_kts: 300
+    lb_per_nm: 11.91
+  -
+    altitude_ft: 30000
+    speed_kts: 350
+    lb_per_nm: 29.70
