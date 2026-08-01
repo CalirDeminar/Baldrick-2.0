@@ -1,0 +1,55 @@
+name: Germany High Detail
+image_file: GERMANY_HIGH_DETAIL.jpg
+projection_adjustment_deg: -10
+layer_priority: 10
+pixel_map:
+  -
+    lat: 51, 0, 0
+    long:  08, 0, 0
+    x_pixel:  00000
+    y_pixel:  00000
+  -
+    lat: 51, 0, 0
+    long:  09, 0, 0
+    x_pixel:  04450
+    y_pixel:  00000
+  -
+    lat: 51, 0, 0
+    long:  10, 0, 0
+    x_pixel:  08899
+    y_pixel:  00000
+  -
+    lat: 51, 0, 0
+    long:  11, 0, 0
+    x_pixel:  13349
+    y_pixel:  00000
+  -
+    lat: 51, 0, 0
+    long:  12, 0, 0
+    x_pixel:  17798
+    y_pixel:  00000
+  -
+    lat: 50, 0, 0
+    long:  08, 0, 0
+    x_pixel:  00000
+    y_pixel:  06995
+  -
+    lat: 50, 0, 0
+    long:  09, 0, 0
+    x_pixel:  04450
+    y_pixel:  06995
+  -
+    lat: 50, 0, 0
+    long:  10, 0, 0
+    x_pixel:  08899
+    y_pixel:  06995
+  -
+    lat: 50, 0, 0
+    long:  11, 0, 0
+    x_pixel:  13349
+    y_pixel:  06995
+  -
+    lat: 50, 0, 0
+    long:  12, 0, 0
+    x_pixel:  17798
+    y_pixel:  06995
