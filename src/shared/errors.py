@@ -16,3 +16,7 @@ class ToTError(BaldrickError):
 
 class FuelError(BaldrickError):
     """Raised when a route cannot be flown within fuel/reserve limits."""
+
+
+class FuelMapError(BaldrickError):
+    """Raised when a fuel map cannot satisfy a requested speed/altitude profile."""

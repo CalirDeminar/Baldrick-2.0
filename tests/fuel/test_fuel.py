@@ -5,8 +5,10 @@ from domain.fuel import compute_fuel
 from domain.fuel_map import FuelMap, FuelMapBySpeed, FuelMapCell
 from domain.position import Position
 from domain.route import Route, Waypoint
+from parsing.fuel_map_loader import load_fuel_map
 from shared.enums import Tag
 from shared.errors import FuelError
+from shared.paths import fuel_maps_dir
 from shared.units import DistanceUnit
 
 
@@ -37,6 +39,49 @@ class TestInterpolation:
         fm = make_fuel_map()
         assert not fm.is_within_bounds(20000, 700)
         assert fm.get_lb_per_mile_for_profile(20000, 700) == pytest.approx(30.0)
+
+
+class TestSparseAltitudeBands:
+    def test_rtb_profile_with_fewer_high_altitude_speeds(self):
+        fm = load_fuel_map(fuel_maps_dir() / "F100-6-0.yaml")
+        # Default RTB: 14,000 ft / 420 kts — 420 kts exists at 10,000 ft but not 20,000 ft.
+        efficiency = fm.get_lb_per_mile_for_profile(14000, 420)
+        assert efficiency > 0
+
+    def test_rtb_profile_warns_when_speed_unavailable_at_bracket_altitude(self):
+        fm = load_fuel_map(fuel_maps_dir() / "F100-6-0.yaml")
+        conf = make_conf(fm, rtb_altitude=14000, rtb_speed=420)
+        route = Route.from_config(
+            "R",
+            [
+                wp("home", 50, 10, tags=[Tag.HOME]),
+                wp("tgt", 50, 12, tags=[Tag.TGT]),
+                wp("home2", 50, 10, tags=[Tag.HOME]),
+            ],
+            conf,
+        )
+        report = compute_fuel(route, conf)
+        assert any(
+            "420 kts exceeds the 400 kts maximum recorded at 20,000 ft" in w
+            for w in report.warnings
+        )
+
+    def test_single_speed_at_highest_altitude_band(self):
+        rows = [
+            {"altitude_ft": 0, "speed_kts": 300, "lb_per_nm": 30.0},
+            {"altitude_ft": 0, "speed_kts": 420, "lb_per_nm": 40.0},
+            {"altitude_ft": 10000, "speed_kts": 300, "lb_per_nm": 20.0},
+        ]
+        by_alt: dict[int, FuelMapBySpeed] = {}
+        for r in rows:
+            a = r["altitude_ft"]
+            by_alt.setdefault(a, FuelMapBySpeed(altitude=a, map_by_speed={}))
+            by_alt[a].map_by_speed[r["speed_kts"]] = FuelMapCell(
+                speed_kts=r["speed_kts"], altitude_ft=a, fuel_lbs_per_nm=r["lb_per_nm"]
+            )
+        fm = FuelMap(name="SPARSE", capacity=10000, fuel_map_by_altitude=by_alt)
+        assert fm.get_lb_per_mile_for_profile(10000, 420) == pytest.approx(20.0)
+        assert fm.get_lb_per_mile_for_profile(5000, 420) == pytest.approx(30.0)
 
 
 def make_conf(fm, **kw) -> Config:

@@ -68,6 +68,25 @@ NO_FUEL_MAP_WARNING = (
 )
 
 
+def _append_profile_warnings(
+    warnings: list[str],
+    fuel_map,
+    altitude_ft: float,
+    speed_kts: float,
+    *,
+    context: str,
+) -> None:
+    if not fuel_map.is_within_bounds(altitude_ft, speed_kts):
+        warnings.append(
+            f"{context} is outside the fuel map '{fuel_map.name}' bounds "
+            f"({fuel_map.bounds_description()}); using nearest approximation."
+        )
+    for note in fuel_map.profile_approximation_notes(altitude_ft, speed_kts):
+        warnings.append(
+            f"{context}: {note}; using nearest approximation."
+        )
+
+
 def compute_fuel(
     route: "Route", conf: "Config", leg_distances: list[float] | None = None
 ) -> FuelReport | None:
@@ -97,12 +116,13 @@ def compute_fuel(
         distance_nm = distance_to_nm(distance, units)
         altitude_ft = altitude_to_ft(b.altitude, units)
         speed_kts = speed_to_kts(b.speed_to or 0, units)
-        if not fuel_map.is_within_bounds(altitude_ft, speed_kts):
-            warnings.append(
-                f"Leg to '{b.name}' (speed {b.speed_to}, altitude {b.altitude}) is "
-                f"outside the fuel map '{fuel_map.name}' bounds "
-                f"({fuel_map.bounds_description()}); using nearest approximation."
-            )
+        _append_profile_warnings(
+            warnings,
+            fuel_map,
+            altitude_ft,
+            speed_kts,
+            context=f"Leg to '{b.name}' (speed {b.speed_to}, altitude {b.altitude})",
+        )
         efficiency = fuel_map.get_lb_per_mile_for_profile(altitude_ft, speed_kts)
         leg_fuels.append(distance_nm * efficiency)
 
@@ -134,13 +154,16 @@ def compute_fuel(
     return_to_divert = False
     rtb_alt_ft = altitude_to_ft(conf.rtb_altitude, units)
     rtb_speed_kts = speed_to_kts(conf.rtb_speed, units)
+    _append_profile_warnings(
+        warnings,
+        fuel_map,
+        rtb_alt_ft,
+        rtb_speed_kts,
+        context=(
+            f"RTB profile (speed {conf.rtb_speed}, altitude {conf.rtb_altitude})"
+        ),
+    )
     rtb_efficiency = fuel_map.get_lb_per_mile_for_profile(rtb_alt_ft, rtb_speed_kts)
-    if not fuel_map.is_within_bounds(rtb_alt_ft, rtb_speed_kts):
-        warnings.append(
-            f"RTB profile (speed {conf.rtb_speed}, altitude {conf.rtb_altitude}) is "
-            f"outside the fuel map '{fuel_map.name}' bounds "
-            f"({fuel_map.bounds_description()}); using nearest approximation."
-        )
 
     bingo = calculate_max_return_distance(route, conf, is_bingo=True)
     if bingo is not None:
