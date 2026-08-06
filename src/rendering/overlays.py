@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from shared import paths
 
-FADED_ALPHA = 90
+FADED_ALPHA = 150
 FOCUSED_ALPHA = 255
 FLOT_COLOUR = (211, 47, 47)
 TURN_WARNING_COLOUR = (255, 152, 0)
@@ -130,10 +130,12 @@ def draw_route(
     arc_polylines: list[list[tuple[float, float]] | None] | None = None,
     leg_start_points: list[tuple[float, float] | None] | None = None,
     leg_time_starts: list[float | None] | None = None,
+    faded_alpha: int = FADED_ALPHA,
 ) -> None:
     """Draw legs + markers. ``focused_index`` is the leg (into that index) drawn
     at full opacity; ``None`` (overview) draws everything focused."""
-    draw = ImageDraw.Draw(image, "RGBA")
+    overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay, "RGBA")
     n = len(canvas_points)
 
     incoming_track: list[tuple[float, float]] = [(0.0, 0.0)] * n
@@ -158,7 +160,7 @@ def draw_route(
                 continue
             leg_into = i + 1
             focused = focused_index is None or leg_into == focused_index
-            alpha = FOCUSED_ALPHA if focused else FADED_ALPHA
+            alpha = FOCUSED_ALPHA if focused else faded_alpha
             colour = (*colour_rgb, alpha)
             r = _marker_radius(tags[i][0], tags[i][1], style.radius)
             points = _trim_polyline_outside_circle(list(arc), canvas_points[i], r)
@@ -168,7 +170,7 @@ def draw_route(
     # Legs.
     for i in range(1, n):
         focused = focused_index is None or i == focused_index
-        alpha = FOCUSED_ALPHA if focused else FADED_ALPHA
+        alpha = FOCUSED_ALPHA if focused else faded_alpha
         colour = (*colour_rgb, alpha)
         prev = canvas_points[i - 1]
         cur = canvas_points[i]
@@ -201,10 +203,12 @@ def draw_route(
     # Markers on top.
     for i in range(n):
         endpoint_of_focus = focused_index is None or i in (focused_index, focused_index - 1)
-        alpha = FOCUSED_ALPHA if endpoint_of_focus else FADED_ALPHA
+        alpha = FOCUSED_ALPHA if endpoint_of_focus else faded_alpha
         colour = (*colour_rgb, alpha)
         is_ip, is_tgt = tags[i]
         draw_marker(draw, canvas_points[i], incoming_track[i], is_ip, is_tgt, colour, style)
+
+    image.paste(Image.alpha_composite(image, overlay), (0, 0))
 
 
 def _draw_dashed_line(

@@ -1,0 +1,39 @@
+name: Converted Route
+waypoints:
+  - name: Home
+    lat: 49, 26, 0
+    long: 07, 36, 0
+    notes: Home\nMAGVAR-13
+  - name: WP 1
+    lat: 49, 58, 0
+    long: 08, 46, 0
+  - name: WP 2
+    lat: 50, 40, 0
+    long: 09, 46, 0
+    tags:
+      - FIX
+  - name: Pre-IP
+    lat: 50, 48, 0
+    long: 09, 37, 0
+    notes: Pre-IP
+  - name: IP
+    lat: 50, 55, 0
+    long: 09, 35, 0
+    tags:
+      - IP
+    notes: IP
+  - name: TGT
+    lat: 50, 56, 0
+    long: 09, 30, 0
+    tags:
+      - TGT
+    notes: TGT
+  - name: Egress
+    lat: 49, 58, 0
+    long: 08, 46, 0
+  - name: Home
+    lat: 49, 26, 0
+    long: 07, 36, 0
+    tags:
+      - HOME
+    notes: Home

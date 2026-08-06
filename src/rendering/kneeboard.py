@@ -283,6 +283,7 @@ def render_leg(
         arc_polylines=arc_canvas,
         leg_start_points=leg_starts_canvas,
         leg_time_starts=_leg_straight_start_times(route),
+        faded_alpha=conf.faded_leg_alpha,
     )
 
     if flot_pixels:

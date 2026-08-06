@@ -71,6 +71,7 @@ Optional fields (with defaults):
 | `esa_safety_margin_ft` | `1000` | Feet added above the tallest obstacle when computing ESA |
 | `overview_card_downsample_factor` | `3` | Downscale factor for the route overview card |
 | `card_alpha` | opaque | Output-card opacity `0`–`255`. Omit or `null` for opaque JPEG; lower values save PNG with transparency (for DCS 2D kneeboard overlays) |
+| `faded_leg_alpha` | `150` | Opacity for non-current legs on leg cards (`0`–`255`). Current leg stays fully opaque |
 | `turn_g` | `2.0` | Coordinated turn load factor for turn-radius geometry (must be &gt; 1; ~2G ≈ 60° bank) |
 | `turn_rate_deg_per_sec` | none | Optional maximum turn rate in deg/s (e.g. radar limits). Omit or `null` for no rate limit |
 | `overrides` | `[]` | Named override blocks (see below) |

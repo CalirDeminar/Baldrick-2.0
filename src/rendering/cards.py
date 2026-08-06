@@ -95,6 +95,7 @@ def render_overview(
         style,
         arc_polylines=arc_canvas,
         leg_start_points=leg_starts_canvas,
+        faded_alpha=conf.faded_leg_alpha,
     )
     divert_points = [
         canvas_points[i] for i, wp in enumerate(route.waypoints) if Tag.DIVERT in wp.tags

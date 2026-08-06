@@ -1,3 +1,6 @@
+from pydantic import ValidationError
+import pytest
+
 from domain.config import Config, ConfigOverride, effective_card_alpha
 from parsing.config_loader import apply_override, attach_fuel_map
 from shared.units import DistanceUnit
@@ -121,3 +124,28 @@ class TestCardAlpha:
         result = conf.with_override(override)
         assert result.card_alpha is None
         assert effective_card_alpha(result) == 255
+
+
+class TestFadedLegAlpha:
+    def test_omitted_faded_leg_alpha_defaults_to_150(self):
+        conf = _base_conf()
+        assert conf.faded_leg_alpha == 150
+
+    def test_explicit_faded_leg_alpha_is_used(self):
+        conf = _base_conf(faded_leg_alpha=50)
+        assert conf.faded_leg_alpha == 50
+
+    def test_override_can_set_faded_leg_alpha(self):
+        override = ConfigOverride.model_validate({"name": "faint", "faded_leg_alpha": 40})
+        conf = Config(
+            min_cruise_speed=300,
+            default_cruise_speed=420,
+            dash_speed=540,
+            overrides=[override],
+        )
+        result = conf.with_override(override)
+        assert result.faded_leg_alpha == 40
+
+    def test_faded_leg_alpha_out_of_range_rejected(self):
+        with pytest.raises(ValidationError):
+            _base_conf(faded_leg_alpha=300)
