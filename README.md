@@ -367,7 +367,7 @@ Each run creates (or recreates) `output/<route name>/` containing:
 | `<MAP>-01-Overview.jpg` | Whole-route overview with fuel summary |
 | `<MAP>-02-wp01.jpg` … `<MAP>-02-wpNN.jpg` | One kneeboard per main-route leg (DIVERT waypoints excluded) |
 | `<MAP>-03-divert-<name>.jpg` | One contingency card per DIVERT waypoint |
-| `notes.txt` | Text summary: ETAs, speeds, ESA, min fuel, bingo/joker, warnings |
+| `notes.txt` | Text summary: waypoint coordinates and tags, divert notes, bingo/joker, warnings |
 | `<route name>.zip` | Zip archive of the folder contents |
 
 Cards are 1600×2400. Extension is `.jpg` when opaque, or `.png` when `card_alpha` is below 255.

@@ -17,11 +17,10 @@ from domain.config import effective_card_alpha
 from domain.turn_geometry import leg_start_position
 from rendering.cards import render_legend, render_overview
 from rendering.kneeboard import (
-    format_clock,
+    _dms_parts,
     render_contingency,
     render_leg,
 )
-from shared.units import ALTITUDE_LABEL, SPEED_LABEL
 
 if TYPE_CHECKING:
     from domain.config import Config
@@ -152,20 +151,13 @@ def generate(
 def _write_notes(
     route: "Route", selection: "MapSelection", conf: "Config", report: "FuelReport | None"
 ) -> str:
-    units = route.units
     parts: list[str] = [f"Route: {route.name}", f"Map: {selection.base.name}", ""]
 
     name_width = max((len(wp.name) for wp in route.main_waypoints), default=4)
     for wp in route.main_waypoints:
-        eta = format_clock(wp.timestamp.total_seconds() / 3600.0 if wp.timestamp else None)
+        lat_str, lon_str = _dms_parts(wp.position)
         tags = ", ".join(t.value for t in wp.tags)
-        speed = f"{wp.speed_to}{SPEED_LABEL[units]}" if wp.speed_to else "-"
-        esa = f"{wp.minimum_leg_alt}{ALTITUDE_LABEL[units]}" if wp.minimum_leg_alt is not None else "-"
-        fuel = f"{wp.min_fuel} lb" if wp.min_fuel is not None else "-"
-        parts.append(
-            f"{wp.name.ljust(name_width)}  ETA {eta}  TAS {speed}  ESA {esa}  "
-            f"MIN FUEL {fuel}  {tags}".rstrip()
-        )
+        parts.append(f"{wp.name.ljust(name_width)}  {lat_str}  {lon_str}  {tags}".rstrip())
 
     if route.divert_waypoints:
         parts += ["", "Contingency:"]
