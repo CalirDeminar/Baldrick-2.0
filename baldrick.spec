@@ -27,11 +27,13 @@ _mgrs_binaries = [
 
 _pyvips_datas, _pyvips_binaries, _pyvips_hidden = collect_all("pyvips")
 
+_map_data_src = os.environ.get("BALDRICK_MAP_DATA", "./map_data")
+
 a = Analysis(
     ['src\\baldrick.py'],
     pathex=['src'],
     binaries=_vips_binaries + _pyvips_binaries + _mgrs_binaries,
-    datas=[('./map_data', 'map_data'), ('./assets', 'assets')] + _vips_datas + _pyvips_datas,
+    datas=[(_map_data_src, 'map_data'), ('./assets', 'assets')] + _vips_datas + _pyvips_datas,
     hiddenimports=['_libvips', 'cffi', 'mgrs', 'mgrs.core'] + _pyvips_hidden,
     hookspath=[],
     hooksconfig={},

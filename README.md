@@ -421,12 +421,29 @@ For development or creating your own release bundle:
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/)
 
+Map YAML lives in git, but the large map images do not. After cloning, fetch the shareable map assets from the latest GitHub Release (or place the JPEGs under `map_data/image_files/` yourself):
+
 ```bash
 git clone <repo-url>
 cd Baldrick_2
 uv sync
+uv run python scripts/fetch_maps.py
 uv run python src/baldrick.py -r example_route_file
 uv run python build.py
 ```
 
-The distributable is written to `dist/baldrick/` with `baldrick.exe`, `config.yaml`, `routes/`, and `fuel_maps/` beside the executable. Map data ships inside `_internal/`.
+`build.py` writes three outputs:
+
+| Path | Contents |
+|------|----------|
+| `dist/baldrick/` | Unzipped application bundle |
+| `dist/baldrick-{version}.zip` | Same bundle, ready to upload as a release asset |
+| `dist/baldrick-maps-{version}.zip` | Shareable map YAML + images only (upload alongside the app zip) |
+
+By default, maps marked `redistributable: false` in their YAML (e.g. Germany High Detail) are excluded from the app bundle and from the maps zip. For a personal build that includes those local-only maps, pass:
+
+```bash
+uv run python build.py --include-non-redistributable
+```
+
+The maps zip always remains shareable-only.

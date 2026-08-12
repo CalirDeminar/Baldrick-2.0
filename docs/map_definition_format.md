@@ -23,6 +23,9 @@ There are two kinds of map layer:
   Magnetic course shown on cards is `true_course - mag_var`.
 - `layer_priority` (optional, default `0`): overlay stacking order. Higher numbers
   are composited on top. Base maps are effectively the lowest layer.
+- `redistributable` (optional, default `true`): when `false`, the map YAML and
+  image are excluded from release maps zips and from the default app build bundle.
+  Use for map assets you may use locally but must not redistribute.
 - `pixel_map` (required): a list of lat/long -> pixel anchor points. Any position
   bounded by four anchor points is located by bilinear interpolation. Each entry:
   - `lat`: DMS as `D, M, S`
