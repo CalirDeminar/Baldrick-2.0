@@ -12,6 +12,8 @@ baldrick/
   config.yaml
   routes/
   fuel_maps/
+  output/             # created on run
+  tmp/                # map-image cache and libvips scratch (created on run)
   _internal/          # bundled map data and runtime (do not edit)
 ```
 
@@ -35,6 +37,7 @@ Kneeboards are written to `output/<route name>/`.
 | `routes/` | Route YAML files |
 | `fuel_maps/` | Aircraft fuel consumption maps |
 | `output/` | Generated kneeboards (created on run) |
+| `tmp/` | Decompressed map cache and libvips scratch (created on run) |
 | `_internal/` | Bundled map data and runtime (not user-editable) |
 
 Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map, Baldrick prompts you to choose unless the route sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard.

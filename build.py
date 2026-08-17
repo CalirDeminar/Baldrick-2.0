@@ -85,6 +85,8 @@ def build(*, include_non_redistributable: bool) -> None:
 
     os.makedirs(DIST / "routes", exist_ok=True)
     os.makedirs(DIST / "fuel_maps", exist_ok=True)
+    os.makedirs(DIST / "tmp", exist_ok=True)
+    (DIST / "tmp" / ".keep").write_text("", encoding="utf-8")
 
     shutil.copy(ROOT / "routes" / "example_route_file.yaml", DIST / "routes" / "example_route_file.yaml")
     shutil.copy(ROOT / "fuel_maps" / "example_fuel_map.yaml", DIST / "fuel_maps" / "example_fuel_map.yaml")

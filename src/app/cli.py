@@ -11,6 +11,7 @@ from app.interactive import build_route_interactive, choose_map
 from app.pipeline import generate_kneeboards
 from parsing.config_loader import apply_override, load_config
 from parsing.route_loader import load_route
+from rendering.vips_util import configure_tmpdir
 from shared import paths
 from shared.errors import BaldrickError
 
@@ -35,6 +36,7 @@ def main(
     push_time: Annotated[timedelta | None, typer.Option("--push", "-p", parser=timedelta_parser, help="Push time, HH:MM:SS")] = None,
 ) -> None:
     try:
+        configure_tmpdir()
         conf = load_config()
         if config_override:
             conf = apply_override(conf, config_override)

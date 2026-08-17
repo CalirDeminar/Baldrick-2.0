@@ -21,6 +21,7 @@ from rendering.kneeboard import (
     render_contingency,
     render_leg,
 )
+from rendering.vips_util import clear_image_cache, configure_tmpdir
 
 if TYPE_CHECKING:
     from domain.config import Config
@@ -87,65 +88,69 @@ def generate(
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    configure_tmpdir()
 
-    base_image = selection.base.load_image()
-    base_pixels = [selection.base.get_pixels_for_position(wp.position) for wp in route.waypoints]
-    flot_pixels = [selection.base.get_pixels_for_position(p) for p in route.flot]
-    arc_base_pixels, leg_start_base_pixels = _turn_overlay_pixels(route, selection)
+    try:
+        base_image = selection.base.load_image()
+        base_pixels = [selection.base.get_pixels_for_position(wp.position) for wp in route.waypoints]
+        flot_pixels = [selection.base.get_pixels_for_position(p) for p in route.flot]
+        arc_base_pixels, leg_start_base_pixels = _turn_overlay_pixels(route, selection)
 
-    map_name = selection.base.name.upper()
-    main_count = len(route.main_waypoints)
-    card_alpha = effective_card_alpha(conf)
+        map_name = selection.base.name.upper()
+        main_count = len(route.main_waypoints)
+        card_alpha = effective_card_alpha(conf)
 
-    def render_and_save(main_index: int) -> str:
-        board = render_leg(
+        def render_and_save(main_index: int) -> str:
+            board = render_leg(
+                base_image,
+                selection,
+                route,
+                main_index,
+                conf,
+                base_pixels,
+                flot_pixels,
+                report,
+                arc_base_pixels=arc_base_pixels,
+                leg_start_base_pixels=leg_start_base_pixels,
+            )
+            stem = out_dir / f"{map_name}-02-wp{main_index:02d}"
+            return _save_card(board, stem, card_alpha)
+
+        leg_indices = list(range(1, main_count))
+        if leg_indices:
+            max_workers = min(len(leg_indices), (4))
+            with ThreadPoolExecutor(max_workers=max_workers) as pool:
+                list(pool.map(render_and_save, leg_indices))
+
+        for wp in route.divert_waypoints:
+            board = render_contingency(base_image, selection, route, wp, base_pixels, flot_pixels)
+            safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
+            _save_card(board, out_dir / f"{map_name}-03-divert-{safe_name}", card_alpha)
+
+        overview = render_overview(
             base_image,
             selection,
             route,
-            main_index,
             conf,
             base_pixels,
-            flot_pixels,
             report,
+            flot_pixels,
             arc_base_pixels=arc_base_pixels,
             leg_start_base_pixels=leg_start_base_pixels,
         )
-        stem = out_dir / f"{map_name}-02-wp{main_index:02d}"
-        return _save_card(board, stem, card_alpha)
+        _save_card(overview, out_dir / f"{map_name}-01-Overview", card_alpha)
 
-    leg_indices = list(range(1, main_count))
-    if leg_indices:
-        max_workers = min(len(leg_indices), (4))
-        with ThreadPoolExecutor(max_workers=max_workers) as pool:
-            list(pool.map(render_and_save, leg_indices))
+        legend = render_legend(route)
+        _save_card(legend, out_dir / f"{map_name}-00-Legend", card_alpha)
 
-    for wp in route.divert_waypoints:
-        board = render_contingency(base_image, selection, route, wp, base_pixels, flot_pixels)
-        safe_name = re.sub(r"[^\w\-]+", "_", wp.name).strip("_") or "divert"
-        _save_card(board, out_dir / f"{map_name}-03-divert-{safe_name}", card_alpha)
+        (out_dir / "notes.txt").write_text(_write_notes(route, selection, conf, report), encoding="utf-8")
 
-    overview = render_overview(
-        base_image,
-        selection,
-        route,
-        conf,
-        base_pixels,
-        report,
-        flot_pixels,
-        arc_base_pixels=arc_base_pixels,
-        leg_start_base_pixels=leg_start_base_pixels,
-    )
-    _save_card(overview, out_dir / f"{map_name}-01-Overview", card_alpha)
+        archive = shutil.make_archive(str(output_root / route.name), "zip", root_dir=out_dir)
+        shutil.move(archive, out_dir / f"{route.name}.zip")
 
-    legend = render_legend(route)
-    _save_card(legend, out_dir / f"{map_name}-00-Legend", card_alpha)
-
-    (out_dir / "notes.txt").write_text(_write_notes(route, selection, conf, report), encoding="utf-8")
-
-    archive = shutil.make_archive(str(output_root / route.name), "zip", root_dir=out_dir)
-    shutil.move(archive, out_dir / f"{route.name}.zip")
-
-    return out_dir
+        return out_dir
+    finally:
+        clear_image_cache()
 
 
 def _write_notes(

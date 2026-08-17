@@ -5,6 +5,18 @@ import pytest
 from domain.map import DCSMap, MapLayer, PixelMapPoint
 from domain.position import Position
 from domain.route import Waypoint
+from rendering.vips_util import clear_image_cache, configure_tmpdir
+from shared import paths
+
+
+@pytest.fixture(autouse=True)
+def isolate_app_tmp(tmp_path, monkeypatch):
+    """Keep libvips scratch and map caches inside the test temp dir."""
+    monkeypatch.setattr(paths, "tmp_dir", lambda: tmp_path / "app-tmp")
+    configure_tmpdir()
+    clear_image_cache()
+    yield
+    clear_image_cache()
 
 
 @pytest.fixture

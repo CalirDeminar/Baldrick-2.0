@@ -3,8 +3,8 @@
 Baldrick can run either from source (during development) or as a frozen
 PyInstaller ``onedir`` bundle. Read-only assets that ship with the app
 (the ``map_data`` folder) live next to the bundled code, while user-editable
-files (``config.yaml``, ``routes``, ``fuel_maps`` and rendered ``output``)
-live next to the executable so a user can edit them after install.
+files (``config.yaml``, ``routes``, ``fuel_maps``, rendered ``output`` and
+``tmp``) live next to the executable so a user can edit them after install.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ def bundle_dir() -> Path:
 
 
 def app_dir() -> Path:
-    """Directory for user-editable files (config, routes, fuel maps, output)."""
+    """Directory for user-editable files (config, routes, fuel maps, output, tmp)."""
     if _IS_FROZEN:
         return Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parents[2]
@@ -58,3 +58,8 @@ def config_path() -> Path:
 
 def output_dir() -> Path:
     return app_dir() / "output"
+
+
+def tmp_dir() -> Path:
+    """Writable scratch and map-image cache, next to the executable / project root."""
+    return app_dir() / "tmp"

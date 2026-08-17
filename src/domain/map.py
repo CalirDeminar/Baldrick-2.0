@@ -206,9 +206,9 @@ class MapLayer(BaseModel):
         return paths.map_image_dir() / self.image_file
 
     def load_image(self) -> Any:
-        import pyvips
+        from rendering.vips_util import load_map_image
 
-        return pyvips.Image.new_from_file(str(self.image_path()), access="random")
+        return load_map_image(self.image_path())
 
 
 class MapSelection(BaseModel):
