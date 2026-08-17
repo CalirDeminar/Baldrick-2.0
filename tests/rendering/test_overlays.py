@@ -30,3 +30,33 @@ def test_draw_route_fades_non_focused_legs():
     assert faded != (0, 0, 0)
     assert faded != background
     assert sum(faded) > sum(focused)
+
+
+def test_draw_route_keeps_focused_leg_opaque_at_overlap():
+    """A later faded leg must not replace the current focused stroke at crossings."""
+    image = Image.new("RGBA", (200, 200), (210, 190, 150, 255))
+    # Crossing X: focused diagonal is drawn first in index order; faded later
+    # diagonal would previously overwrite the overlap with a translucent pixel.
+    points = [(20.0, 20.0), (180.0, 180.0), (20.0, 180.0), (180.0, 20.0)]
+    tags = [(False, False)] * 4
+    style = MarkerStyle(radius=8, line_width=6)
+
+    draw_route(
+        image,
+        points,
+        tags,
+        [None, None, None, None],
+        focused_index=1,
+        colour_rgb=(0, 0, 0),
+        style=style,
+        faded_alpha=50,
+    )
+
+    rgb = image.convert("RGB")
+    overlap = rgb.getpixel((100, 100))
+    faded = rgb.getpixel((50, 150))
+    background = rgb.getpixel((20, 100))
+
+    assert overlap == (0, 0, 0)
+    assert faded != (0, 0, 0)
+    assert faded != background

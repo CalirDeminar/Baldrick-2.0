@@ -133,7 +133,11 @@ def draw_route(
     faded_alpha: int = FADED_ALPHA,
 ) -> None:
     """Draw legs + markers. ``focused_index`` is the leg (into that index) drawn
-    at full opacity; ``None`` (overview) draws everything focused."""
+    at full opacity; ``None`` (overview) draws everything focused.
+
+    Faded geometry is painted first so a later-index faded stroke cannot
+    overwrite the current opaque leg where the two lines overlap.
+    """
     overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay, "RGBA")
     n = len(canvas_points)
@@ -152,61 +156,86 @@ def draw_route(
     if n > 1:
         incoming_track[0] = incoming_track[1]
 
-    # Turn arcs leaving each waypoint (before the leg into the next index).
-    if arc_polylines is not None:
+    def _colour(focused: bool) -> tuple[int, int, int, int]:
+        return (*colour_rgb, FOCUSED_ALPHA if focused else faded_alpha)
+
+    def _arc_focused(i: int) -> bool:
+        return focused_index is None or i + 1 == focused_index
+
+    def _leg_focused(i: int) -> bool:
+        return focused_index is None or i == focused_index
+
+    def _marker_focused(i: int) -> bool:
+        return focused_index is None or i in (focused_index, focused_index - 1)
+
+    def _draw_arcs(focused_pass: bool) -> None:
+        if arc_polylines is None:
+            return
         for i in range(n - 1):
+            if _arc_focused(i) != focused_pass:
+                continue
             arc = arc_polylines[i]
             if not arc:
                 continue
-            leg_into = i + 1
-            focused = focused_index is None or leg_into == focused_index
-            alpha = FOCUSED_ALPHA if focused else faded_alpha
-            colour = (*colour_rgb, alpha)
             r = _marker_radius(tags[i][0], tags[i][1], style.radius)
             points = _trim_polyline_outside_circle(list(arc), canvas_points[i], r)
             if len(points) >= 2:
-                draw.line(points, fill=colour, width=style.line_width)
+                draw.line(points, fill=_colour(focused_pass), width=style.line_width)
 
-    # Legs.
-    for i in range(1, n):
-        focused = focused_index is None or i == focused_index
-        alpha = FOCUSED_ALPHA if focused else faded_alpha
-        colour = (*colour_rgb, alpha)
-        prev = canvas_points[i - 1]
-        cur = canvas_points[i]
-        starts_at_arc_exit = leg_start_points is not None and leg_start_points[i] is not None
-        leg_start = leg_start_points[i] if starts_at_arc_exit else prev
-        tx, ty = _unit(cur[0] - leg_start[0], cur[1] - leg_start[1])
-        r_prev = _marker_radius(tags[i - 1][0], tags[i - 1][1], style.radius)
-        r_cur = _marker_radius(tags[i][0], tags[i][1], style.radius)
-        end = (cur[0] - tx * r_cur, cur[1] - ty * r_cur)
-        if starts_at_arc_exit:
-            # Leg continues from the turn-arc exit point, but a shallow turn
-            # can leave that exit inside the marker circle; clip to its edge.
-            clipped = _trim_polyline_outside_circle([leg_start, end], prev, r_prev)
-            if len(clipped) < 2:
+    def _draw_legs(focused_pass: bool) -> None:
+        for i in range(1, n):
+            if _leg_focused(i) != focused_pass:
                 continue
-            start = clipped[0]
-        else:
-            start = (leg_start[0] + tx * r_prev, leg_start[1] + ty * r_prev)
-        draw.line([start, end], fill=colour, width=style.line_width)
-        if focused and focused_index is not None:
-            tick_start = (
-                leg_time_starts[i]
-                if leg_time_starts is not None and leg_time_starts[i] is not None
-                else times_hours[i - 1]
-            )
-            _draw_minute_ticks(
-                draw, leg_start, cur, tick_start, times_hours[i], colour, style
+            colour = _colour(focused_pass)
+            prev = canvas_points[i - 1]
+            cur = canvas_points[i]
+            starts_at_arc_exit = leg_start_points is not None and leg_start_points[i] is not None
+            leg_start = leg_start_points[i] if starts_at_arc_exit else prev
+            tx, ty = _unit(cur[0] - leg_start[0], cur[1] - leg_start[1])
+            r_prev = _marker_radius(tags[i - 1][0], tags[i - 1][1], style.radius)
+            r_cur = _marker_radius(tags[i][0], tags[i][1], style.radius)
+            end = (cur[0] - tx * r_cur, cur[1] - ty * r_cur)
+            if starts_at_arc_exit:
+                # Leg continues from the turn-arc exit point, but a shallow turn
+                # can leave that exit inside the marker circle; clip to its edge.
+                clipped = _trim_polyline_outside_circle([leg_start, end], prev, r_prev)
+                if len(clipped) < 2:
+                    continue
+                start = clipped[0]
+            else:
+                start = (leg_start[0] + tx * r_prev, leg_start[1] + ty * r_prev)
+            draw.line([start, end], fill=colour, width=style.line_width)
+            if focused_pass and focused_index is not None:
+                tick_start = (
+                    leg_time_starts[i]
+                    if leg_time_starts is not None and leg_time_starts[i] is not None
+                    else times_hours[i - 1]
+                )
+                _draw_minute_ticks(
+                    draw, leg_start, cur, tick_start, times_hours[i], colour, style
+                )
+
+    def _draw_markers(focused_pass: bool) -> None:
+        for i in range(n):
+            if _marker_focused(i) != focused_pass:
+                continue
+            is_ip, is_tgt = tags[i]
+            draw_marker(
+                draw,
+                canvas_points[i],
+                incoming_track[i],
+                is_ip,
+                is_tgt,
+                _colour(focused_pass),
+                style,
             )
 
-    # Markers on top.
-    for i in range(n):
-        endpoint_of_focus = focused_index is None or i in (focused_index, focused_index - 1)
-        alpha = FOCUSED_ALPHA if endpoint_of_focus else faded_alpha
-        colour = (*colour_rgb, alpha)
-        is_ip, is_tgt = tags[i]
-        draw_marker(draw, canvas_points[i], incoming_track[i], is_ip, is_tgt, colour, style)
+    # Faded geometry first so later-index faded strokes cannot overwrite the
+    # current opaque leg where the two lines overlap on the shared overlay.
+    for focused_pass in (False, True):
+        _draw_arcs(focused_pass)
+        _draw_legs(focused_pass)
+        _draw_markers(focused_pass)
 
     image.paste(Image.alpha_composite(image, overlay), (0, 0))
 
