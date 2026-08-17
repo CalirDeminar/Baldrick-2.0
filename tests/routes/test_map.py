@@ -5,7 +5,7 @@ import pytest
 from domain.map import DCSMap, MapLayer, MapSet, PixelMapPoint
 from domain.position import Position
 from domain.route import Waypoint
-from parsing.map_loader import load_map_set
+from parsing.map_loader import load_layer_from_file, load_map_set
 from shared.errors import MapError
 
 
@@ -65,6 +65,52 @@ class TestLoad:
 
     def test_germany_pixel_map_populated(self, germany_layer: MapLayer):
         assert len(germany_layer.pixel_map) > 0
+
+    def test_max_leg_length_loaded_from_yaml(self, tmp_path):
+        path = tmp_path / "hd.yaml"
+        path.write_text(
+            "\n".join(
+                [
+                    "name: HD Area",
+                    "image_file: HD.png",
+                    "max_leg_length: 50",
+                    "pixel_map:",
+                    "  - { lat: '50, 0, 0', long: '08, 0, 0', x_pixel: 0, y_pixel: 0 }",
+                    "  - { lat: '50, 0, 0', long: '09, 0, 0', x_pixel: 100, y_pixel: 0 }",
+                    "  - { lat: '51, 0, 0', long: '08, 0, 0', x_pixel: 0, y_pixel: 100 }",
+                    "  - { lat: '51, 0, 0', long: '09, 0, 0', x_pixel: 100, y_pixel: 100 }",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        layer = load_layer_from_file(path)
+        assert layer.max_leg_length == 50
+
+    def test_max_leg_length_defaults_unset(self, tmp_path):
+        path = tmp_path / "base.yaml"
+        path.write_text(
+            "\n".join(
+                [
+                    "name: GERMANY",
+                    "pixel_map:",
+                    "  - { lat: '50, 0, 0', long: '08, 0, 0', x_pixel: 0, y_pixel: 0 }",
+                    "  - { lat: '50, 0, 0', long: '09, 0, 0', x_pixel: 100, y_pixel: 0 }",
+                    "  - { lat: '51, 0, 0', long: '08, 0, 0', x_pixel: 0, y_pixel: 100 }",
+                    "  - { lat: '51, 0, 0', long: '09, 0, 0', x_pixel: 100, y_pixel: 100 }",
+                ]
+            ),
+            encoding="utf-8",
+        )
+        layer = load_layer_from_file(path)
+        assert layer.max_leg_length is None
+
+    def test_germany_high_detail_max_leg_length(self):
+        overlay = next(
+            layer
+            for layer in load_map_set().overlays
+            if layer.name.lower() == "germany high detail"
+        )
+        assert overlay.max_leg_length == 50
 
 
 class TestNeighboringPixels:

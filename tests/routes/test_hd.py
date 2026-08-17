@@ -8,7 +8,7 @@ from rendering.compositor import composite_overlays, fit_affine
 from rendering.geometry import BoardLayout
 
 
-def _grid_layer(name, lat_range, lon_range, px_scale=100, priority=0, image="x.jpg"):
+def _grid_layer(name, lat_range, lon_range, px_scale=100, priority=0, image="x.jpg", max_leg_length=None):
     pixel_map = {}
     for lat in lat_range:
         for lon in lon_range:
@@ -19,7 +19,11 @@ def _grid_layer(name, lat_range, lon_range, px_scale=100, priority=0, image="x.j
                 y_pixel=(lat - lat_range[0]) * px_scale,
             )
     return MapLayer(
-        name=name, pixel_map=pixel_map, image_file=image, layer_priority=priority
+        name=name,
+        pixel_map=pixel_map,
+        image_file=image,
+        layer_priority=priority,
+        max_leg_length=max_leg_length,
     )
 
 
@@ -82,3 +86,57 @@ class TestComposite:
         outside = [round(v) for v in result(10, 10)][:3]
         assert centre == [200, 100, 50]
         assert outside == [10, 20, 30]
+
+    def test_overlay_skipped_when_leg_exceeds_max_length(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(paths, "map_image_dir", lambda: tmp_path)
+
+        base = _grid_layer("GERMANY", (0, 4), (0, 4), px_scale=100)
+        overlay = _grid_layer(
+            "HD1", (1, 2), (1, 2), px_scale=100, image="hd.png", max_leg_length=50
+        )
+
+        overlay_img = (pyvips.Image.black(100, 100, bands=3) + [200, 100, 50]).cast("uchar")
+        overlay_img.write_to_file(str(tmp_path / "hd.png"))
+
+        base_canvas = (pyvips.Image.black(400, 400, bands=3) + [10, 20, 30]).cast("uchar")
+
+        selection = MapSet([base, overlay]).select_for(
+            [type("W", (), {"position": Position.new((1, 30, 0), (1, 30, 0)), "tags": []})()]
+        )
+        layout = BoardLayout(
+            prev_xy=(0, 0), cur_xy=(0, 0), centre=(0, 0), angle_deg=0.0,
+            board_w=400, board_h=400, crop_x=0, crop_y=0, crop_w=400, crop_h=400, scale=1.0,
+        )
+        result = composite_overlays(base_canvas, layout, selection.for_leg(80))
+
+        centre = [round(v) for v in result(150, 150)][:3]
+        assert centre == [10, 20, 30]
+
+
+class TestMaxLegLength:
+    def test_unlimited_overlay_always_applies(self):
+        overlay = _grid_layer("HD1", (1, 2), (1, 2))
+        assert overlay.applies_to_leg(1)
+        assert overlay.applies_to_leg(10_000)
+
+    def test_applies_at_and_below_limit(self):
+        overlay = _grid_layer("HD1", (1, 2), (1, 2), max_leg_length=50)
+        assert overlay.applies_to_leg(50)
+        assert overlay.applies_to_leg(12)
+
+    def test_skipped_above_limit(self):
+        overlay = _grid_layer("HD1", (1, 2), (1, 2), max_leg_length=50)
+        assert not overlay.applies_to_leg(50.1)
+
+    def test_for_leg_keeps_underlying_overlays(self):
+        base = _grid_layer("GERMANY", (0, 4), (0, 4))
+        hd = _grid_layer("HD1", (1, 2), (1, 2), max_leg_length=50)
+        medium = _grid_layer("MED", (1, 3), (1, 3), max_leg_length=200)
+        selection = MapSet([base, hd, medium]).select_for(
+            [type("W", (), {"position": Position.new((1, 30, 0), (1, 30, 0)), "tags": []})()]
+        )
+        short = selection.for_leg(40)
+        long_leg = selection.for_leg(80)
+        assert {o.name for o in short.overlays} == {"HD1", "MED"}
+        assert {o.name for o in long_leg.overlays} == {"MED"}
+        assert long_leg.base is base

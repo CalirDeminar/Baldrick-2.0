@@ -23,6 +23,10 @@ There are two kinds of map layer:
   Magnetic course shown on cards is `true_course - mag_var`.
 - `layer_priority` (optional, default `0`): overlay stacking order. Higher numbers
   are composited on top. Base maps are effectively the lowest layer.
+- `max_leg_length` (optional): nautical miles. If set, this overlay is omitted on
+  any kneeboard whose current leg is longer than this value, so only underlying
+  maps (the base map and any overlays without a tighter limit) remain visible.
+  Unset means the overlay is used on every overlapping leg.
 - `redistributable` (optional, default `true`): when `false`, the map YAML and
   image are excluded from release maps zips and from the default app build bundle.
   Use for map assets you may use locally but must not redistribute.
@@ -58,6 +62,7 @@ name: Frankfurt_HD
 image_file: FRANKFURT_HD.jpg
 projection_adjustment_deg: -10
 layer_priority: 10
+max_leg_length: 50
 pixel_map:
   - { lat: "50, 0, 0", long: "08, 0, 0", x_pixel: 0, y_pixel: 24000 }
   # ...

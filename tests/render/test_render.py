@@ -48,6 +48,47 @@ def test_render_leg_outputs_fixed_size():
     assert board.mode == "RGB"
 
 
+def test_render_leg_omits_overlays_above_max_leg_length(monkeypatch):
+    conf = _conf()
+    base_image = (pyvips.Image.black(3000, 3000, bands=3) + [80, 120, 60]).cast("uchar")
+    route = Route.from_config(
+        "R",
+        [
+            Waypoint(name="a", position=Position.new((50, 0, 0), (10, 0, 0)),
+                     timestamp=timedelta(hours=12), speed_to=420),
+            Waypoint(name="tgt", position=Position.new((50, 10, 0), (10, 10, 0)),
+                     tags=[Tag.TGT], timestamp=timedelta(hours=12, minutes=5), speed_to=540),
+        ],
+        conf,
+    )
+    pos = Position.new((50, 0, 0), (10, 0, 0))
+    pixel = PixelMapPoint(position=pos, x_pixel=0, y_pixel=0)
+    base = MapLayer(name="GERMANY", pixel_map={pos: pixel}, image_file="GERMANY.jpg")
+    hd = MapLayer(
+        name="HD",
+        pixel_map={pos: pixel},
+        image_file="HD.jpg",
+        max_leg_length=1,
+    )
+    always = MapLayer(name="ALWAYS", pixel_map={pos: pixel}, image_file="ALWAYS.jpg")
+    captured = {}
+
+    def fake_composite(canvas, layout, selection):
+        captured["names"] = [overlay.name for overlay in selection.overlays]
+        return canvas
+
+    monkeypatch.setattr("rendering.kneeboard.composite_overlays", fake_composite)
+    render_leg(
+        base_image,
+        MapSelection(base=base, overlays=[hd, always]),
+        route,
+        1,
+        conf,
+        [(1000, 1200), (2000, 1800)],
+    )
+    assert captured["names"] == ["ALWAYS"]
+
+
 def test_format_relative_to_push():
     assert format_relative(12.5, 12.0) == "+00:30:00"
     assert format_relative(11.75, 12.0) == "-00:15:00"

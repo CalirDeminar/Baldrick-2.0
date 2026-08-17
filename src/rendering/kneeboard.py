@@ -19,7 +19,7 @@ from rendering.geometry import (
 )
 from rendering.overlays import MarkerStyle
 from rendering.vips_util import ensure_rgb, vips_to_pil
-from shared.units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL
+from shared.units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL, DistanceUnit, distance_to_nm
 
 if TYPE_CHECKING:
     from domain.config import Config
@@ -216,6 +216,16 @@ def _pixel_for_waypoint(
     return base_pixels[route.waypoints.index(wp)]
 
 
+def _leg_length_nm(route: "Route", main_index: int) -> float:
+    main = route.main_waypoints
+    if route.turn_arcs is not None:
+        distance = effective_leg_distances(route, route.turn_arcs)[main_index]
+        return distance_to_nm(distance, route.units)
+    return main[main_index].position.distance_from(
+        main[main_index - 1].position, DistanceUnit.NAUTICAL
+    )
+
+
 def render_leg(
     base_image: Any,
     selection: "MapSelection",
@@ -246,7 +256,7 @@ def render_leg(
 
     base_crop = base_image.crop(layout.crop_x, layout.crop_y, layout.crop_w, layout.crop_h)
     canvas = base_crop.resize(layout.scale) if layout.scale != 1.0 else base_crop
-    canvas = composite_overlays(canvas, layout, selection)
+    canvas = composite_overlays(canvas, layout, selection.for_leg(_leg_length_nm(route, main_index)))
     pil = vips_to_pil(ensure_rgb(canvas)).convert("RGBA")
 
     canvas_points = [to_canvas(xy, layout) for xy in main_pixels]

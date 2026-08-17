@@ -90,6 +90,14 @@ class MapLayer(BaseModel):
     layer_priority: int = Field(default=0)
     image_file: str = Field()
     min_alt: MinAltMap | None = Field(default=None)
+    max_leg_length: float | None = Field(default=None)
+
+    def applies_to_leg(self, leg_length_nm: float) -> bool:
+        """Whether this overlay should be composited for a leg of the given length.
+
+        ``max_leg_length`` is nautical miles. ``None`` means no length limit.
+        """
+        return self.max_leg_length is None or leg_length_nm <= self.max_leg_length
 
     # ---- classification -------------------------------------------------
     @property
@@ -222,6 +230,13 @@ class MapSelection(BaseModel):
     @property
     def dcs_map(self) -> DCSMap | None:
         return self.base.dcs_map
+
+    def for_leg(self, leg_length_nm: float) -> "MapSelection":
+        """Return a selection whose overlays are those that apply to this leg."""
+        return MapSelection(
+            base=self.base,
+            overlays=[overlay for overlay in self.overlays if overlay.applies_to_leg(leg_length_nm)],
+        )
 
 
 class MapSet:

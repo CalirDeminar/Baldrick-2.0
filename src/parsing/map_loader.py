@@ -67,6 +67,9 @@ def load_layer_from_file(path: Path) -> MapLayer:
         layer_priority=int(data.get("layer_priority", 0)),
         image_file=image_file,
         min_alt=min_alt,
+        max_leg_length=(
+            float(data["max_leg_length"]) if data.get("max_leg_length") is not None else None
+        ),
     )
 
 
