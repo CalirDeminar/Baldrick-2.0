@@ -110,7 +110,7 @@ class TestLoad:
             for layer in load_map_set().overlays
             if layer.name.lower() == "germany high detail"
         )
-        assert overlay.max_leg_length == 50
+        assert overlay.max_leg_length == 75
 
 
 class TestNeighboringPixels:

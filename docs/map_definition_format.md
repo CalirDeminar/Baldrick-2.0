@@ -62,7 +62,7 @@ name: Frankfurt_HD
 image_file: FRANKFURT_HD.jpg
 projection_adjustment_deg: -10
 layer_priority: 10
-max_leg_length: 50
+max_leg_length: 75
 pixel_map:
   - { lat: "50, 0, 0", long: "08, 0, 0", x_pixel: 0, y_pixel: 24000 }
   # ...

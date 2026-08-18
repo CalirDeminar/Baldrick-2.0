@@ -40,7 +40,7 @@ Kneeboards are written to `output/<route name>/`.
 | `tmp/` | Decompressed map cache and libvips scratch (created on run) |
 | `_internal/` | Bundled map data and runtime (not user-editable) |
 
-Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map, Baldrick prompts you to choose unless the route sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard.
+Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map, Baldrick prompts you to choose unless the route sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard. Overlay YAML can set `max_leg_length` (nautical miles) so that overlay is omitted on longer legs and only underlying maps remain visible.
 
 ---
 
@@ -413,6 +413,7 @@ Detailed design notes live in `docs/`:
 
 - [`docs/overview.md`](docs/overview.md) — functional overview
 - [`docs/route_file_format.md`](docs/route_file_format.md) — route file reference
+- [`docs/map_definition_format.md`](docs/map_definition_format.md) — map YAML reference
 - [`docs/fuel_map_format.md`](docs/fuel_map_format.md) — fuel map reference
 - [`docs/config_format`](docs/config_format) — config reference
 - [`docs/architecture_notes.md`](docs/architecture_notes.md) — algorithms and error-handling design
