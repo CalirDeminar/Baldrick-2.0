@@ -57,7 +57,7 @@ def render_overview(
 
     base_crop = base_image.crop(x0, y0, crop_w, crop_h)
     canvas = base_crop.resize(scale) if scale != 1.0 else base_crop
-    canvas = composite_overlays(canvas, layout, selection)
+    canvas = composite_overlays(canvas, layout, selection.for_overview())
     pil = vips_to_pil(ensure_rgb(canvas)).convert("RGBA")
 
     canvas_points = [((x - x0) * scale, (y - y0) * scale) for (x, y) in base_pixels]

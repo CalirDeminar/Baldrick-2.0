@@ -40,7 +40,7 @@ Kneeboards are written to `output/<route name>/`.
 | `tmp/` | Decompressed map cache and libvips scratch (created on run) |
 | `_internal/` | Bundled map data and runtime (not user-editable) |
 
-Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map, Baldrick prompts you to choose unless the route sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard. Overlay YAML can set `max_leg_length` (nautical miles) so that overlay is omitted on longer legs and only underlying maps remain visible.
+Supported base DCS maps: `CAUCASUS`, `GERMANY`, `NORMANDY`, `NTTR`, `PERSIAN_GULF`, `SYRIA`. All waypoints in a route must fall within one base map. When a route fits more than one map, Baldrick prompts you to choose unless the route sets an optional `map:` field. Higher-resolution HD overlay areas are composited automatically where they overlap a kneeboard. Overlay YAML can set `max_leg_length` (nautical miles) so that overlay is omitted on longer legs and only underlying maps remain visible. Overlays with a `max_leg_length` are also skipped on the route overview card.
 
 ---
 

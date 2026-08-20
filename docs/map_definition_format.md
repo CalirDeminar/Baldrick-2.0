@@ -18,15 +18,19 @@ There are two kinds of map layer:
 - `name` (required): the map/area name. A value matching a DCS map marks a base map.
 - `image_file` (optional): image filename inside `map_data/image_files/`. Defaults
   to `<NAME>.jpg` (uppercased).
-- `projection_adjustment_deg` (optional, default `0`): map projection rotation.
+- `projection_adjustment_deg` (optional, default `0`): map projection rotation
+  (degrees). Added to true course so card headings match the rotated DCS map.
 - `mag_var` (optional, default `0`): magnetic variation (degrees) for the area.
-  Magnetic course shown on cards is `true_course - mag_var`.
+  Magnetic course shown on cards is
+  `(true_course + projection_adjustment_deg - mag_var) % 360`.
 - `layer_priority` (optional, default `0`): overlay stacking order. Higher numbers
   are composited on top. Base maps are effectively the lowest layer.
 - `max_leg_length` (optional): nautical miles. If set, this overlay is omitted on
   any kneeboard whose current leg is longer than this value, so only underlying
   maps (the base map and any overlays without a tighter limit) remain visible.
-  Unset means the overlay is used on every overlapping leg.
+  Overlays with a max_leg_length are also omitted from the route overview card,
+  which is always too zoomed out for high-detail layers. Unset means the overlay
+  is used on every overlapping leg and on the overview.
 - `redistributable` (optional, default `true`): when `false`, the map YAML and
   image are excluded from release maps zips and from the default app build bundle.
   Use for map assets you may use locally but must not redistribute.

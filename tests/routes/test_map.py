@@ -63,6 +63,14 @@ class TestLoad:
     def test_germany_projection_adjustment(self, germany_layer: MapLayer):
         assert germany_layer.projection_adjustment_deg == -10
 
+    def test_magnetic_course_applies_projection_and_mag_var(self):
+        layer = _grid_layer("GERMANY")
+        layer.projection_adjustment_deg = -10
+        layer.mag_var = 2.0
+        assert layer.magnetic_course(0) == 348
+        assert layer.magnetic_course(90) == 78
+        assert layer.magnetic_course(359) == 347
+
     def test_germany_pixel_map_populated(self, germany_layer: MapLayer):
         assert len(germany_layer.pixel_map) > 0
 

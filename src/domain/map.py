@@ -99,6 +99,21 @@ class MapLayer(BaseModel):
         """
         return self.max_leg_length is None or leg_length_nm <= self.max_leg_length
 
+    def applies_to_overview(self) -> bool:
+        """Whether this overlay should be composited on the zoomed-out overview card.
+
+        Any overlay with a ``max_leg_length`` is treated as high-detail and skipped.
+        """
+        return self.max_leg_length is None
+
+    def magnetic_course(self, true_course: float) -> int:
+        """Heading shown on cards from a true great-circle course.
+
+        Applies map projection rotation then magnetic variation:
+        ``(true_course + projection_adjustment_deg - mag_var) % 360``.
+        """
+        return int(round((true_course + self.projection_adjustment_deg - self.mag_var) % 360))
+
     # ---- classification -------------------------------------------------
     @property
     def dcs_map(self) -> DCSMap | None:
@@ -236,6 +251,13 @@ class MapSelection(BaseModel):
         return MapSelection(
             base=self.base,
             overlays=[overlay for overlay in self.overlays if overlay.applies_to_leg(leg_length_nm)],
+        )
+
+    def for_overview(self) -> "MapSelection":
+        """Return a selection whose overlays are those suitable for the overview card."""
+        return MapSelection(
+            base=self.base,
+            overlays=[overlay for overlay in self.overlays if overlay.applies_to_overview()],
         )
 
 

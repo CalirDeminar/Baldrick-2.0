@@ -140,3 +140,23 @@ class TestMaxLegLength:
         assert {o.name for o in short.overlays} == {"HD1", "MED"}
         assert {o.name for o in long_leg.overlays} == {"MED"}
         assert long_leg.base is base
+
+    def test_unlimited_overlay_applies_to_overview(self):
+        overlay = _grid_layer("HD1", (1, 2), (1, 2))
+        assert overlay.applies_to_overview()
+
+    def test_limited_overlay_skipped_on_overview(self):
+        overlay = _grid_layer("HD1", (1, 2), (1, 2), max_leg_length=50)
+        assert not overlay.applies_to_overview()
+
+    def test_for_overview_drops_any_length_limited_overlay(self):
+        base = _grid_layer("GERMANY", (0, 4), (0, 4))
+        hd = _grid_layer("HD1", (1, 2), (1, 2), max_leg_length=50)
+        medium = _grid_layer("MED", (1, 3), (1, 3), max_leg_length=200)
+        always = _grid_layer("ALWAYS", (1, 3), (1, 3))
+        selection = MapSet([base, hd, medium, always]).select_for(
+            [type("W", (), {"position": Position.new((1, 30, 0), (1, 30, 0)), "tags": []})()]
+        )
+        overview = selection.for_overview()
+        assert {o.name for o in overview.overlays} == {"ALWAYS"}
+        assert overview.base is base

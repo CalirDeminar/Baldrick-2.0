@@ -24,7 +24,7 @@ from shared.units import ALTITUDE_LABEL, DISTANCE_LABEL, SPEED_LABEL, DistanceUn
 if TYPE_CHECKING:
     from domain.config import Config
     from domain.fuel import FuelReport
-    from domain.map import MapSelection
+    from domain.map import MapLayer, MapSelection
     from domain.route import Route, Waypoint
 
 _RESAMPLE = Image.Resampling.BICUBIC
@@ -62,15 +62,9 @@ def _dms_parts(position) -> tuple[str, str]:
     return lat_str, lon_str
 
 
-def _magnetic_course(from_wp: "Waypoint", to_wp: "Waypoint", mag_var: float) -> int:
-    return _magnetic_course_from_positions(from_wp.position, to_wp.position, mag_var)
-
-
-def _magnetic_course_from_positions(
-    from_pos, to_pos, mag_var: float
-) -> int:
+def _magnetic_course_from_positions(from_pos, to_pos, layer: "MapLayer") -> int:
     true_course = to_pos.bearing_from(from_pos)
-    return int(round((true_course - mag_var) % 360))
+    return layer.magnetic_course(true_course)
 
 
 def build_doghouse_lines(
@@ -83,12 +77,12 @@ def build_doghouse_lines(
     main = route.main_waypoints
     wp = main[main_index]
     prev = main[main_index - 1]
-    mag_var = selection.base.mag_var
+    layer = selection.base
     units = route.units
     turns = route.turn_arcs or [None] * len(main)
 
     mc_from = leg_start_position(route, turns, main_index)
-    heading = f"{_magnetic_course_from_positions(mc_from, wp.position, mag_var)}\u00b0"
+    heading = f"{_magnetic_course_from_positions(mc_from, wp.position, layer)}\u00b0"
     if main_index < len(main) - 1:
         nxt = main[main_index + 1]
         nmc_from = (
@@ -96,7 +90,7 @@ def build_doghouse_lines(
             if turns[main_index] is not None
             else wp.position
         )
-        next_heading = f"{_magnetic_course_from_positions(nmc_from, nxt.position, mag_var)}\u00b0"
+        next_heading = f"{_magnetic_course_from_positions(nmc_from, nxt.position, layer)}\u00b0"
     else:
         next_heading = "N/A"
 
