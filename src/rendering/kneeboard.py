@@ -62,9 +62,11 @@ def _dms_parts(position) -> tuple[str, str]:
     return lat_str, lon_str
 
 
-def _magnetic_course_from_positions(from_pos, to_pos, layer: "MapLayer") -> int:
+def _magnetic_course_from_positions(
+    from_pos, to_pos, layer: "MapLayer", magvar: float | None = None
+) -> int:
     true_course = to_pos.bearing_from(from_pos)
-    return layer.magnetic_course(true_course)
+    return layer.magnetic_course(true_course, mag_var=magvar)
 
 
 def build_doghouse_lines(
@@ -82,7 +84,7 @@ def build_doghouse_lines(
     turns = route.turn_arcs or [None] * len(main)
 
     mc_from = leg_start_position(route, turns, main_index)
-    heading = f"{_magnetic_course_from_positions(mc_from, wp.position, layer)}\u00b0"
+    heading = f"{_magnetic_course_from_positions(mc_from, wp.position, layer, route.magvar)}\u00b0"
     if main_index < len(main) - 1:
         nxt = main[main_index + 1]
         nmc_from = (
@@ -90,7 +92,9 @@ def build_doghouse_lines(
             if turns[main_index] is not None
             else wp.position
         )
-        next_heading = f"{_magnetic_course_from_positions(nmc_from, nxt.position, layer)}\u00b0"
+        next_heading = (
+            f"{_magnetic_course_from_positions(nmc_from, nxt.position, layer, route.magvar)}\u00b0"
+        )
     else:
         next_heading = "N/A"
 

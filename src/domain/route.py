@@ -72,6 +72,7 @@ class Route(BaseModel):
     push_time: timedelta | None = Field(default=None)
     time_on_target: timedelta | None = Field(default=None)
     map_name: DCSMap | None = Field(default=None)
+    magvar: float | None = Field(default=None)
     bingo_fuel: int | None = Field(default=None)
     joker_fuel: int | None = Field(default=None)
     return_to_divert: bool | None = Field(default=None)
@@ -84,6 +85,7 @@ class Route(BaseModel):
         waypoints: list[Waypoint],
         conf: Config,
         flot: list[Position] | None = None,
+        magvar: float | None = None,
     ) -> "Route":
         return Route(
             name=name,
@@ -94,6 +96,7 @@ class Route(BaseModel):
             min_cruise_speed=conf.min_cruise_speed,
             route_colour=conf.route_colour,
             flot=flot or [],
+            magvar=magvar,
         )
 
     def leg_crosses_flot(self, a: Position, b: Position) -> bool:

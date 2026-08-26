@@ -60,6 +60,15 @@ def waypoint_from_dict(d: dict, conf: Config) -> Waypoint:
     )
 
 
+def _parse_magvar(raw_magvar: object) -> float | None:
+    if raw_magvar is None:
+        return None
+    try:
+        return float(raw_magvar)
+    except (TypeError, ValueError) as exc:
+        raise BaldrickError(f"Invalid magvar '{raw_magvar}': expected a number") from exc
+
+
 def parse_flot(raw_flot: list[dict] | None) -> list[Position]:
     if not raw_flot:
         return []
@@ -79,7 +88,14 @@ def load_route(path: Path, conf: Config) -> Route:
     raw_waypoints = data.get("waypoints") or []
     waypoints = [waypoint_from_dict(wp, conf) for wp in raw_waypoints]
     flot = parse_flot(data.get("flot"))
-    route = Route.from_config(name=data.get("name"), waypoints=waypoints, conf=conf, flot=flot)
+    magvar = _parse_magvar(data.get("magvar"))
+    route = Route.from_config(
+        name=data.get("name"),
+        waypoints=waypoints,
+        conf=conf,
+        flot=flot,
+        magvar=magvar,
+    )
 
     raw_map = data.get("map")
     if raw_map is not None:

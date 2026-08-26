@@ -70,6 +70,8 @@ class TestLoad:
         assert layer.magnetic_course(0) == 348
         assert layer.magnetic_course(90) == 78
         assert layer.magnetic_course(359) == 347
+        assert layer.magnetic_course(0, mag_var=-13) == 3
+        assert layer.magnetic_course(90, mag_var=0) == 80
 
     def test_germany_pixel_map_populated(self, germany_layer: MapLayer):
         assert len(germany_layer.pixel_map) > 0

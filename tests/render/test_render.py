@@ -197,6 +197,44 @@ def test_build_doghouse_lines_applies_projection_adjustment():
     assert mc == f"{expected}\u00b0"
 
 
+def test_build_doghouse_lines_applies_route_magvar():
+    conf = _conf()
+    pos = Position.new((50, 0, 0), (10, 0, 0))
+    base = MapLayer(
+        name="GERMANY",
+        pixel_map={pos: PixelMapPoint(position=pos, x_pixel=0, y_pixel=0)},
+        image_file="GERMANY.jpg",
+        projection_adjustment_deg=-10,
+        mag_var=2.0,
+    )
+    route = Route.from_config(
+        "R",
+        [
+            Waypoint(name="a", position=Position.new((50, 0, 0), (10, 0, 0)),
+                     timestamp=timedelta(hours=12), speed_to=420),
+            Waypoint(name="b", position=Position.new((51, 0, 0), (10, 0, 0)),
+                     timestamp=timedelta(hours=12, minutes=5), speed_to=420),
+            Waypoint(name="c", position=Position.new((51, 0, 0), (11, 0, 0)),
+                     timestamp=timedelta(hours=12, minutes=10), speed_to=420),
+        ],
+        conf,
+        magvar=-13,
+    )
+    lines = build_doghouse_lines(route, 1, MapSelection(base=base, overlays=[]), conf)
+    mc = next(row[1][0] for row in lines if row[0] == "MC:")
+    nmc = next(row[1][0] for row in lines if row[0] == "NMC:")
+    true_course = route.main_waypoints[1].position.bearing_from(
+        route.main_waypoints[0].position
+    )
+    next_true = route.main_waypoints[2].position.bearing_from(
+        route.main_waypoints[1].position
+    )
+    expected_mc = int(round((true_course - 10 - (-13)) % 360))
+    expected_nmc = int(round((next_true - 10 - (-13)) % 360))
+    assert mc == f"{expected_mc}\u00b0"
+    assert nmc == f"{expected_nmc}\u00b0"
+
+
 def test_build_doghouse_lines_includes_flot_warning():
     conf = _conf()
     flot = [

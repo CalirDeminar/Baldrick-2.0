@@ -106,13 +106,17 @@ class MapLayer(BaseModel):
         """
         return self.max_leg_length is None
 
-    def magnetic_course(self, true_course: float) -> int:
+    def magnetic_course(self, true_course: float, mag_var: float | None = None) -> int:
         """Heading shown on cards from a true great-circle course.
 
         Applies map projection rotation then magnetic variation:
         ``(true_course + projection_adjustment_deg - mag_var) % 360``.
+
+        ``mag_var`` overrides this layer's default when given (e.g. a route-local
+        value). Easterly variation is positive and is subtracted from true course.
         """
-        return int(round((true_course + self.projection_adjustment_deg - self.mag_var) % 360))
+        variation = self.mag_var if mag_var is None else mag_var
+        return int(round((true_course + self.projection_adjustment_deg - variation) % 360))
 
     # ---- classification -------------------------------------------------
     @property
