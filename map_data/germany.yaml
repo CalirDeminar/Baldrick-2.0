@@ -1,5 +1,5 @@
 name: Germany
-projection_adjustment_deg: -10
+projection_adjustment_deg: 10
 pixel_map:
   -
       lat: 56, 0, 0
