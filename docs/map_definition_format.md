@@ -19,7 +19,9 @@ There are two kinds of map layer:
 - `image_file` (optional): image filename inside `map_data/image_files/`. Defaults
   to `<NAME>.jpg` (uppercased).
 - `projection_adjustment_deg` (optional, default `0`): map projection rotation
-  (degrees). Added to true course so card headings match the rotated DCS map.
+  in degrees, clockwise positive. Added to true course so card headings match
+  the rotated DCS map (Germany is `+10` because the F10 map is ~10° clockwise
+  of true north).
 - `mag_var` (optional, default `0`): magnetic variation (degrees) for the area.
   Magnetic course shown on cards is
   `(true_course + projection_adjustment_deg - mag_var) % 360`.
@@ -49,7 +51,7 @@ There are two kinds of map layer:
 
 ```yaml
 name: Germany
-projection_adjustment_deg: -10
+projection_adjustment_deg: 10
 mag_var: 2.0
 pixel_map:
   - { lat: "56, 0, 0", long: "06, 0, 0", x_pixel: 12960, y_pixel: 478 }
@@ -64,7 +66,7 @@ min_altitude_map:
 ```yaml
 name: Frankfurt_HD
 image_file: FRANKFURT_HD.jpg
-projection_adjustment_deg: -10
+projection_adjustment_deg: 10
 layer_priority: 10
 max_leg_length: 75
 pixel_map:

@@ -111,6 +111,8 @@ class MapLayer(BaseModel):
 
         Applies map projection rotation then magnetic variation:
         ``(true_course + projection_adjustment_deg - mag_var) % 360``.
+        ``projection_adjustment_deg`` is clockwise-positive so a map tilted
+        10° clockwise of true north (DCS Germany) uses ``+10``.
 
         ``mag_var`` overrides this layer's default when given (e.g. a route-local
         value). Easterly variation is positive and is subtracted from true course.

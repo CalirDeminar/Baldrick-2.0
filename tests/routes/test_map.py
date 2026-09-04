@@ -61,7 +61,7 @@ class TestLoad:
         assert DCSMap.GERMANY in names
 
     def test_germany_projection_adjustment(self, germany_layer: MapLayer):
-        assert germany_layer.projection_adjustment_deg == -10
+        assert germany_layer.projection_adjustment_deg == 10
 
     def test_magnetic_course_applies_projection_and_mag_var(self):
         layer = _grid_layer("GERMANY")
