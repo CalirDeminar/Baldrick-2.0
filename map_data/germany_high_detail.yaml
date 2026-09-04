@@ -1,7 +1,7 @@
 name: Germany High Detail
 image_file: GERMANY_HIGH_DETAIL.png
 redistributable: false
-projection_adjustment_deg: -10
+projection_adjustment_deg: 10
 layer_priority: 10
 max_leg_length: 45
 pixel_map:
