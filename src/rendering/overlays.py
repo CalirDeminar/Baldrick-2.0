@@ -365,15 +365,18 @@ def draw_doghouse(
     row_h = font_size + margin
 
     parsed = [_doghouse_row(row) for row in lines]
-    label_w = max(draw.textlength(label, font=font) for label, _, _ in parsed) if parsed else 0
-    value_w = 0.0
+    label_w = max((draw.textlength(label, font=font) for label, _, _ in parsed), default=0)
+    column_gap = font_size
+    content_w = 0.0
     for label, values, _ in parsed:
         for v in values:
-            indent = 0 if label else label_w
-            value_w = max(value_w, draw.textlength(v, font=font) - indent)
-    column_gap = font_size
+            text_w = draw.textlength(v, font=font)
+            if label:
+                content_w = max(content_w, label_w + column_gap + text_w)
+            else:
+                content_w = max(content_w, text_w)
     total_rows = sum(len(values) for _, values, _ in parsed)
-    block_w = int(label_w + column_gap + value_w + margin * 2)
+    block_w = int(content_w + margin * 2)
     block_h = total_rows * row_h
 
     x0 = 0

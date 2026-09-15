@@ -57,8 +57,12 @@ def _dms_parts(position) -> tuple[str, str]:
     lon = position.longitude.value
     lat_h = "N" if lat[0] >= 0 else "S"
     lon_h = "E" if lon[0] >= 0 else "W"
-    lat_str = f"{lat_h}{abs(int(lat[0])):02d} {int(lat[1]):02d} {int(lat[2]):02d}"
-    lon_str = f"{lon_h}{abs(int(lon[0])):03d} {int(lon[1]):02d} {int(lon[2]):02d}"
+    lat_str = (
+        f"{lat_h}{abs(int(lat[0])):02d}\u00b0{int(lat[1]):02d}'{int(lat[2]):02d}\""
+    )
+    lon_str = (
+        f"{lon_h}{abs(int(lon[0])):03d}\u00b0{int(lon[1]):02d}'{int(lon[2]):02d}\""
+    )
     return lat_str, lon_str
 
 
@@ -120,9 +124,11 @@ def build_doghouse_lines(
     )
     tas = f"{wp.speed_to}{SPEED_LABEL[units]}" if wp.speed_to else "N/A"
     min_fuel = f"{wp.min_fuel:,} lb" if wp.min_fuel is not None else "N/A"
+    lat_str, lon_str = _dms_parts(wp.position)
 
     lines: list[tuple[str, list[str]]] = [
         ("WP:", [wp.name]),
+        ("", [f"{lat_str}   {lon_str}"]),
         ("MC:", [heading]),
         ("DIST:", [dist_str]),
         ("ETA:", eta_values),
@@ -135,10 +141,6 @@ def build_doghouse_lines(
     notes: list[str] = []
     if wp.notes:
         notes.extend(n.strip() for n in wp.notes.split("\\n") if n.strip())
-    if Tag.FIX in wp.tags:
-        lat_str, lon_str = _dms_parts(wp.position)
-        notes.append(f"FIX: {lat_str}")
-        notes.append(f"     {lon_str}")
     if Tag.AAR in wp.tags and report is not None:
         topup = next((t for t in report.aar_topups if t.name == wp.name), None)
         if topup is not None:

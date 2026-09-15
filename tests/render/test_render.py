@@ -295,6 +295,57 @@ def _doghouse_value(lines, label: str) -> str:
     return next(row[1][0] for row in lines if row[0] == label)
 
 
+def test_build_doghouse_lines_includes_waypoint_dms_under_name():
+    conf = _conf()
+    route = Route.from_config(
+        "R",
+        [
+            Waypoint(name="a", position=Position.new((50, 0, 0), (10, 0, 0)),
+                     timestamp=timedelta(hours=12), speed_to=420),
+            Waypoint(
+                name="b",
+                position=Position.new((50, 10, 30), (10, 5, 15)),
+                timestamp=timedelta(hours=12, minutes=5),
+                speed_to=420,
+            ),
+        ],
+        conf,
+    )
+    lines = build_doghouse_lines(route, 1, _selection(), conf)
+    wp_row = next(row for row in lines if row[0] == "WP:")
+    assert wp_row[1] == ["b"]
+    assert lines[1] == ("", ["N50\u00b0 10' 30\"   E010\u00b0 05' 15\""])
+    unlabeled = [row for row in lines if row[0] == ""]
+    assert all("FIX:" not in value for row in unlabeled for value in row[1])
+
+
+def test_build_doghouse_lines_fix_tag_does_not_repeat_coordinates():
+    conf = _conf()
+    route = Route.from_config(
+        "R",
+        [
+            Waypoint(name="a", position=Position.new((50, 0, 0), (10, 0, 0)),
+                     timestamp=timedelta(hours=12), speed_to=420),
+            Waypoint(
+                name="fix",
+                position=Position.new((49, 26, 30), (7, 37, 30)),
+                tags=[Tag.FIX],
+                timestamp=timedelta(hours=12, minutes=5),
+                speed_to=420,
+            ),
+        ],
+        conf,
+    )
+    lines = build_doghouse_lines(route, 1, _selection(), conf)
+    wp_row = next(row for row in lines if row[0] == "WP:")
+    assert wp_row[1] == ["fix"]
+    assert lines[1] == ("", ["N49\u00b0 26' 30\"   E007\u00b0 37' 30\""])
+    extra_values = [
+        value for row in lines[2:] for value in row[1]
+    ]
+    assert not any("N49" in value or "E007" in value for value in extra_values)
+
+
 def test_germany_test_route_cardinal_headings_use_clockwise_projection():
     """The Germany test route is a lat/long box: N, E, S, W, then NE.
 

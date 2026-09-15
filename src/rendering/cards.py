@@ -167,7 +167,7 @@ def render_legend(route: "Route") -> Image.Image:
     y += 160
 
     doghouse_help = [
-        "WP  - waypoint name",
+        "WP  - waypoint name and lat/long (DMS)",
         "MC  - magnetic course for the leg",
         "DIST- leg distance",
         "ETA - time on target (and relative to push)",
