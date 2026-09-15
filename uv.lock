@@ -31,7 +31,7 @@ wheels = [
 
 [[package]]
 name = "baldrick-2"
-version = "2.1.3"
+version = "2.1.4"
 source = { editable = "." }
 dependencies = [
     { name = "haversine" },
